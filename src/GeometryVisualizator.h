@@ -1,14 +1,14 @@
 /** 
  *   @copyright Copyright (c) 2015, Wojciech Krzemien
- *   @file EDGeometryVisualizator.h
+ *   @file GeometryVisualizator.h
  *   @version 1.0
  *   @author Wojciech Krzemien
  *   @brief Class visualizes geometry of the IT and DC along with fired strips.
  *   
  */
 
-#ifndef EDGEOMETRYVISUALIZATOR_H_
-#define EDGEOMETRYVISUALIZATOR_H_
+#ifndef GEOMETRYVISUALIZATOR_H_
+#define GEOMETRYVISUALIZATOR_H_
 
 #include <TView.h>
 #include <TVirtualPad.h>
@@ -18,14 +18,14 @@
 #include <cassert>
 #include <map>
 #include <vector>
-#include "./EDCommonTools.h"
+#include "./CommonTools.h"
 
 class TCanvas;
 
-class EDGeometryVisualizator {
+class GeometryVisualizator {
  public:
-  EDGeometryVisualizator(TCanvas* canv);
-  ~EDGeometryVisualizator();
+  GeometryVisualizator(TCanvas* canv);
+  ~GeometryVisualizator();
   bool isGeoManagerInitialized() const;
   void loadGeometry(TString geomFile);
   void drawOnlyGeometry();
@@ -43,4 +43,4 @@ class EDGeometryVisualizator {
     
 };
 
-#endif  // EDGEOMETRYVISUALIZATOR_H_
+#endif  // GEOMETRYVISUALIZATOR_H_

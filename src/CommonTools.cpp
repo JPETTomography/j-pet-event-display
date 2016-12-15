@@ -1,19 +1,19 @@
 /** 
  *   @copyright Copyright (c) 2012, Wojciech Krzemien
- *   @file EDCommonTools.cc
+ *   @file CommonTools.cc
  *   @version 1.0
  *   @author Adrian Dybczak, Wojciech Krzemien 
  */
 
 #include <sstream>
 #include <cmath>
-#include "./EDLoggerInclude.h"
-#include "./EDCommonTools.h"
+#include "./LoggerInclude.h"
+#include "./CommonTools.h"
 
-EDCommonTools::EDCommonTools() {
+CommonTools::CommonTools() {
 }
 // __________________________________________________________________________
-bool EDCommonTools::fileExists(const std::string& str) {
+bool CommonTools::fileExists(const std::string& str) {
   if (isStringOnlyPath(str)) {
     return false;
   } else {
@@ -27,36 +27,36 @@ bool EDCommonTools::fileExists(const std::string& str) {
   }
 }
 // __________________________________________________________________________
-bool EDCommonTools::isValidString(const std::string &str) {
+bool CommonTools::isValidString(const std::string &str) {
   if (str.length() == 0) return false;
   return find_if(str.begin(), str.end(), isNotForrbidenSyntax) == str.end();
 }
 // __________________________________________________________________________
-bool EDCommonTools::isEqual(double x, double y, double epsilon) {
+bool CommonTools::isEqual(double x, double y, double epsilon) {
   assert(epsilon > 0);
   return std::abs(x-y) < epsilon ? true : false;
 }
 // __________________________________________________________________________
-std::string EDCommonTools::intToString(int x) {
+std::string CommonTools::intToString(int x) {
   std::ostringstream out;
   out << x;
   return out.str();
 }
 // __________________________________________________________________________
-std::string EDCommonTools::doubleToString(double x) {
+std::string CommonTools::doubleToString(double x) {
   std::ostringstream out;
   out << x;
   return out.str();
 }
 // __________________________________________________________________________
-int EDCommonTools::stringToInt(const std::string& str) {
+int CommonTools::stringToInt(const std::string& str) {
   std::istringstream in(str);
   int num;
   in >> num;
   return num;
 }
 // __________________________________________________________________________
-bool EDCommonTools::isStringOnlyPath(const std::string& str) {
+bool CommonTools::isStringOnlyPath(const std::string& str) {
   std::string OutFileName;
   size_t i = str.find_last_of("\\/:");
   if (i == std::string::npos)
@@ -71,6 +71,6 @@ bool EDCommonTools::isStringOnlyPath(const std::string& str) {
   }
 }
 // __________________________________________________________________________
-bool EDCommonTools::isNotForrbidenSyntax(char c) {
+bool CommonTools::isNotForrbidenSyntax(char c) {
   return !(isalnum(c) || (c == '.') || (c == '_') || (c == '/'));
 }

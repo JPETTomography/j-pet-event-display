@@ -1,14 +1,14 @@
 /**
  *   @copyright Copyright (c) 2013, Wojciech Krzemien
- *   @file EDGeometryVisualizator.cc
+ *   @file GeometryVisualizator.cc
  *   @version 1.0
  *   @author Wojciech Krzemien
  *   @brief
  */
 
-#include "./EDGeometryVisualizator.h"
-//#include "./EDGui.h"
-#include "./EDLoggerInclude.h"
+#include "./GeometryVisualizator.h"
+//#include "./Gui.h"
+#include "./LoggerInclude.h"
 #include <TCanvas.h>
 #include <TFile.h>
 
@@ -18,14 +18,14 @@
 
 using namespace std;
 
-EDGeometryVisualizator::EDGeometryVisualizator(TCanvas* canv):
+GeometryVisualizator::GeometryVisualizator(TCanvas* canv):
 fGeoManager(0),
 fMyCanv(canv)
 {
   if (fMyCanv) fMyCanv->Divide(2, 1);
 }
 
-EDGeometryVisualizator::~EDGeometryVisualizator()
+GeometryVisualizator::~GeometryVisualizator()
 {
   if (fGeoManager != 0) {
     delete fGeoManager;
@@ -33,7 +33,7 @@ EDGeometryVisualizator::~EDGeometryVisualizator()
   }
 }
 
-void EDGeometryVisualizator::loadGeometry(TString geomFile)
+void GeometryVisualizator::loadGeometry(TString geomFile)
 {
   TFile* inputGeomFile;
   inputGeomFile = new TFile(geomFile);
@@ -46,7 +46,7 @@ void EDGeometryVisualizator::loadGeometry(TString geomFile)
   assert(fGeoManager);
 }
 
-void EDGeometryVisualizator::drawOnlyGeometry()
+void GeometryVisualizator::drawOnlyGeometry()
 {
   if (fMyCanv == 0) {
     WARNING("Canvas not set");
@@ -64,7 +64,7 @@ void EDGeometryVisualizator::drawOnlyGeometry()
   fMyCanv->Update();
 }
 
-void EDGeometryVisualizator::drawStrips(const std::map<int, std::vector<int> >& selection)
+void GeometryVisualizator::drawStrips(const std::map<int, std::vector<int> >& selection)
 {
   if (fMyCanv == 0) {
     WARNING("Canvas not set");
@@ -86,7 +86,7 @@ void EDGeometryVisualizator::drawStrips(const std::map<int, std::vector<int> >& 
 }
 
 
-void EDGeometryVisualizator::drawPads()
+void GeometryVisualizator::drawPads()
 {
   if (fMyCanv == 0) {
     WARNING("Canvas not set");
@@ -116,7 +116,7 @@ void EDGeometryVisualizator::drawPads()
   gPad->Update();
 }
 
-void EDGeometryVisualizator::setVisibility(const std::map<int, std::vector<int> >& selection)
+void GeometryVisualizator::setVisibility(const std::map<int, std::vector<int> >& selection)
 {
     std::cout <<"Im here" <<std::endl;
   setAllStripsUnvisible();
@@ -149,7 +149,7 @@ void EDGeometryVisualizator::setVisibility(const std::map<int, std::vector<int> 
   }
 }
 
-void EDGeometryVisualizator::setAllStripsUnvisible()
+void GeometryVisualizator::setAllStripsUnvisible()
 {
   assert(fGeoManager);
   TGeoNode* topNode = fGeoManager->GetTopNode();
@@ -256,7 +256,7 @@ void EDGeometryVisualizator::setAllStripsUnvisible()
 //  node->GetVolume()->SetVisibility(kTRUE);
 }
 
-bool EDGeometryVisualizator::isGeoManagerInitialized()const
+bool GeometryVisualizator::isGeoManagerInitialized()const
 {
   if (fGeoManager == 0) {
     WARNING("GEOMETRY is not loaded.");
@@ -266,16 +266,16 @@ bool EDGeometryVisualizator::isGeoManagerInitialized()const
   }
 }
 
-std::string EDGeometryVisualizator::getLayerNodeName(int layer) const
+std::string GeometryVisualizator::getLayerNodeName(int layer) const
 {
   std::string name("layer_");
-  name = name + EDCommonTools::intToString(layer) + std::string("_1");
+  name = name + CommonTools::intToString(layer) + std::string("_1");
   return name;
 }
 
-std::string EDGeometryVisualizator::getStripNodeName(int strip) const
+std::string GeometryVisualizator::getStripNodeName(int strip) const
 {
   std::string name("XStrip_");
-  name = name + EDCommonTools::intToString(strip);
+  name = name + CommonTools::intToString(strip);
   return name;
 }

@@ -1,13 +1,13 @@
 /** 
  *   @copyright Copyright (c) 2012, Wojciech Krzemien
- *   @file EDCommonTools.h
+ *   @file CommonTools.h
  *   @version 1.0
  *   @author Adrian Dybczak, Wojciech Krzemien 
  *   @brief Set of tools used in different classes 
  */
 
-#ifndef EDCOMMONTOOLS_H_
-#define EDCOMMONTOOLS_H_
+#ifndef COMMONTOOLS_H_
+#define COMMONTOOLS_H_
 
 #include <iostream>
 #include <string>
@@ -16,7 +16,7 @@
 #include <cassert>
 #include <algorithm>
 
-class EDCommonTools {
+class CommonTools {
  public :
   static bool isValidString(const std::string &str);
   static bool fileExists(const std::string &str);
@@ -28,12 +28,12 @@ class EDCommonTools {
   static int stringToInt(const std::string& str);
 
  private:
-  EDCommonTools();
-  EDCommonTools(const EDCommonTools& source);
-  EDCommonTools& operator=(const EDCommonTools&);
+  CommonTools();
+  CommonTools(const CommonTools& source);
+  CommonTools& operator=(const CommonTools&);
 
   static bool isStringOnlyPath(const std::string &str);
   static bool isNotForrbidenSyntax(char c);
 };
 
-#endif  // EDCOMMONTOOLS_H_
+#endif  // COMMONTOOLS_H_

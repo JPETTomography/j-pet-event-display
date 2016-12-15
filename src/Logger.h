@@ -1,21 +1,21 @@
 /** 
  *   @copyright Copyright (c) 2012, Wojciech Krzemien
- *   @file EDLogger.h
+ *   @file Logger.h
  *   @version 1.0
  *   @author Wojciech Krzemien
- *   @brief Simple logger class. Don't use directly. Macros from EDLoggerInclude.h should be used instead. 
- *   EDLogger class implements a simple logging functionality.
+ *   @brief Simple logger class. Don't use directly. Macros from LoggerInclude.h should be used instead. 
+ *   Logger class implements a simple logging functionality.
  *   For every message the logfile stream is opened, the message is written and the stream is closed again. This assures that no messages are lost in case of errrors.
  */
 
-#ifndef EDLOGGER_H
-#define EDLOGGER_H
+#ifndef LOGGER_H
+#define LOGGER_H
 
 #include <fstream>
 #include <iostream>
 #include <ctime>
 #include <string>
-class EDLogger {
+class Logger {
  public:
   static void dateAndTime() {
     std::ofstream out(fOutputFile, std::ios_base::app);
@@ -56,13 +56,13 @@ class EDLogger {
  private:
   enum MessageType {kInfo, kWarning, kError};
 
-  EDLogger();
-  EDLogger(const EDLogger&);
-  EDLogger& operator=(const EDLogger&);
+  Logger();
+  Logger(const Logger&);
+  Logger& operator=(const Logger&);
 
   static void logMessage(const char* func, const char* msg, MessageType type);
   static const char* fOutputFile;
 };
 
-#endif /*  !EDLOGGER_H */
+#endif /*  !LOGGER_H */
 
