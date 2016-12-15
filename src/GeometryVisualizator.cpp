@@ -1,13 +1,19 @@
 /**
- *   @copyright Copyright (c) 2013, Wojciech Krzemien
- *   @file GeometryVisualizator.cc
- *   @version 1.0
- *   @author Wojciech Krzemien
- *   @brief
+ *  @copyright Copyright 2016 The J-PET Framework Authors. All rights reserved.
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may find a copy of the License in the LICENCE file.
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ *  @file GeometryVisualizator.cpp
  */
 
 #include "./GeometryVisualizator.h"
-//#include "./Gui.h"
 #include "./LoggerInclude.h"
 #include <TCanvas.h>
 #include <TFile.h>
@@ -17,10 +23,11 @@
 
 
 using namespace std;
-
+namespace jpet_event_display
+{
 GeometryVisualizator::GeometryVisualizator(TCanvas* canv):
-fGeoManager(0),
-fMyCanv(canv)
+  fGeoManager(0),
+  fMyCanv(canv)
 {
   if (fMyCanv) fMyCanv->Divide(2, 1);
 }
@@ -71,17 +78,17 @@ void GeometryVisualizator::drawStrips(const std::map<int, std::vector<int> >& se
     return;
   }
 /// @todo add some silly examples to test like strips 1,2,3 in every layer
- // std::vector<int> sel2;
- // sel2.push_back(1);
- // sel2.push_back(2);
- // sel2.push_back(3);
- //// std::map<int, std::vector<int> > full;
- // full[0]=sel2;
- // full[1]=sel2;
- // full[2]=sel2;
- // full[3]=sel2;
- setVisibility(selection);
- // setVisibility(full);
+// std::vector<int> sel2;
+// sel2.push_back(1);
+// sel2.push_back(2);
+// sel2.push_back(3);
+//// std::map<int, std::vector<int> > full;
+// full[0]=sel2;
+// full[1]=sel2;
+// full[2]=sel2;
+// full[3]=sel2;
+  setVisibility(selection);
+// setVisibility(full);
   drawPads();
 }
 
@@ -111,16 +118,16 @@ void GeometryVisualizator::drawPads()
   view = gPad->GetView();
   assert(view);
   view->ZoomView(0, 1.9);
-  view->SetView(view->GetLongitude(), view->GetLatitude() , view->GetPsi() -90, irep);
+  view->SetView(view->GetLongitude(), view->GetLatitude() , view->GetPsi() - 90, irep);
   gPad->Modified();
   gPad->Update();
 }
 
 void GeometryVisualizator::setVisibility(const std::map<int, std::vector<int> >& selection)
 {
-    std::cout <<"Im here" <<std::endl;
+  std::cout << "Im here" << std::endl;
   setAllStripsUnvisible();
-    std::cout <<"Im here" <<std::endl;
+  std::cout << "Im here" << std::endl;
   if (selection.empty()) return;
   assert(fGeoManager);
   TGeoNode* topNode = fGeoManager->GetTopNode();
@@ -278,4 +285,5 @@ std::string GeometryVisualizator::getStripNodeName(int strip) const
   std::string name("XStrip_");
   name = name + CommonTools::intToString(strip);
   return name;
+}
 }

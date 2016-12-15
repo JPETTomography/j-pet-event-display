@@ -1,10 +1,17 @@
-/** 
- *   @copyright Copyright (c) 2015, Wojciech Krzemien
- *   @file GeometryVisualizator.h
- *   @version 1.0
- *   @author Wojciech Krzemien
- *   @brief Class visualizes geometry of the IT and DC along with fired strips.
- *   
+/**
+ *  @copyright Copyright 2016 The J-PET Framework Authors. All rights reserved.
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may find a copy of the License in the LICENCE file.
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ *  @file GeometryVisualizator.h
+ *  @brief Class visualizes geometry along with fired strips.
  */
 
 #ifndef GEOMETRYVISUALIZATOR_H_
@@ -22,8 +29,13 @@
 
 class TCanvas;
 
-class GeometryVisualizator {
- public:
+namespace jpet_event_display
+{
+
+
+class GeometryVisualizator
+{
+public:
   GeometryVisualizator(TCanvas* canv);
   ~GeometryVisualizator();
   bool isGeoManagerInitialized() const;
@@ -36,11 +48,12 @@ class GeometryVisualizator {
   std::string getLayerNodeName(int layer) const;
   std::string getStripNodeName(int strip) const;
 
- private:
+private:
   enum ColorTable { kBlack = 1, kRed = 2, kBlue = 34, kGreen = 30};
   TGeoManager* fGeoManager;
   TCanvas* fMyCanv;
-    
+
 };
 
+}
 #endif  // GEOMETRYVISUALIZATOR_H_

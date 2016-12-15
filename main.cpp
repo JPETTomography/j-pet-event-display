@@ -16,7 +16,7 @@
 
 int main(int argc, char** argv)
 {
-  
+  using namespace jpet_event_display;
   //gErrorIgnoreLevel = kFatal; /// switch off ROOT warnings and errors
   DATE_AND_TIME();
   INFO("J-PET Event Display started");
