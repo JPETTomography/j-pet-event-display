@@ -13,6 +13,7 @@
 *.kdev*
 *.exe
 .*.swp
+.vscode
 
 # CMake specific files
 CMakeFiles
