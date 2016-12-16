@@ -25,35 +25,38 @@
 #include <cassert>
 #include <map>
 #include <vector>
+#include <memory>
 #include "./CommonTools.h"
 
 class TCanvas;
 
 namespace jpet_event_display
 {
+  using namespace std;
 
+  class GeometryVisualizator
+  {
+  public:
+    GeometryVisualizator(shared_ptr<TCanvas> canv);
+    ~GeometryVisualizator();
+    bool isGeoManagerInitialized() const;
+    void loadGeometry(TString geomFile);
+    void drawOnlyGeometry();
+    void drawStrips(const std::map<int, std::vector<int> >& selection);
+    void drawPads();
+    void setAllStripsUnvisible();
+    void setVisibility(const std::map<int, std::vector<int> >& selection);
+    std::string getLayerNodeName(int layer) const;
+    std::string getStripNodeName(int strip) const;
 
-class GeometryVisualizator
-{
-public:
-  GeometryVisualizator(TCanvas* canv);
-  ~GeometryVisualizator();
-  bool isGeoManagerInitialized() const;
-  void loadGeometry(TString geomFile);
-  void drawOnlyGeometry();
-  void drawStrips(const std::map<int, std::vector<int> >& selection);
-  void drawPads();
-  void setAllStripsUnvisible();
-  void setVisibility(const std::map<int, std::vector<int> >& selection);
-  std::string getLayerNodeName(int layer) const;
-  std::string getStripNodeName(int strip) const;
+  private:
+    enum ColorTable { kBlack = 1, kRed = 2, kBlue = 34, kGreen = 30};
+    shared_ptr<TGeoManager> fGeoManager;
+    shared_ptr<TCanvas> fMyCanv;
+    //TGeoManager* fGeoManager;
+    //TCanvas* fMyCanv;
 
-private:
-  enum ColorTable { kBlack = 1, kRed = 2, kBlue = 34, kGreen = 30};
-  TGeoManager* fGeoManager;
-  TCanvas* fMyCanv;
-
-};
+  };
 
 }
 #endif  // GEOMETRYVISUALIZATOR_H_
