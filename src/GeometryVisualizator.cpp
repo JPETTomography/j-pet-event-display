@@ -38,6 +38,10 @@ GeometryVisualizator::~GeometryVisualizator()
     delete fGeoManager;
     fGeoManager = 0;
   }
+  if(fMyCanv != 0) {
+    delete fMyCanv;
+    fMyCanv = 0;
+  }
 }
 
 void GeometryVisualizator::loadGeometry(TString geomFile)
