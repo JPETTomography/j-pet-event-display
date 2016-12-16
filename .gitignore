@@ -13,7 +13,10 @@
 *.kdev*
 *.exe
 .*.swp
-.vscode
+
+#build files
+build
+
 
 # CMake specific files
 CMakeFiles
@@ -29,3 +32,6 @@ MakeFile
 /*.so
 /*.dylib
 /*.cbp
+
+#visual studio code files
+.vscode
