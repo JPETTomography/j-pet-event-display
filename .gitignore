@@ -1,0 +1,30 @@
+*.o
+*.x
+*.a
+*.so
+*.root
+*Dict.cpp
+*Dict.h
+*dict.cc
+*dict.h
+*~
+*.log
+*.kate-swp
+*.kdev*
+*.exe
+.*.swp
+
+# CMake specific files
+CMakeFiles
+CMakeCache.txt
+cmake_install.cmake
+.ninja_*
+*.ninja
+Makefile
+MakeFile
+
+# output files
+/*Test
+/*.so
+/*.dylib
+/*.cbp
