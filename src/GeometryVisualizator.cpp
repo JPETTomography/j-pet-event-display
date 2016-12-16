@@ -140,10 +140,14 @@ namespace jpet_event_display
     std::cout << "Im here" << std::endl;
     if (selection.empty()) return;
     assert(fGeoManager);
-    TGeoNode* topNode = fGeoManager->GetTopNode();
+    shared_ptr<TGeoNode> topNode = shared_ptr<TGeoNode>(fGeoManager->GetTopNode());
+    //TGeoNode* topNode = fGeoManager->GetTopNode();
     assert(topNode);
-    TGeoNode* nodeLayer = 0;
+    //shared_ptr<TGeoNode> nodeLayer;
+    //shared_ptr<TGeoNode> nodeStrip;
+    TGeoNode* nodeLayer = 0; //making those shared ptr causing segfault
     TGeoNode* nodeStrip = 0;
+    
 
     std::map<int, std::vector<int> >::const_iterator iter;
     int layer = -1;
@@ -155,6 +159,7 @@ namespace jpet_event_display
       std::vector<int>::const_iterator stripIter;
       nodeName = getLayerNodeName(layer + 1); /// layer numbers starts from 1
       nodeLayer = topNode->GetVolume()->FindNode(nodeName.c_str());
+      
       assert(nodeLayer);
       for (stripIter = strips.begin(); stripIter != strips.end(); ++stripIter) {
         strip = *stripIter;
