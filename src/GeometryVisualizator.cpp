@@ -178,7 +178,7 @@ namespace jpet_event_display
   void GeometryVisualizator::setAllStripsUnvisible()
   {
     assert(fGeoManager);
-    TGeoNode* topNode = fGeoManager->GetTopNode();
+    TGeoNode* topNode = fGeoManager->GetTopNode(); //making this shared ptr causing segfault
     assert(topNode);
     TGeoNode* node = 0;
     node = topNode->GetVolume()->FindNode("layer_1_1");
@@ -299,14 +299,14 @@ namespace jpet_event_display
   std::string GeometryVisualizator::getLayerNodeName(int layer) const
   {
     std::string name("layer_");
-    name = name + CommonTools::intToString(layer) + std::string("_1");
+    name.append(CommonTools::intToString(layer) + std::string("_1"));
     return name;
   }
 
   std::string GeometryVisualizator::getStripNodeName(int strip) const
   {
     std::string name("XStrip_");
-    name = name + CommonTools::intToString(strip);
+    name.append(CommonTools::intToString(strip));
     return name;
   }
 }
