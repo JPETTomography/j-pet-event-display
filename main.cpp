@@ -22,10 +22,8 @@ int main(int argc, char** argv)
   DATE_AND_TIME();
   INFO("J-PET Event Display started");
   INFO("*********************");
-  std::shared_ptr<TRint> theApp = std::make_shared<TRint>("App", &argc, argv);
+  std::unique_ptr<TRint> theApp = std::unique_ptr<TRint>(new TRint("App", &argc, argv));
   std::shared_ptr<TCanvas> canvas = std::make_shared<TCanvas>("MyCanvas", "Test Canvas", 10, 10, 900, 500);
-  //TRint* theApp = new TRint("App", &argc, argv);
-  //TCanvas* canvas = new TCanvas("MyCanvas", "Test Canvas", 10, 10, 900, 500);
   GeometryVisualizator visualizator(canvas);
   visualizator.loadGeometry("JPET_geom.root");
   visualizator.drawOnlyGeometry();

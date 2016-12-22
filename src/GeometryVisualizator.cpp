@@ -22,44 +22,28 @@
 #include <TRandom.h>
 #include <memory>
 
-
-using namespace std;
 namespace jpet_event_display
 {
-  using namespace std;
 
-  GeometryVisualizator::GeometryVisualizator(shared_ptr<TCanvas> canv):
-    fGeoManager(0),
+  GeometryVisualizator::GeometryVisualizator(std::shared_ptr<TCanvas> canv):
+    //fGeoManager(0),
     fMyCanv(canv)
   {
     if (fMyCanv) fMyCanv->Divide(2, 1);
   }
 
-  GeometryVisualizator::~GeometryVisualizator()
-  {
-    //if (fGeoManager != 0) {
-    //  delete fGeoManager;
-    //  fGeoManager = 0;
-    //}
-    //if(fMyCanv != 0) {
-    //  delete fMyCanv;
-    //  fMyCanv = 0;
-    //}
-  }
+  GeometryVisualizator::~GeometryVisualizator() { }
 
-  void GeometryVisualizator::loadGeometry(TString geomFile)
+  void GeometryVisualizator::loadGeometry(const std::string& geomFile)
   {
-    shared_ptr<TFile> inputGeomFile = make_shared<TFile>(geomFile);
-    //TFile* inputGeomFile;
-    //inputGeomFile = new TFile(geomFile);
+    std::shared_ptr<TFile> inputGeomFile = std::make_shared<TFile>(static_cast<TString>(geomFile));
     if (inputGeomFile->IsZombie()) {
       assert(1 == 0);
       ERROR(std::string("Error opening file:" + geomFile));
       return;
     }
-    fGeoManager = shared_ptr<TGeoManager>((TGeoManager*)inputGeomFile->Get("mgr"));
+    fGeoManager = std::unique_ptr<TGeoManager>(static_cast<TGeoManager*>(inputGeomFile->Get("mgr")));
     assert(fGeoManager);
-    //delete inputGeomFile;
   }
 
   void GeometryVisualizator::drawOnlyGeometry()
@@ -68,9 +52,6 @@ namespace jpet_event_display
       WARNING("Canvas not set");
       return;
     }
-
-    //fGeoManager->SetVisLevel(4);
-    //fGeoManager->SetVisOption(0);
     setAllStripsUnvisible();
     //fGeoManager->GetTopVolume()->Draw();
     drawPads();
@@ -130,7 +111,6 @@ namespace jpet_event_display
     view->SetView(view->GetLongitude(), view->GetLatitude() , view->GetPsi() - 90, irep);
     gPad->Modified();
     gPad->Update();
-    //delete view;
   }
 
   void GeometryVisualizator::setVisibility(const std::map<int, std::vector<int> >& selection)
@@ -140,11 +120,8 @@ namespace jpet_event_display
     std::cout << "Im here" << std::endl;
     if (selection.empty()) return;
     assert(fGeoManager);
-    shared_ptr<TGeoNode> topNode = shared_ptr<TGeoNode>(fGeoManager->GetTopNode());
-    //TGeoNode* topNode = fGeoManager->GetTopNode();
+    std::unique_ptr<TGeoNode> topNode = std::unique_ptr<TGeoNode>(fGeoManager->GetTopNode());
     assert(topNode);
-    //shared_ptr<TGeoNode> nodeLayer;
-    //shared_ptr<TGeoNode> nodeStrip;
     TGeoNode* nodeLayer = 0; //making those shared ptr causing segfault
     TGeoNode* nodeStrip = 0;
     
@@ -169,8 +146,7 @@ namespace jpet_event_display
         nodeStrip->SetVisibility(kTRUE);
       }
     }
-    //delete topNode;
-    //delete nodeLayer;
+    //delete nodeLayer; //dont delete this pointers, root is doing that
     //delete nodeStrip;
 
   }
