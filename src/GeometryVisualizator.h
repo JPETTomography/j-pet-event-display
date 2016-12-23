@@ -25,35 +25,34 @@
 #include <cassert>
 #include <map>
 #include <vector>
+#include <memory>
 #include "./CommonTools.h"
 
 class TCanvas;
 
 namespace jpet_event_display
 {
+  class GeometryVisualizator
+  {
+  public:
+    GeometryVisualizator(std::shared_ptr<TCanvas> canv);
+    ~GeometryVisualizator();
+    bool isGeoManagerInitialized() const;
+    void loadGeometry(const std::string& geomFile);
+    void drawOnlyGeometry();
+    void drawStrips(const std::map<int, std::vector<int> >& selection);
+    void drawPads();
+    void setAllStripsUnvisible();
+    void setVisibility(const std::map<int, std::vector<int> >& selection);
+    std::string getLayerNodeName(int layer) const;
+    std::string getStripNodeName(int strip) const;
 
+  private:
+    enum ColorTable { kBlack = 1, kRed = 2, kBlue = 34, kGreen = 30};
+    std::unique_ptr<TGeoManager> fGeoManager;
+    std::shared_ptr<TCanvas> fMyCanv;
 
-class GeometryVisualizator
-{
-public:
-  GeometryVisualizator(TCanvas* canv);
-  ~GeometryVisualizator();
-  bool isGeoManagerInitialized() const;
-  void loadGeometry(TString geomFile);
-  void drawOnlyGeometry();
-  void drawStrips(const std::map<int, std::vector<int> >& selection);
-  void drawPads();
-  void setAllStripsUnvisible();
-  void setVisibility(const std::map<int, std::vector<int> >& selection);
-  std::string getLayerNodeName(int layer) const;
-  std::string getStripNodeName(int strip) const;
-
-private:
-  enum ColorTable { kBlack = 1, kRed = 2, kBlue = 34, kGreen = 30};
-  TGeoManager* fGeoManager;
-  TCanvas* fMyCanv;
-
-};
+  };
 
 }
 #endif  // GEOMETRYVISUALIZATOR_H_
