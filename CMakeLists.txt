@@ -40,8 +40,8 @@ add_definitions(${Boost_DEFINITIONS})
 link_directories(${Boost_LIBRARY_DIRS})
 
 add_executable(EventDisplay.exe ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp)
-add_executable(createGeometryPET.exe ${CMAKE_CURRENT_SOURCE_DIR}/geometry/createGeometryPET.cpp)
 target_link_libraries(EventDisplay.exe  eventDisplay ${Boost_LIBRARIES} ${ROOT_LIBRARIES})
+add_executable(createGeometryPET.exe ${CMAKE_CURRENT_SOURCE_DIR}/geometry/createGeometryPET.cpp)
 target_link_libraries(createGeometryPET.exe  geometryGenerator ${Boost_LIBRARIES} ${ROOT_LIBRARIES})
 
 add_custom_command(
