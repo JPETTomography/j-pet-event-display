@@ -38,8 +38,5 @@ int main(int argc, char** argv)
   canvas->Draw();
   gEnv = new TEnv(".rootrc");
   theApp->Run();
-
-
-  //Controller manager;
   return 0;
 }
