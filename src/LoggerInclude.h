@@ -16,6 +16,8 @@
  *  Levels can be switched on/off separately, by assignin the value different than 1.
  *  Also the whole Logger can be switched off/on by setting the LOGGER_ON flag to 1.
  */
+#ifndef LOGGERINCLUDE_H
+#define LOGGERINCLUDE_H
 
 // current settings
 // 1 - switched on
@@ -50,3 +52,5 @@
   #define INFO(X)
   #define DATE_AND_TIME()
 #endif
+
+#endif 
