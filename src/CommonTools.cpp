@@ -15,7 +15,7 @@
 
 #include <sstream>
 #include <cmath>
-#include "./LoggerInclude.h"
+#include <JPetLoggerInclude.h>
 #include "./CommonTools.h"
 
 CommonTools::CommonTools() {

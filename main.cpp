@@ -1,42 +1,48 @@
 /**
- *  @copyright Copyright (c) 2013, Wojciech Krzemien
- *  @file Run.cc
- *  @version 1.0
- *  @author Wojciech Krzemien, wojciech.krzemien@if.uj.edu.pl
+ *  @copyright Copyright 2016 The J-PET Framework Authors. All rights reserved.
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may find a copy of the License in the LICENCE file.
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
  */
 
-#include <TError.h>
+#include <boost/program_options.hpp> /// for command line option parsing
 #include <TRint.h>
-#include <TROOT.h>
-#include <TEnv.h>
-#include <TCanvas.h>
-#include <memory>
+#include "src/EventDisplay.h"
 
-#include "src/LoggerInclude.h"
-#include "src/GeometryVisualizator.h"
 
 int main(int argc, char** argv)
 {
   using namespace jpet_event_display;
-  //gErrorIgnoreLevel = kFatal; /// switch off ROOT warnings and errors
-  DATE_AND_TIME();
-  INFO("J-PET Event Display started");
-  INFO("*********************");
-  auto theApp = std::unique_ptr<TRint>(new TRint("App", &argc, argv));
-  auto canvas = std::make_shared<TCanvas>("MyCanvas", "Test Canvas", 10, 10, 900, 500);
-  GeometryVisualizator visualizator(canvas);
-  visualizator.loadGeometry("JPET_geom.root");
-  visualizator.drawOnlyGeometry();
-  std::map<int, std::vector<int> > selection;
-  std::vector<int> channels;
-  channels.push_back(10);
-  channels.push_back(11);
-  channels.push_back(12);
-  channels.push_back(13);
-  selection[0] = channels;
-  visualizator.drawStrips(selection);
-  canvas->Draw();
-  gEnv = new TEnv(".rootrc");
-  theApp->Run();
+  namespace po = boost::program_options;
+
+  std::string inFile = "";
+  std::string fileType = "JPetTimeWindow";
+
+  try {
+    po::options_description desc("Allowed options");
+    desc.add_options()
+    ("help,h", "produce help message")
+    ("input,i", po::value(&inFile), "Input file")
+    ("type,t", po::value(&fileType), "type input file type"); /// maybe it is not necessary
+    po::variables_map vm;
+    po::store(po::parse_command_line(argc, argv, desc), vm);
+    po::notify(vm);
+    if (vm.count("help")) {
+      std::cout << desc << "\n";
+      return 1;
+    }
+  } catch (std::exception& e) {
+    std::cout << e.what() << "\n";
+    return 1;
+  }
+  EventDisplay myDisplay(inFile, fileType, std::unique_ptr<TRint>(new TRint("App", &argc, argv)),  "JPET_geom.root");
+  myDisplay.run();
   return 0;
 }

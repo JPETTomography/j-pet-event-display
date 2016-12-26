@@ -14,18 +14,20 @@
 
 #ifndef DATAPROCESSOR_H
 #define DATAPROCESSOR_H
+
 #include <map>
 #include <vector>
+#include <JPetTimeWindow/JPetTimeWindow.h>
 
 namespace jpet_event_display
 {
 
-typedef std::map<int, std::vector<int> > ScintillatorsPerLayer;
+typedef std::map<int, std::vector<int> > ScintillatorsInLayers;
 
 class DataProcessor
 {
 public:
-  static ScintillatorsPerLayer getActiveScintillators();  
+  static ScintillatorsInLayers getActiveScintillators(const JPetTimeWindow& tWindow);  
 };
 
 }

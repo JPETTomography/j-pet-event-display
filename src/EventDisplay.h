@@ -10,23 +10,31 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
+ *  @file EventDisplay.h
  */
 
-#include "./DataProcessor.h"
+#ifndef EVENTDISPLAY_H
+#define EVENTDISPLAY_H
+
+#include <memory>
+#include <string>
+#include <TRint.h>
 
 namespace jpet_event_display
 {
 
-ScintillatorsInLayers DataProcessor::getActiveScintillators(const JPetTimeWindow& tWindow)
+class EventDisplay
 {
-  auto sigChannels = tWindow.getSigChVect(); 
-  ScintillatorsInLayers result;
-  for(const auto& channel: sigChannels) {
-    /// we need to use some mapping of those numbers but for a moment let's use those values.
-    auto scinId = channel.getPM().getScin().getID();
-    auto layerId = channel.getPM().getScin().getBarrelSlot().getLayer().getID();
-    result[layerId].push_back(scinId);
-  }
-}
+public:
+  EventDisplay(const std::string& inFile, const std::string& inFileType, std::unique_ptr<TRint> theApp,   const std::string& geomFile = "JPET_geom.root");
+  void run();
+
+private:
+  EventDisplay(const EventDisplay&) = delete;
+  EventDisplay& operator=(const EventDisplay&) = delete;
+
+  std::unique_ptr<TRint> fApplication = nullptr;
+};
 
 }
+#endif /*  !EVENTDISPLAY_H */

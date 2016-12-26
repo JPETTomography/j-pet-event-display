@@ -13,8 +13,8 @@
  *  @file GeometryVisualizator.cpp
  */
 
-#include "./GeometryVisualizator.h"
-#include "./LoggerInclude.h"
+#include "GeometryVisualizator.h"
+#include <JPetLoggerInclude.h>
 #include <TCanvas.h>
 #include <TFile.h>
 
