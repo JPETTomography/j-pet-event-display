@@ -33,10 +33,3 @@ link_directories(${Boost_LIBRARY_DIRS})
 
 add_executable(GeometryVisualisatorTest.exe GeometryVisualisatorTest.cpp)
 target_link_libraries(GeometryVisualisatorTest.exe  ${Boost_LIBRARIES} ${ROOT_LIBRARIES}  )
-
-add_executable(TreeReaderTest.exe TreeReaderTest.cpp)
-target_link_libraries(TreeReaderTest.exe eventDisplay  ${Boost_LIBRARIES} ${ROOT_LIBRARIES}  )
-
-add_custom_command(TARGET TreeReaderTest.exe POST_BUILD
-                   COMMAND ${CMAKE_COMMAND} -E copy_directory
-                       ${CMAKE_SOURCE_DIR}/tests/testData ${CMAKE_CURRENT_BINARY_DIR}/testData)
