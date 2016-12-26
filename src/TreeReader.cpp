@@ -16,6 +16,7 @@
 #include "TreeReader.h"
 #include "LoggerInclude.h"
 #include <cassert>
+#include <memory>
 
 
 TreeReader::TreeReader()
@@ -31,12 +32,7 @@ TreeReader::TreeReader(const char* p_filename)
 }
 
 TreeReader::~TreeReader()
-{
-  if (fFile) {
-    delete fFile;
-    fFile = 0;
-  }
-}
+{ }
 
 TObject& TreeReader::getCurrentEvent()
 {
@@ -78,8 +74,7 @@ bool TreeReader::nthEvent(int n)
 
 void TreeReader::closeFile ()
 {
-  if (fFile) delete fFile;
-  fFile = 0;
+  if (fFile) fFile.reset();
   fBranch = 0;
   fEvent = 0;
   fTree = 0;
@@ -90,7 +85,7 @@ void TreeReader::closeFile ()
 bool TreeReader::openFile (const char* filename)
 {
   closeFile();
-  fFile = new TFile(filename);
+  fFile = std::unique_ptr<TFile>(new TFile(filename));
   if ((!isOpen()) || fFile->IsZombie()) {
     ERROR(std::string("Cannot open file:") + std::string(filename));
     return false;

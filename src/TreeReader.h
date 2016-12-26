@@ -20,6 +20,7 @@
 #include <TTree.h>
 #include <TBranch.h>
 #include <vector>
+#include <memory>
 
 #ifndef __CINT__
 #include <boost/noncopyable.hpp>
@@ -91,7 +92,7 @@ protected:
   TBranch* fBranch = 0;
   TObject* fEvent = 0;
   TTree* fTree = 0;
-  TFile* fFile = 0;
+  std::unique_ptr<TFile> fFile = 0;
   long long fCurrentEventNumber = -1.;
 };
 
