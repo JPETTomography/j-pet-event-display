@@ -1,11 +1,8 @@
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE CopyTreeTest
+#define BOOST_TEST_MODULE GeometryVisualisatorTest
 #include <boost/test/unit_test.hpp>
 
 #include "../src/GeometryVisualizator.h"
-#include <string>
-#include <vector>
-#include <TChain.h>
 
 BOOST_AUTO_TEST_CASE( GeometryVisualizatorTests )
 { 

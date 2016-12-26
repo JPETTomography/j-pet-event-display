@@ -2,6 +2,10 @@ cmake_minimum_required(VERSION 2.6)
 project(JPET_Event_Display CXX) # using only C++
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
+add_subdirectory(j-pet-framework)
+include_directories(j-pet-framework ${Framework_INCLUDE_DIRS})
+add_definitions(${Framework_DEFINITIONS})
+
 add_subdirectory(src)
 add_subdirectory(tests)
 add_subdirectory(geometry)
