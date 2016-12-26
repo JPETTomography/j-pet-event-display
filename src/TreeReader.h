@@ -30,6 +30,8 @@ class boost::noncopyable;
 #endif /* __CINT __ */
 
 
+namespace jpet_event_display
+{
 
 /**
  * @brief A class responsible for reading any data from ROOT trees.
@@ -96,4 +98,5 @@ protected:
   long long fCurrentEventNumber = -1.;
 };
 
+}
 #endif	// TREEREADER_H

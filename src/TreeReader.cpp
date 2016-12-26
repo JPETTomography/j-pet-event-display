@@ -18,6 +18,8 @@
 #include <cassert>
 #include <memory>
 
+namespace jpet_event_display
+{
 
 TreeReader::TreeReader()
 {
@@ -117,4 +119,5 @@ bool TreeReader::loadData(const char* treename)
   fBranch->SetAddress(&fEvent);
   firstEvent();
   return true;
+}
 }

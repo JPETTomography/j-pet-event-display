@@ -9,6 +9,7 @@
 
 #include "../src/TreeReader.h"
 
+using namespace jpet_event_display;
 
 BOOST_AUTO_TEST_SUITE (TreeReaderTestSuite)
 
@@ -16,7 +17,7 @@ BOOST_AUTO_TEST_SUITE (TreeReaderTestSuite)
 BOOST_AUTO_TEST_CASE (default_constructor)
 {
   TreeReader reader;
-  BOOST_REQUIRE(std::string(reader.getCurrentEvent().GetName())==std::string("Empty event"));
+  BOOST_REQUIRE(std::string(reader.getCurrentEvent().GetName()) == std::string("Empty event"));
   BOOST_REQUIRE(!reader.isOpen());
   BOOST_REQUIRE(!reader.nextEvent());
   BOOST_REQUIRE(!reader.firstEvent());
@@ -35,7 +36,7 @@ BOOST_AUTO_TEST_CASE (bad_file)
   /// not a ROOT file
   BOOST_REQUIRE(!reader.openFileAndLoadData("testData/bad_file.txt", "tree"));
   BOOST_REQUIRE(!reader.isOpen());
-  BOOST_REQUIRE(std::string(reader.getCurrentEvent().GetName())==std::string("Empty event"));
+  BOOST_REQUIRE(std::string(reader.getCurrentEvent().GetName()) == std::string("Empty event"));
   BOOST_REQUIRE(!reader.nextEvent());
   BOOST_REQUIRE(!reader.firstEvent());
   BOOST_REQUIRE(!reader.lastEvent());
@@ -50,7 +51,7 @@ BOOST_AUTO_TEST_CASE (good_file_with_constructor)
 {
   TreeReader reader("testData/timewindows.root");
   BOOST_REQUIRE(reader.isOpen());
-  BOOST_REQUIRE(std::string(reader.getCurrentEvent().GetName())==std::string("JPetTimeWindow"));
+  BOOST_REQUIRE(std::string(reader.getCurrentEvent().GetName()) == std::string("JPetTimeWindow"));
   BOOST_REQUIRE(reader.nextEvent());
   BOOST_REQUIRE(reader.firstEvent());
   BOOST_REQUIRE(reader.lastEvent());
@@ -69,9 +70,9 @@ BOOST_AUTO_TEST_CASE (good_file_getObject)
 BOOST_AUTO_TEST_CASE (good_file_openFileAndLoadData)
 {
   TreeReader reader;
-  BOOST_REQUIRE(reader.openFileAndLoadData("testData/timewindows.root","tree"));
+  BOOST_REQUIRE(reader.openFileAndLoadData("testData/timewindows.root", "tree"));
   BOOST_REQUIRE(reader.isOpen());
-  BOOST_REQUIRE(std::string(reader.getCurrentEvent().GetName())==std::string("JPetTimeWindow"));
+  BOOST_REQUIRE(std::string(reader.getCurrentEvent().GetName()) == std::string("JPetTimeWindow"));
   BOOST_REQUIRE(reader.firstEvent());
   BOOST_REQUIRE(reader.nextEvent());
   BOOST_REQUIRE(reader.lastEvent());
@@ -84,11 +85,11 @@ BOOST_AUTO_TEST_CASE (good_file_openFileAndLoadData)
 BOOST_AUTO_TEST_CASE (good_file_closeFile)
 {
   TreeReader reader;
-  BOOST_REQUIRE(reader.openFileAndLoadData("testData/timewindows.root","tree"));
+  BOOST_REQUIRE(reader.openFileAndLoadData("testData/timewindows.root", "tree"));
   BOOST_REQUIRE(reader.isOpen());
   reader.closeFile();
   BOOST_REQUIRE(!reader.isOpen());
-  BOOST_REQUIRE(std::string(reader.getCurrentEvent().GetName())==std::string("Empty event"));
+  BOOST_REQUIRE(std::string(reader.getCurrentEvent().GetName()) == std::string("Empty event"));
   BOOST_REQUIRE(!reader.nextEvent());
   BOOST_REQUIRE(!reader.firstEvent());
   BOOST_REQUIRE(!reader.lastEvent());
