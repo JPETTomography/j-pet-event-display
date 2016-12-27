@@ -19,14 +19,52 @@ namespace jpet_event_display
 
 ScintillatorsInLayers DataProcessor::getActiveScintillators(const JPetTimeWindow& tWindow)
 {
-  auto sigChannels = tWindow.getSigChVect(); 
-  ScintillatorsInLayers result;
-  for(const auto& channel: sigChannels) {
+  auto sigChannels = tWindow.getSigChVect();
+  ScintillatorsInLayers selection;
+  /// This loop makes not much sense, but just for tests.
+  for (const auto & channel : sigChannels) {
     /// we need to use some mapping of those numbers but for a moment let's use those values.
-    auto scinId = channel.getPM().getScin().getID();
-    auto layerId = channel.getPM().getScin().getBarrelSlot().getLayer().getID();
-    result[layerId].push_back(scinId);
+    /// ! In some analyses PM, Scin, BarrelSlots etc will be not set 
+    /// We should use part of the code from TaskB1 with LargeBarrelMapping
+    /// auto scinId = channel.getPM().getScin().getID();
+    /// auto layerId = channel.getPM().getScin().getBarrelSlot().getLayer().getID();
+    /// Just for tests.
+    auto scinId1 = 10;
+    auto scinId2 = 11;
+    auto scinId3 = 12;
+    auto scinId4 = 13;
+    auto layerId = 0;
+    if (selection.find(layerId) != selection.end()) {
+      /// The key already exists so we just add this element
+      selection[layerId].push_back(scinId1);
+    } else {
+      selection[layerId] = {scinId1, scinId2, scinId3, scinId4};
+    }
+    //channels.push_back(10);
+    //channels.push_back(11);
+    //channels.push_back(12);
+    //channels.push_back(13);
+    //selection[0] = channels;
   }
+  return selection;
+}
+bool DataProcessor::openFile(const char* filename)
+{
+  return fReader.openFileAndLoadData(filename);
+}
+
+void DataProcessor::closeFile()
+{
+  fReader.closeFile();
+}
+JPetTimeWindow& DataProcessor::getCurrentEvent()
+{
+  return dynamic_cast<JPetTimeWindow&> (fReader.getCurrentEvent());
+}
+
+bool DataProcessor::nextEvent()
+{
+  return fReader.nextEvent();
 }
 
 }

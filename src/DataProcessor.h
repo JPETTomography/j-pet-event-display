@@ -18,6 +18,7 @@
 #include <map>
 #include <vector>
 #include <JPetTimeWindow/JPetTimeWindow.h>
+#include <JPetReader/JPetReader.h>
 
 namespace jpet_event_display
 {
@@ -27,7 +28,21 @@ typedef std::map<int, std::vector<int> > ScintillatorsInLayers;
 class DataProcessor
 {
 public:
-  static ScintillatorsInLayers getActiveScintillators(const JPetTimeWindow& tWindow);  
+  DataProcessor() {}
+  /// this method should probably be in some other class
+  static ScintillatorsInLayers getActiveScintillators(const JPetTimeWindow& tWindow);
+
+  bool openFile(const char* filename);
+  void closeFile();
+  JPetTimeWindow& getCurrentEvent();
+  bool nextEvent();
+
+private:
+  DataProcessor(const DataProcessor&) = delete;
+  DataProcessor& operator=(const DataProcessor&) = delete;
+
+  JPetReader fReader;
+
 };
 
 }

@@ -43,6 +43,5 @@ int main(int argc, char** argv)
     return 1;
   }
   EventDisplay myDisplay(inFile, fileType, std::unique_ptr<TRint>(new TRint("App", &argc, argv)),  "JPET_geom.root");
-  myDisplay.run();
   return 0;
 }

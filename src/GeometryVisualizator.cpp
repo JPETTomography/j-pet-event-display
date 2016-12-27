@@ -26,7 +26,6 @@ namespace jpet_event_display
 {
 
   GeometryVisualizator::GeometryVisualizator(std::shared_ptr<TCanvas> canv):
-    //fGeoManager(0),
     fMyCanv(canv)
   {
     if (fMyCanv) fMyCanv->Divide(2, 1);
@@ -115,9 +114,7 @@ namespace jpet_event_display
 
   void GeometryVisualizator::setVisibility(const std::map<int, std::vector<int> >& selection)
   {
-    std::cout << "Im here" << std::endl;
     setAllStripsUnvisible();
-    std::cout << "Im here" << std::endl;
     if (selection.empty()) return;
     assert(fGeoManager);
     std::unique_ptr<TGeoNode> topNode = std::unique_ptr<TGeoNode>(fGeoManager->GetTopNode());
@@ -125,7 +122,6 @@ namespace jpet_event_display
     TGeoNode* nodeLayer = 0; //making those shared ptr causing segfault
     TGeoNode* nodeStrip = 0;
     
-
     std::map<int, std::vector<int> >::const_iterator iter;
     int layer = -1;
     int strip = -1;
