@@ -14,6 +14,7 @@
 
 #include <boost/program_options.hpp> /// for command line option parsing
 #include <TRint.h>
+#include <iostream>
 #include "src/EventDisplay.h"
 
 

@@ -26,7 +26,9 @@ namespace jpet_event_display
 class EventDisplay
 {
 public:
-  EventDisplay(const std::string& inFile, const std::string& inFileType, std::unique_ptr<TRint> theApp,   const std::string& geomFile = "JPET_geom.root");
+  EventDisplay(const std::string& inFile, const std::string& inFileType, std::unique_ptr<TRint> theApp, 
+               const std::string& geomFile = "JPET_geom.root");
+               
   void run(const std::string& inFile, const std::string& geomFile);
 
 private:

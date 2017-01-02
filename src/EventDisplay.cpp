@@ -26,7 +26,8 @@
 
 namespace jpet_event_display
 {
-EventDisplay::EventDisplay(const std::string& inFile, const std::string& inFileType, std::unique_ptr<TRint> theApp, const std::string& geomFile):
+EventDisplay::EventDisplay(const std::string& inFile, const std::string& inFileType, std::unique_ptr<TRint> theApp, 
+                           const std::string& geomFile):
   fApplication(std::move(theApp))
 {
   DATE_AND_TIME();

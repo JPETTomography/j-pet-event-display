@@ -13,6 +13,7 @@
  */
 
 #include "./DataProcessor.h"
+#include <iostream>
 
 namespace jpet_event_display
 {
@@ -20,6 +21,7 @@ namespace jpet_event_display
 ScintillatorsInLayers DataProcessor::getActiveScintillators(const JPetTimeWindow& tWindow)
 {
   auto sigChannels = tWindow.getSigChVect();
+  
   ScintillatorsInLayers selection;
   /// This loop makes not much sense, but just for tests.
   for (const auto & channel : sigChannels) {
@@ -29,16 +31,14 @@ ScintillatorsInLayers DataProcessor::getActiveScintillators(const JPetTimeWindow
     /// auto scinId = channel.getPM().getScin().getID();
     /// auto layerId = channel.getPM().getScin().getBarrelSlot().getLayer().getID();
     /// Just for tests.
-    auto scinId1 = 10;
-    auto scinId2 = 11;
-    auto scinId3 = 12;
-    auto scinId4 = 13;
-    auto layerId = 0;
+    
+    auto scinId = channel.getPM().getScin().getID();
+    auto layerId = channel.getPM().getScin().getBarrelSlot().getLayer().getId();
     if (selection.find(layerId) != selection.end()) {
       /// The key already exists so we just add this element
-      selection[layerId].push_back(scinId1);
+      selection[layerId].push_back(scinId);
     } else {
-      selection[layerId] = {scinId1, scinId2, scinId3, scinId4};
+      selection[layerId] = {scinId};
     }
     //channels.push_back(10);
     //channels.push_back(11);
@@ -57,6 +57,7 @@ void DataProcessor::closeFile()
 {
   fReader.closeFile();
 }
+
 JPetTimeWindow& DataProcessor::getCurrentEvent()
 {
   return dynamic_cast<JPetTimeWindow&> (fReader.getCurrentEvent());
