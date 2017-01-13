@@ -19,6 +19,7 @@
 #include <vector>
 #include <JPetTimeWindow/JPetTimeWindow.h>
 #include <JPetReader/JPetReader.h>
+#include <JPetParamBank/JPetParamBank.h>
 
 namespace jpet_event_display
 {
@@ -31,10 +32,12 @@ public:
   DataProcessor() {}
   /// this method should probably be in some other class
   static ScintillatorsInLayers getActiveScintillators(const JPetTimeWindow& tWindow);
+  static ScintillatorsInLayers getActiveScintillators(const JPetParamBank* pBank);
 
   bool openFile(const char* filename);
   void closeFile();
   JPetTimeWindow& getCurrentEvent();
+  JPetParamBank* getParamBank();
   bool nextEvent();
 
 private:
