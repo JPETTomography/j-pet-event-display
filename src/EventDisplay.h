@@ -26,8 +26,10 @@ namespace jpet_event_display
 class EventDisplay
 {
 public:
-  EventDisplay(const std::string& inFile, const std::string& inFileType, std::unique_ptr<TRint> theApp, 
+  EventDisplay(const std::string& inFile, const std::string& inFileType,
                const std::string& geomFile = "JPET_geom.root");
+
+  enum FileType { TimeWindow };
                
   void run(const std::string& inFile, const std::string& geomFile);
 
@@ -35,7 +37,7 @@ private:
   EventDisplay(const EventDisplay&) = delete;
   EventDisplay& operator=(const EventDisplay&) = delete;
 
-  std::unique_ptr<TRint> fApplication = nullptr;
+  std::unique_ptr<TRint> fApplication(new TRint("App", 0, 0));
 };
 
 }

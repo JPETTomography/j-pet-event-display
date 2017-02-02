@@ -43,6 +43,6 @@ int main(int argc, char** argv)
     std::cout << e.what() << "\n";
     return 1;
   }
-  EventDisplay myDisplay(inFile, fileType, std::unique_ptr<TRint>(new TRint("App", &argc, argv)),  "JPET_geom.root");
+  EventDisplay myDisplay(inFile, fileType, "JPET_geom.root");
   return 0;
 }
