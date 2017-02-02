@@ -47,13 +47,15 @@ void EventDisplay::run(const std::string& inFile, const std::string& geomFile)
   std::map<int, std::vector<int> > selection;
   DataProcessor myProcessor;
   if(myProcessor.openFile(inFile.c_str())) {
-    selection = DataProcessor::getActiveScintillators(myProcessor.getParamBank());
-    //while(myProcessor.nextEvent()) {
-    ////  ERROR("Next event is not read correctly!");
-    ////} else {
-    //  std::map<int, std::vector<int> > sel = DataProcessor::getActiveScintillators(myProcessor.getCurrentEvent());
-    //  selection.insert(sel.begin(), sel.end());
-    //}
+    myProcessor.getParamBank();
+    //selection = DataProcessor::getActiveScintillators(myProcessor.getParamBank());
+    while(myProcessor.nextEvent()) {
+    //  if()
+    //  ERROR("Next event is not read correctly!");
+    //} else {
+      std::map<int, std::vector<int> > sel = DataProcessor::getActiveScintillators(myProcessor.getCurrentEvent());
+      selection.insert(sel.begin(), sel.end());
+    }
   }
   //std::vector<int> channels;
   //channels.push_back(10);
