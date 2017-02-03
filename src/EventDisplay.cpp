@@ -29,21 +29,16 @@ namespace jpet_event_display
 EventDisplay::EventDisplay(const std::string& inFile, const std::string& inFileType, 
                            const std::string& geomFile)
 {
-  initGui();
   DATE_AND_TIME();
   INFO("J-PET Event Display created");
   INFO("*********************");
   run(inFile, geomFile);
 }
 
-void EventDisplay::initGui() 
-{
-
-}
-
 void EventDisplay::run(const std::string& inFile, const std::string& geomFile)
 {
-  GeometryVisualizator visualizator(gui.getCanvas());
+  TCanvas *fCanvas = gui.getfEcanvas()->GetCanvas();
+  GeometryVisualizator visualizator(fCanvas);
   visualizator.loadGeometry(geomFile);
   visualizator.drawOnlyGeometry();
   std::map<int, std::vector<int> > selection;
@@ -59,8 +54,9 @@ void EventDisplay::run(const std::string& inFile, const std::string& geomFile)
     }
   }
   visualizator.drawStrips(selection);
-  gui.draw();
-  gEnv = new TEnv(".rootrc");
+  
+  //gEnv = new TEnv(".rootrc");
+  //gui.draw();
   gui.run();
 }
 }

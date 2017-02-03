@@ -13,12 +13,28 @@
  *  @file GuiController.h
  */
 
+#ifndef GUICONTROLLER_H
+#define GUICONTROLLER_H
+
 #include <memory>
 #include <TRint.h>
 #include <TCanvas.h>
+#include <TGraph.h>
+#include <TGMenu.h>
+#include <TQObject.h>
+#include <TGToolBar.h>
+#include <TGFileDialog.h>
+#include <TGStatusBar.h>
+#include <TGProgressBar.h>
+#include <RQ_OBJECT.h>
+#include <TString.h>
+#include <TRootEmbeddedCanvas.h>
+#include <TGLabel.h>
+#include <TBox.h>
+#include <TMarker.h>
+#include <TGNumberEntry.h>
 
-#ifndef GUICONTROLLER_H
-#define GUICONTROLLER_H
+#include "GuiSignalController.h"
 
 namespace jpet_event_display
 {
@@ -32,6 +48,7 @@ namespace jpet_event_display
     void run();
 
     std::shared_ptr<TCanvas> getCanvas() { return fCanvas; }
+    TRootEmbeddedCanvas* getfEcanvas() { return fEcanvas; }
 
 
   
@@ -39,10 +56,23 @@ namespace jpet_event_display
     GuiController(const GuiController&) = delete;
     GuiController& operator=(const GuiController&) = delete;
 
+    void createGraphicalElements();
+
     std::unique_ptr<TRint> fApplication;
     std::shared_ptr<TCanvas> fCanvas;
+    TGMainFrame *fMainWindow;
+    TGMenuBar* fMenuBar;
+    TGPopupMenu* fMenuFile;
+    TRootEmbeddedCanvas *fEcanvas;
+    TGLabel* fInputInfo;
+    TGHProgressBar* fProgBar;
+    TGNumberEntry *fNumberEntryStep;
+    TGNumberEntry *fNumberEntryEventNo;
 
+    GuiSignalController* guiSignalController = new GuiSignalController();
   };
+
+
 }
 
 #endif /*  !GUICONTROLLER_H */

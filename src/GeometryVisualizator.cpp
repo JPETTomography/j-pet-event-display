@@ -25,8 +25,8 @@
 namespace jpet_event_display
 {
 
-  GeometryVisualizator::GeometryVisualizator(std::shared_ptr<TCanvas> canv):
-    fMyCanv(canv)
+  GeometryVisualizator::GeometryVisualizator(TCanvas* fMyCanv):
+    fMyCanv(fMyCanv)
   {
     if (fMyCanv) fMyCanv->Divide(2, 1);
   }

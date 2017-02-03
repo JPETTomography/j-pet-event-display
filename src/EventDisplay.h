@@ -37,7 +37,6 @@ public:
 private:
   EventDisplay(const EventDisplay&) = delete;
   EventDisplay& operator=(const EventDisplay&) = delete;
-  void initGui();
 
   GuiController gui;
 };

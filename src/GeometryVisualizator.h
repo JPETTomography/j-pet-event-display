@@ -34,7 +34,7 @@ namespace jpet_event_display
   class GeometryVisualizator
   {
   public:
-    GeometryVisualizator(std::shared_ptr<TCanvas> canv);
+    GeometryVisualizator(TCanvas* fMyCanv);
     ~GeometryVisualizator();
     bool isGeoManagerInitialized() const;
     void loadGeometry(const std::string& geomFile);
@@ -49,7 +49,7 @@ namespace jpet_event_display
   private:
     enum ColorTable { kBlack = 1, kRed = 2, kBlue = 34, kGreen = 30};
     std::unique_ptr<TGeoManager> fGeoManager;
-    std::shared_ptr<TCanvas> fMyCanv;
+    TCanvas* fMyCanv;
 
   };
 
