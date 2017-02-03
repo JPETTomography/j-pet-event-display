@@ -10,37 +10,39 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  @file EventDisplay.h
+ *  @file GuiController.h
  */
 
-#ifndef EVENTDISPLAY_H
-#define EVENTDISPLAY_H
-
 #include <memory>
-#include <string>
 #include <TRint.h>
-#include "GuiController.h"
+#include <TCanvas.h>
+
+#ifndef GUICONTROLLER_H
+#define GUICONTROLLER_H
 
 namespace jpet_event_display
 {
+  class GuiController 
+  {
+  public:
+    GuiController();
+    ~GuiController();
 
-class EventDisplay
-{
-public:
-  EventDisplay(const std::string& inFile, const std::string& inFileType,
-               const std::string& geomFile = "JPET_geom.root");
+    void draw();
+    void run();
 
-  enum FileType { TimeWindow };
-               
-  void run(const std::string& inFile, const std::string& geomFile);
+    std::shared_ptr<TCanvas> getCanvas() { return fCanvas; }
 
-private:
-  EventDisplay(const EventDisplay&) = delete;
-  EventDisplay& operator=(const EventDisplay&) = delete;
-  void initGui();
 
-  GuiController gui;
-};
+  
+  private:
+    GuiController(const GuiController&) = delete;
+    GuiController& operator=(const GuiController&) = delete;
 
+    std::unique_ptr<TRint> fApplication;
+    std::shared_ptr<TCanvas> fCanvas;
+
+  };
 }
-#endif /*  !EVENTDISPLAY_H */
+
+#endif /*  !GUICONTROLLER_H */

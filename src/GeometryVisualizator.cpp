@@ -66,18 +66,7 @@ namespace jpet_event_display
       WARNING("Canvas not set");
       return;
     }
-  /// @todo add some silly examples to test like strips 1,2,3 in every layer
-  // std::vector<int> sel2;
-  // sel2.push_back(1);
-  // sel2.push_back(2);
-  // sel2.push_back(3);
-  //// std::map<int, std::vector<int> > full;
-  // full[0]=sel2;
-  // full[1]=sel2;
-  // full[2]=sel2;
-  // full[3]=sel2;
     setVisibility(selection);
-  // setVisibility(full);
     drawPads();
   }
 
@@ -90,17 +79,7 @@ namespace jpet_event_display
     }
     fMyCanv->cd(0);
     assert(fGeoManager);
-    //fGeoManager->GetTopVolume()->Draw();
-    //assert(gPad);
-    //assert(view);
-    //view->ZoomView(0, 13.);
-    //view->SetParallel();
-    //view->RotateView(-90,0);
-
-
     Int_t irep;
-
-    //fMyCanv->cd(2);
     fGeoManager->GetTopVolume()->Draw();
     assert(gPad);
     TView* view = gPad->GetView();
@@ -142,9 +121,6 @@ namespace jpet_event_display
         nodeStrip->SetVisibility(kTRUE);
       }
     }
-    //delete nodeLayer; //dont delete this pointers, root is doing that
-    //delete nodeStrip;
-
   }
 
   void GeometryVisualizator::setAllStripsUnvisible()
@@ -200,62 +176,6 @@ namespace jpet_event_display
       node->SetVisibility(kFALSE);
       node->GetVolume()->SetLineWidth(5);
     }
-
-    //delete topNode;
-    //delete node;
-    //delete array;
-
-    //node = topNode->GetVolume()->FindNode("DC_1");
-    //assert(node);
-    //node->SetVisibility(kTRUE);
-  //  node->GetVolume()->SetVisibility(kTRUE);
-  //  node->SetVisibility(kTRUE);
-  //  TObjArray* array= node->GetNodes();
-  //  assert(array);
-  //  TIter it(array);
-  //  while((node = (TGeoNode*)it.Next())) {
-  //      node->SetVisibility(kFALSE);
-  // //     node->GetVolume()->SetLineColor(kBlue);
-  ////      node->GetVolume()->Paint();
-  //    if(std::string(node->GetName())=="XStrip_1000") {
-  //      node->GetVolume()->SetLineWidth(5);
-  //      node->SetVisibility(kTRUE);
-  //    }
-  //    if(std::string(node->GetName())=="XStrip_20") {
-  //      node->GetVolume()->SetLineWidth(5);
-  //      node->SetVisibility(kTRUE);
-  //    }
-  //  }
-  //  node = topNode->GetVolume()->FindNode("layer_1_1");
-  ////  node->GetVolume->Draw();
-  //
-  //
-  //
-  //  //node = topNode->GetVolume()->FindNode("layer_1_1");
-  //  //assert(node);
-  //  //node = node->GetVolume()->FindNode("XStrip_23");
-  //  //node->GetVolume()->SetVisibility(kTRUE);
-  //  //assert(node);
-  //
-  //
-  //  node = topNode->GetVolume()->FindNode("layer_2_1");
-  //  assert(node);
-  //  node->SetVisibility(kTRUE);
-  //  node->VisibleDaughters(kFALSE);
-  //
-  //  node = topNode->GetVolume()->FindNode("layer_3_1");
-  //  assert(node);
-  //  node->SetVisibility(kTRUE);
-  //  node->VisibleDaughters(kFALSE);
-  //
-  //  node = topNode->GetVolume()->FindNode("layer_4_1");
-  //  assert(node);
-  //  node->SetVisibility(kTRUE);
-  //  node->VisibleDaughters(kFALSE);
-  //
-  //  node = topNode->GetVolume()->FindNode("DC_1");
-  //  assert(node);
-  //  node->GetVolume()->SetVisibility(kTRUE);
   }
 
   bool GeometryVisualizator::isGeoManagerInitialized() const

@@ -26,29 +26,30 @@
 
 namespace jpet_event_display
 {
-EventDisplay::EventDisplay(const std::string& inFile, const std::string& inFileType, std::unique_ptr<TRint> theApp, 
-                           const std::string& geomFile):
-  fApplication(std::move(theApp))
+EventDisplay::EventDisplay(const std::string& inFile, const std::string& inFileType, 
+                           const std::string& geomFile)
 {
+  initGui();
   DATE_AND_TIME();
   INFO("J-PET Event Display created");
   INFO("*********************");
   run(inFile, geomFile);
 }
 
+void EventDisplay::initGui() 
+{
+
+}
+
 void EventDisplay::run(const std::string& inFile, const std::string& geomFile)
 {
-  auto canvas = std::make_shared<TCanvas>("MyCanvas", "Test Canvas", 10, 10, 900, 500);
-  GeometryVisualizator visualizator(canvas);
+  GeometryVisualizator visualizator(gui.getCanvas());
   visualizator.loadGeometry(geomFile);
   visualizator.drawOnlyGeometry();
-  /// Just a temporary solution to show the idea. We will change it further.
-  /// We read only second event here. 
   std::map<int, std::vector<int> > selection;
   DataProcessor myProcessor;
   if(myProcessor.openFile(inFile.c_str())) {
     myProcessor.getParamBank();
-    //selection = DataProcessor::getActiveScintillators(myProcessor.getParamBank());
     while(myProcessor.nextEvent()) {
     //  if()
     //  ERROR("Next event is not read correctly!");
@@ -57,15 +58,9 @@ void EventDisplay::run(const std::string& inFile, const std::string& geomFile)
       selection.insert(sel.begin(), sel.end());
     }
   }
-  //std::vector<int> channels;
-  //channels.push_back(10);
-  //channels.push_back(11);
-  //channels.push_back(12);
-  //channels.push_back(13);
-  //selection[0] = channels;
   visualizator.drawStrips(selection);
-  canvas->Draw();
+  gui.draw();
   gEnv = new TEnv(".rootrc");
-  fApplication->Run();
+  gui.run();
 }
 }
