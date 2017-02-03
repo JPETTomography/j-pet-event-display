@@ -19,9 +19,11 @@
 
 #include <RQ_OBJECT.h>
 #include <TGFileDialog.h>
+#include <string>
 
 namespace jpet_event_display
 {
+  class GuiController;
   enum EMessageTypes {
    M_FILE_OPEN,
    M_FILE_SAVE,
@@ -35,10 +37,18 @@ namespace jpet_event_display
     GuiSignalController();
     ~GuiSignalController();
 
+    enum FileType{ kRoot, kScope, kSim };
+
     void handleMenu (Int_t id);
+    void setFiletype(enum FileType type);
+
+    void addConnect(const std::string& functionName, const std::string& RQObjectName, jpet_event_display::GuiController* obj);
+
   private:
     GuiSignalController(const GuiSignalController&) = delete;
     GuiSignalController& operator=(const GuiSignalController&) = delete;
+
+    
 
     TGFileInfo* fFileInfo;
   };

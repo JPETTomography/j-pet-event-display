@@ -35,28 +35,48 @@
 #include <TGNumberEntry.h>
 
 #include "GuiSignalController.h"
+#include "GeometryVisualizator.h"
+#include "DataProcessor.h"
 
 namespace jpet_event_display
 {
+  struct GUIControlls {
+
+  Int_t eventNo;
+  Int_t stepNo;
+  Int_t rootEntries;
+  Int_t* rootMatrices;
+  bool displayFullSig;
+};
+
   class GuiController 
   {
+    RQ_OBJECT("GuiController")
   public:
     GuiController();
     ~GuiController();
 
     void draw();
     void run();
+    
+    void loadGeometry(const std::string& geometry);
+    void openFile(const std::string& readFile);
+    inline void fullSigDisplay() { fGUIControls->displayFullSig = !(fGUIControls->displayFullSig);}
 
     std::shared_ptr<TCanvas> getCanvas() { return fCanvas; }
     TRootEmbeddedCanvas* getfEcanvas() { return fEcanvas; }
 
+    void createGraphicalElements();
+    void doNext();
+    void updateGUIControlls();
+    void CloseWindow();
 
   
   private:
     GuiController(const GuiController&) = delete;
     GuiController& operator=(const GuiController&) = delete;
 
-    void createGraphicalElements();
+    
 
     std::unique_ptr<TRint> fApplication;
     std::shared_ptr<TCanvas> fCanvas;
@@ -68,8 +88,11 @@ namespace jpet_event_display
     TGHProgressBar* fProgBar;
     TGNumberEntry *fNumberEntryStep;
     TGNumberEntry *fNumberEntryEventNo;
+    GUIControlls* fGUIControls;
 
     GuiSignalController* guiSignalController = new GuiSignalController();
+    GeometryVisualizator* visualizator;
+    DataProcessor dataProcessor;
   };
 
 

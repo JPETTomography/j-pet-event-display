@@ -37,10 +37,8 @@ EventDisplay::EventDisplay(const std::string& inFile, const std::string& inFileT
 
 void EventDisplay::run(const std::string& inFile, const std::string& geomFile)
 {
-  TCanvas *fCanvas = gui.getfEcanvas()->GetCanvas();
-  GeometryVisualizator visualizator(fCanvas);
-  visualizator.loadGeometry(geomFile);
-  visualizator.drawOnlyGeometry();
+  gui.loadGeometry(geomFile);
+  gui.openFile(inFile);
   std::map<int, std::vector<int> > selection;
   DataProcessor myProcessor;
   if(myProcessor.openFile(inFile.c_str())) {
@@ -53,7 +51,7 @@ void EventDisplay::run(const std::string& inFile, const std::string& geomFile)
       selection.insert(sel.begin(), sel.end());
     }
   }
-  visualizator.drawStrips(selection);
+  //visualizator.drawStrips(selection);
   
   //gEnv = new TEnv(".rootrc");
   //gui.draw();

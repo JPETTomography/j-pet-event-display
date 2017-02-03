@@ -16,6 +16,7 @@
 
 #include "GuiSignalController.h"
 #include <TMath.h>
+#include <cassert>
 
 namespace jpet_event_display
 {
@@ -31,6 +32,12 @@ namespace jpet_event_display
     fFileInfo = new TGFileInfo;
    }
   GuiSignalController::~GuiSignalController() { }
+
+  void GuiSignalController::addConnect(const std::string& functionName, const std::string& RQObjectName, 
+                                  GuiController* obj)
+  {
+    this->Connect(functionName.c_str(), RQObjectName.c_str(), obj, functionName.c_str());
+  }
 
   void GuiSignalController::handleMenu (Int_t id) 
   {
@@ -63,5 +70,22 @@ namespace jpet_event_display
     }
 
     return;
+  }
+
+  void GuiSignalController::setFiletype(enum FileType type){ // for now do nothing
+	assert(type == kRoot || type == kScope || type == kSim);
+	/*switch (type) {
+		case kRoot:
+            fDataProcessor->ChangeFiletype(EDDataProcessor::kROOT);
+			break;
+		case kScope:
+            fDataProcessor->ChangeFiletype(EDDataProcessor::kScope);
+			break;
+        case kSim:
+            fDataProcessor->ChangeFiletype(EDDataProcessor::kSim);
+			break;
+		default:
+			break;
+	}*/
   }
 }
