@@ -259,7 +259,7 @@ namespace jpet_event_display
     nextButton->Connect("Clicked()","GuiController",this,"doNext()");
     nextButton->ChangeBackground(ucolor);
 
-    TGTextButton *resetButton = new TGTextButton(frame1_3_1,"&Reset >");
+    /*TGTextButton *resetButton = new TGTextButton(frame1_3_1,"&Reset >");
     frame1_3_1->AddFrame(resetButton,new TGLayoutHints(kLHintsExpandX | kLHintsExpandY,5,5,3,4));
     resetButton->Connect("Clicked()","GuiController",this,"doReset()");
     resetButton->SetTextJustify(36);
@@ -270,7 +270,7 @@ namespace jpet_event_display
     showButton->Connect("Clicked()","GuiController",this,"clearPads()");
     showButton->Connect("Clicked()","GuiController",this,"updateGUIControlls()");
     showButton->Connect("Clicked()","GuiController",this,"showData()");
-    showButton->ChangeBackground(ucolor);
+    showButton->ChangeBackground(ucolor);*/
 
     // adding Frame1_3_2
 

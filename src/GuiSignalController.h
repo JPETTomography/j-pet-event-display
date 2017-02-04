@@ -45,11 +45,6 @@ namespace jpet_event_display
     void addConnect(const std::string& functionName, const std::string& RQObjectName, jpet_event_display::GuiController* obj);
 
   private:
-    GuiSignalController(const GuiSignalController&) = delete;
-    GuiSignalController& operator=(const GuiSignalController&) = delete;
-
-    
-
     TGFileInfo* fFileInfo;
   };
 }

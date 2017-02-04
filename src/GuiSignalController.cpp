@@ -17,6 +17,7 @@
 #include "GuiSignalController.h"
 #include <TMath.h>
 #include <cassert>
+#include <iostream>
 
 namespace jpet_event_display
 {
@@ -41,9 +42,9 @@ namespace jpet_event_display
 
   void GuiSignalController::handleMenu (Int_t id) 
   {
-
+    std::cout << "in handleMenu " << id << "\n";
     switch (id) {
-
+      
       case M_FILE_OPEN:
       {
         TString dir("");

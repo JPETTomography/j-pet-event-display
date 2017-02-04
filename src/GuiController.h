@@ -73,8 +73,8 @@ namespace jpet_event_display
 
   
   private:
-    GuiController(const GuiController&) = delete;
-    GuiController& operator=(const GuiController&) = delete;
+    //GuiController(const GuiController&) = delete;
+    //GuiController& operator=(const GuiController&) = delete;
 
     
 

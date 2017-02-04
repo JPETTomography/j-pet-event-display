@@ -17,7 +17,6 @@
 #include <iostream>
 #include "src/EventDisplay.h"
 
-
 int main(int argc, char** argv)
 {
   using namespace jpet_event_display;
@@ -44,5 +43,6 @@ int main(int argc, char** argv)
     return 1;
   }
   EventDisplay myDisplay(inFile, fileType, "JPET_geom.root");
+
   return 0;
 }

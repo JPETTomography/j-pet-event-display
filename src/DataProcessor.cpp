@@ -21,8 +21,6 @@ namespace jpet_event_display
 ScintillatorsInLayers DataProcessor::getActiveScintillators(const JPetTimeWindow& tWindow)
 {
   auto sigChannels = tWindow.getSigChVect();
-
-  std::cout << "Number of SigChVect: " << tWindow.getNumberOfSigCh() << std::endl;
   
   ScintillatorsInLayers selection;
   int skipped = 0;
@@ -35,32 +33,25 @@ ScintillatorsInLayers DataProcessor::getActiveScintillators(const JPetTimeWindow
     /// auto scinId = channel.getPM().getScin().getID();
     /// auto layerId = channel.getPM().getScin().getBarrelSlot().getLayer().getID();
     /// Just for tests.
-
-    std::cout << "Value of SigCh num: " << skipped + added << " : " << channel.getValue() << std::endl;
     
     auto PM = channel.getPM();
-    std::cout << "PM id: " << PM.getID() << std::endl;
     if(PM.isNullObject()) {
-      std::cout << "PM is Null" << std::endl;
       skipped++;
       continue;
     }
     auto scin = PM.getScin();
     if(scin.isNullObject()) {
-      std::cout << "scin is Null" << std::endl;
       skipped++;
       continue;
     }
     auto scinId = scin.getID();
     auto barrel = scin.getBarrelSlot();
     if(barrel.isNullObject()) {
-      std::cout << "barrel is Null" << std::endl;
       skipped++;
       continue;
     }
     auto layer = barrel.getLayer();
     if(layer.isNullObject()) {
-      std::cout << "layer is Null" << std::endl;
       skipped++;
       continue;
     }
@@ -73,13 +64,7 @@ ScintillatorsInLayers DataProcessor::getActiveScintillators(const JPetTimeWindow
       added++;
       selection[layerId] = {scinId};
     }
-    //channels.push_back(10);
-    //channels.push_back(11);
-    //channels.push_back(12);
-    //channels.push_back(13);
-    //selection[0] = channels;
   }
-  std::cout << "add: " << added << " skipped: " << skipped << std::endl;
   return selection;
 }
 
@@ -92,20 +77,17 @@ ScintillatorsInLayers DataProcessor::getActiveScintillators(const JPetParamBank*
 
   for(auto scin : scins) {
     if(scin.second->isNullObject()) {
-      std::cout << "scin is Null" << std::endl;
       skipped++;
       continue;
     }
     auto scinId = scin.second->getID();
     auto barrel = scin.second->getBarrelSlot();
     if(barrel.isNullObject()) {
-      std::cout << "barrel is Null" << std::endl;
       skipped++;
       continue;
     }
     auto layer = barrel.getLayer();
     if(layer.isNullObject()) {
-      std::cout << "layer is Null" << std::endl;
       skipped++;
       continue;
     }
@@ -118,7 +100,6 @@ ScintillatorsInLayers DataProcessor::getActiveScintillators(const JPetParamBank*
       selection[layerId] = {scinId};
     }
   }
-  std::cout << "add: " << added << " skipped: " << skipped << std::endl;
   return selection;
 }
 

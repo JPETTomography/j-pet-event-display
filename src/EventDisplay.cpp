@@ -53,7 +53,7 @@ void EventDisplay::run(const std::string& inFile, const std::string& geomFile)
   }
   //visualizator.drawStrips(selection);
   
-  //gEnv = new TEnv(".rootrc");
+  gEnv = new TEnv(".rootrc");
   //gui.draw();
   gui.run();
 }
