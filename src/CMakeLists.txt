@@ -1,5 +1,6 @@
 add_definitions(-std=c++11 -Wall -Wunused-parameter -Wextra)
-
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+include(JPetFramework-Utilities) # for generate_root_dictionaries
 find_package(ROOT REQUIRED COMPONENTS 
   Gui
   Rint
@@ -34,5 +35,12 @@ link_directories(${Boost_LIBRARY_DIRS})
 file(GLOB SOURCES "*.cpp")
 file(GLOB HEADERS "*.h")
 
-add_library(eventDisplay SHARED ${SOURCES})
+# export ROOT cint needed to generate dictionaries from projects
+  set(ROOT_rootcint_CMD   ${ROOT_rootcint_CMD}   PARENT_SCOPE)
+  set(rootcint_cmd        ${ROOT_rootcint_CMD}   PARENT_SCOPE)
+  set(ROOTCINT_EXECUTABLE ${ROOTCINT_EXECUTABLE} PARENT_SCOPE)
+
+generate_root_dictionaries(DICTIONARIES SOURCES ${SOURCES})
+
+add_library(eventDisplay SHARED ${SOURCES} ${HEADERS} ${DICTIONARIES})
 
