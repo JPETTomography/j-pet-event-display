@@ -35,12 +35,11 @@ link_directories(${Boost_LIBRARY_DIRS})
 file(GLOB SOURCES "*.cpp")
 file(GLOB HEADERS "*.h")
 
-# export ROOT cint needed to generate dictionaries from projects
-  set(ROOT_rootcint_CMD   ${ROOT_rootcint_CMD}   PARENT_SCOPE)
-  set(rootcint_cmd        ${ROOT_rootcint_CMD}   PARENT_SCOPE)
-  set(ROOTCINT_EXECUTABLE ${ROOTCINT_EXECUTABLE} PARENT_SCOPE)
+set(DICT ${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/Dictionaries/GuiDictionary.cxx) 
 
-generate_root_dictionaries(DICTIONARIES SOURCES ${SOURCES})
+add_custom_target(dict
+  COMMAND rootcint -f ${DICT} -c ${CMAKE_CURRENT_SOURCE_DIR}/GuiSignalController.h ${CMAKE_CURRENT_SOURCE_DIR}/GuiController.h ${CMAKE_CURRENT_SOURCE_DIR}/GuiLinkDef.h)
 
-add_library(eventDisplay SHARED ${SOURCES} ${HEADERS} ${DICTIONARIES})
 
+add_library(eventDisplay SHARED ${SOURCES} ${DICT})
+add_dependencies(eventDisplay dict)
