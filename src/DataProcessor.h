@@ -17,9 +17,11 @@
 
 #include <map>
 #include <vector>
+#ifndef __CINT__
 #include <JPetTimeWindow/JPetTimeWindow.h>
 #include <JPetReader/JPetReader.h>
 #include <JPetParamBank/JPetParamBank.h>
+#endif
 
 namespace jpet_event_display
 {
@@ -41,11 +43,13 @@ public:
   bool nextEvent();
 
 private:
+  #ifndef __CINT__
   DataProcessor(const DataProcessor&) = delete;
   DataProcessor& operator=(const DataProcessor&) = delete;
+  
 
   JPetReader fReader;
-
+  #endif
 };
 
 }

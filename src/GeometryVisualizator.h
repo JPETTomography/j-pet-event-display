@@ -48,7 +48,9 @@ namespace jpet_event_display
 
   private:
     enum ColorTable { kBlack = 1, kRed = 2, kBlue = 34, kGreen = 30};
+    #ifndef __CINT__
     std::unique_ptr<TGeoManager> fGeoManager;
+    #endif
     TCanvas* fMyCanv;
 
   };
