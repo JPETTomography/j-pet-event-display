@@ -50,7 +50,7 @@ namespace jpet_event_display
     createGraphicalElements();
     TCanvas *fCanvas = getfEcanvas()->GetCanvas();
     visualizator = new GeometryVisualizator(fCanvas);
-    guiSignalController->addConnect("updateGUIControlls()", "GuiController", this);
+    guiSignalController->addConnect("updateGUIControlls()", "jpet_event_display::GuiController", this);
   }
 
   GuiController::~GuiController() { }
@@ -72,7 +72,7 @@ namespace jpet_event_display
   {
     fMainWindow = new TGMainFrame(gClient->GetRoot());
     fMainWindow->SetCleanup(kDeepCleanup);
-    fMainWindow->Connect("CloseWindow()", "GuiController", this, "CloseWindow()");
+    fMainWindow->Connect("CloseWindow()", "jpet_event_display::GuiController", this, "CloseWindow()");
     const Int_t w_max = 1024;
     const Int_t h_max = 720;
     fMainWindow->SetWMSize(w_max,h_max);  //this is the only way to set the size of the main frame
@@ -108,7 +108,7 @@ namespace jpet_event_display
     fMenuFile->AddSeparator();
     fMenuFile->AddEntry(" E&xit\tCtrl+Q", M_FILE_EXIT);
     fMenuFile->Associate(fMainWindow);
-    fMenuFile->Connect("Activated(Int_t)", "GuiSignalController", guiSignalController, "handleMenu(Int_t)");
+    fMenuFile->Connect("Activated(Int_t)", "jpet_event_display::GuiSignalController", guiSignalController, "handleMenu(Int_t)");
     
     fMenuFile->DisableEntry(0);
     
@@ -167,7 +167,7 @@ namespace jpet_event_display
     chooseScope->ChangeBackground(ucolor);
     chooseFiletype->Show();
     frame1_1_1->AddFrame(chooseFiletype,new TGLayoutHints(kLHintsExpandX | kLHintsExpandY,5,5,3,4));
-    chooseFiletype->Connect("Pressed(Int_t)", "GuiSignalController", 
+    chooseFiletype->Connect("Pressed(Int_t)", "jpet_event_display::GuiSignalController", 
                             guiSignalController, "setFiletype(enum FileType)");
     chooseScope->SetState(kButtonDown,kFALSE);
     chooseSim->SetState(kButtonDown,kFALSE);
@@ -181,7 +181,7 @@ namespace jpet_event_display
 
     TGTextButton *readButton = new TGTextButton(frame1_1_2,"Read Data");
     frame1_1_2->AddFrame(readButton,new TGLayoutHints(kLHintsExpandX | kLHintsExpandY,5,5,3,4));
-    readButton->Connect("Clicked()", "GuiSignalController", guiSignalController, "handleMenu(=0)");
+    readButton->Connect("Clicked()", "jpet_event_display::GuiSignalController", guiSignalController, "handleMenu(=0)");
     readButton->SetTextJustify(36);
     readButton->ChangeBackground(ucolor);
 
@@ -200,7 +200,7 @@ namespace jpet_event_display
     frame1_4->AddFrame(ShowFullSig, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY,5,5,3,4) );
     ShowFullSig->ChangeBackground(ucolor);
     /** @todo find a way to make ShowFullSig emit a bool value */
-    ShowFullSig->Connect("Clicked()","GuiController", this , "fullSigDisplay()");
+    ShowFullSig->Connect("Clicked()","jpet_event_display::GuiController", this , "fullSigDisplay()");
 
 // adding Frame1_2
 
@@ -256,7 +256,7 @@ namespace jpet_event_display
 
     TGTextButton *nextButton = new TGTextButton(frame1_3_1,"&Next >");
     frame1_3_1->AddFrame(nextButton, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY,5,5,3,4));
-    nextButton->Connect("Clicked()","GuiController",this,"doNext()");
+    nextButton->Connect("Clicked()","jpet_event_display::GuiController",this,"doNext()");
     nextButton->ChangeBackground(ucolor);
 
     /*TGTextButton *resetButton = new TGTextButton(frame1_3_1,"&Reset >");
@@ -284,7 +284,7 @@ namespace jpet_event_display
 
     fNumberEntryStep= new TGNumberEntry(frame1_3_2,1,5,-1,TGNumberFormat::kNESInteger,TGNumberFormat::kNEAPositive,TGNumberFormat::kNELLimitMinMax,1,fMaxEvents);
     frame1_3_2->AddFrame(fNumberEntryStep, new TGLayoutHints(kLHintsCenterX,5,5,3,4));
-    fNumberEntryStep->Connect("ValueSet(Long_t)", "GuiController", this, "updateGUIControlls()");
+    fNumberEntryStep->Connect("ValueSet(Long_t)", "jpet_event_display::GuiController", this, "updateGUIControlls()");
 
     TGLabel *labelEventNo = new TGLabel(frame1_3_2,"Event no",TGLabel::GetDefaultGC()(),TGLabel::GetDefaultFontStruct(),kChildFrame,ucolor);
     labelEventNo->SetTextJustify(36);
@@ -292,7 +292,7 @@ namespace jpet_event_display
 
     fNumberEntryEventNo= new TGNumberEntry(frame1_3_2,1,5,-1,TGNumberFormat::kNESInteger,TGNumberFormat::kNEANonNegative,TGNumberFormat::kNELLimitMinMax,0,fMaxEvents);
     frame1_3_2->AddFrame(fNumberEntryEventNo, new TGLayoutHints(kLHintsExpandX));
-    fNumberEntryEventNo->Connect("ValueSet(Long_t)", "GuiController", this, "updateGUIControlls()");
+    fNumberEntryEventNo->Connect("ValueSet(Long_t)", "jpet_event_display::GuiController", this, "updateGUIControlls()");
 
 
     fProgBar = new TGHProgressBar(frame1_3,TGProgressBar::kFancy,250);
@@ -314,7 +314,6 @@ namespace jpet_event_display
 
   void GuiController::doNext()
   {
-    std::cout << "doNext" << "\n";
     fNumberEntryEventNo->SetIntNumber(fGUIControls->eventNo + fGUIControls->stepNo);
     updateGUIControlls();
   }

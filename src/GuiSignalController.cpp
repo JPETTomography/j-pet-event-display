@@ -35,9 +35,9 @@ namespace jpet_event_display
   GuiSignalController::~GuiSignalController() { }
 
   void GuiSignalController::addConnect(const std::string& functionName, const std::string& RQObjectName, 
-                                  GuiController* obj)
+                                  void* obj)
   {
-    this->Connect(functionName.c_str(), RQObjectName.c_str(), obj, functionName.c_str());
+    this->Connect(functionName.c_str(), RQObjectName.c_str(), static_cast<GuiController*>(obj), functionName.c_str());
   }
 
   void GuiSignalController::handleMenu (Int_t id) 
