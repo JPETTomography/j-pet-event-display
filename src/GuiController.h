@@ -63,7 +63,9 @@ namespace jpet_event_display
     void openFile(const std::string& readFile);
     inline void fullSigDisplay() { fGUIControls->displayFullSig = !(fGUIControls->displayFullSig);}
 
+    #ifndef __CINT__
     std::shared_ptr<TCanvas> getCanvas() { return fCanvas; }
+    #endif
     TRootEmbeddedCanvas* getfEcanvas() { return fEcanvas; }
 
     void createGraphicalElements();
@@ -77,9 +79,10 @@ namespace jpet_event_display
     //GuiController& operator=(const GuiController&) = delete;
 
     
-
+    #ifndef __CINT__
     std::unique_ptr<TRint> fApplication;
     std::shared_ptr<TCanvas> fCanvas;
+    #endif
     TGMainFrame *fMainWindow;
     TGMenuBar* fMenuBar;
     TGPopupMenu* fMenuFile;
@@ -92,7 +95,9 @@ namespace jpet_event_display
 
     GuiSignalController* guiSignalController = new GuiSignalController();
     GeometryVisualizator* visualizator;
+    #ifndef __CINT__
     DataProcessor dataProcessor;
+    #endif
   };
 
 

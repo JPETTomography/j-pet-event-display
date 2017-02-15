@@ -23,7 +23,11 @@
 
 namespace jpet_event_display
 {
+  #ifndef __CINT__
   class GuiController;
+  #endif // !__CINT__
+  
+
   enum EMessageTypes {
    M_FILE_OPEN,
    M_FILE_SAVE,
@@ -42,7 +46,7 @@ namespace jpet_event_display
     void handleMenu (Int_t id);
     void setFiletype(enum FileType type);
 
-    void addConnect(const std::string& functionName, const std::string& RQObjectName, jpet_event_display::GuiController* obj);
+    void addConnect(const std::string& functionName, const std::string& RQObjectName, void* obj);
 
   private:
     TGFileInfo* fFileInfo;
