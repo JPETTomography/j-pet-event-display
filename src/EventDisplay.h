@@ -19,6 +19,8 @@
 #include <memory>
 #include <string>
 #include <TRint.h>
+
+#include "GuiSignalController.h"
 #include "GuiController.h"
 
 namespace jpet_event_display
@@ -29,6 +31,7 @@ class EventDisplay
 public:
   EventDisplay(const std::string& inFile, const std::string& inFileType,
                const std::string& geomFile = "JPET_geom.root");
+  ~EventDisplay();
 
   enum FileType { TimeWindow };
                
@@ -38,7 +41,8 @@ private:
   EventDisplay(const EventDisplay&) = delete;
   EventDisplay& operator=(const EventDisplay&) = delete;
 
-  GuiController gui;
+  GuiSignalController *guiSignalController;
+  GuiController *guiController;
 };
 
 }

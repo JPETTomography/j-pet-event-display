@@ -46,8 +46,6 @@ namespace jpet_event_display
     void handleMenu (Int_t id);
     void setFiletype(enum FileType type);
 
-    void addConnect(const std::string& functionName, const std::string& RQObjectName, void* obj);
-
   private:
     TGFileInfo* fFileInfo;
   };

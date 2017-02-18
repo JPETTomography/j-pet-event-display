@@ -40,7 +40,7 @@ using namespace std;
 
 namespace jpet_event_display
 {
-  GuiController::GuiController() 
+  GuiController::GuiController(GuiSignalController* guiSigController) 
   {
     fGUIControls = new GUIControlls;
     fGUIControls->eventNo = 0;
@@ -50,7 +50,7 @@ namespace jpet_event_display
     createGraphicalElements();
     TCanvas *fCanvas = getfEcanvas()->GetCanvas();
     visualizator = new GeometryVisualizator(fCanvas);
-    guiSignalController->addConnect("updateGUIControlls()", "jpet_event_display::GuiController", this);
+    guiSignalController = guiSigController;
   }
 
   GuiController::~GuiController() { }
@@ -312,11 +312,20 @@ namespace jpet_event_display
     fMainWindow->MapWindow();
   }
 
+void GuiController::openFileDialog (TGFileInfo* fFileInfo, EFileDialogMode dlg_type) {
+  std::cout << "in openFileDialog" << "\n";
+  new TGFileDialog(gClient->GetRoot(), fMainWindow, dlg_type, fFileInfo);
+  //guiSignalController->readData();
+  return;
+}
+
   void GuiController::doNext()
   {
     fNumberEntryEventNo->SetIntNumber(fGUIControls->eventNo + fGUIControls->stepNo);
     updateGUIControlls();
   }
+
+
 
   void GuiController::updateGUIControlls() 
   {

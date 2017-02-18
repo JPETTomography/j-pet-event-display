@@ -53,7 +53,7 @@ namespace jpet_event_display
   {
     RQ_OBJECT("GuiController")
   public:
-    GuiController();
+    GuiController(GuiSignalController* guiSigController);
     ~GuiController();
 
     void draw();
@@ -72,6 +72,7 @@ namespace jpet_event_display
     void doNext();
     void updateGUIControlls();
     void CloseWindow();
+    void openFileDialog (TGFileInfo* fFileInfo, EFileDialogMode dlg_type);
 
   
   private:
@@ -93,7 +94,7 @@ namespace jpet_event_display
     TGNumberEntry *fNumberEntryEventNo;
     GUIControlls* fGUIControls;
 
-    GuiSignalController* guiSignalController = new GuiSignalController();
+    GuiSignalController* guiSignalController;
     GeometryVisualizator* visualizator;
     #ifndef __CINT__
     DataProcessor dataProcessor;

@@ -29,20 +29,13 @@ namespace jpet_event_display
     0,               0
   };
 
-  GuiSignalController::GuiSignalController() {
-    fFileInfo = new TGFileInfo;
-   }
+  GuiSignalController::GuiSignalController() { fFileInfo = new TGFileInfo; }
   GuiSignalController::~GuiSignalController() { }
-
-  void GuiSignalController::addConnect(const std::string& functionName, const std::string& RQObjectName, 
-                                  void* obj)
-  {
-    this->Connect(functionName.c_str(), RQObjectName.c_str(), static_cast<GuiController*>(obj), functionName.c_str());
-  }
 
   void GuiSignalController::handleMenu (Int_t id) 
   {
     std::cout << "in handleMenu " << id << "\n";
+    
     switch (id) {
       
       case M_FILE_OPEN:

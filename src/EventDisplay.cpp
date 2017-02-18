@@ -32,12 +32,21 @@ EventDisplay::EventDisplay(const std::string& inFile, const std::string& inFileT
   DATE_AND_TIME();
   INFO("J-PET Event Display created");
   INFO("*********************");
-  run(inFile, geomFile);
+  guiSignalController = new GuiSignalController();
+  guiController = new GuiController(guiSignalController);
+  guiSignalController->Connect("updateGUIControlls()", "jpet_event_display::GuiController", guiController, "updateGUIControlls()");
+  guiSignalController->Connect("openFileDialog(TGFileInfo*, EFileDialogMode)", "jpet_event_display::GuiController", guiController, "openFileDialog(TGFileInfo*, EFileDialogMode)");
+  guiController->loadGeometry(geomFile);
+  guiController->openFile(inFile);
+  guiController->run();
+  //run(inFile, geomFile);
 }
+
+EventDisplay::~EventDisplay() { }
 
 void EventDisplay::run(const std::string& inFile, const std::string& geomFile)
 {
-  gui.loadGeometry(geomFile);
+  /*gui.loadGeometry(geomFile);
   gui.openFile(inFile);
   std::map<int, std::vector<int> > selection;
   DataProcessor myProcessor;
@@ -56,5 +65,6 @@ void EventDisplay::run(const std::string& inFile, const std::string& geomFile)
   gEnv = new TEnv(".rootrc");
   //gui.draw();
   gui.run();
+  */
 }
 }
