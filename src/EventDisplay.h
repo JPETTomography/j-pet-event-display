@@ -18,32 +18,55 @@
 
 #include <memory>
 #include <string>
+
 #include <TRint.h>
 
+#include <RQ_OBJECT.h>
+
 #include "GuiSignalController.h"
-#include "GuiController.h"
 
 namespace jpet_event_display
 {
 
-class EventDisplay
+struct GUIControlls
 {
-public:
-  EventDisplay(const std::string& inFile, const std::string& inFileType,
-               const std::string& geomFile = "JPET_geom.root");
-  ~EventDisplay();
 
-  enum FileType { TimeWindow };
-               
-  void run(const std::string& inFile, const std::string& geomFile);
-
-private:
-  EventDisplay(const EventDisplay&) = delete;
-  EventDisplay& operator=(const EventDisplay&) = delete;
-
-  GuiSignalController *guiSignalController;
-  GuiController *guiController;
+  Int_t eventNo;
+  Int_t stepNo;
+  Int_t rootEntries;
+  Int_t *rootMatrices;
+  bool displayFullSig;
 };
 
+class EventDisplay
+{
+  RQ_OBJECT("EventDisplay")
+public:
+  EventDisplay(const std::string &inFile, const std::string &inFileType,
+               const std::string &geomFile = "JPET_geom.root");
+  EventDisplay();
+  ~EventDisplay();
+
+#ifndef __CINT__
+  void run(const std::string &inFile, const std::string &geomFile);
+  enum FileType
+  {
+    TimeWindow
+  };
+#endif
+
+  //signals
+  void CloseWindow();
+  
+private:
+#ifndef __CINT__
+  EventDisplay(const EventDisplay &) = delete;
+  EventDisplay &operator=(const EventDisplay &) = delete;
+
+  std::unique_ptr<TRint> fApplication = std::unique_ptr<TRint>(new TRint("EventDisplay Gui", 0, 0));
+  std::unique_ptr<GUIControlls> fGUIControls = std::unique_ptr<GUIControlls>(new GUIControlls);
+  std::unique_ptr<TGMainFrame> fMainWindow;
+#endif
+};
 }
 #endif /*  !EVENTDISPLAY_H */

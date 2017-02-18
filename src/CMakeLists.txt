@@ -35,11 +35,20 @@ link_directories(${Boost_LIBRARY_DIRS})
 file(GLOB SOURCES "*.cpp")
 file(GLOB HEADERS "*.h")
 
+file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/Dictionaries/)
 set(DICT ${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/Dictionaries/GuiDictionary.cxx) 
 
-add_custom_target(dict
-  COMMAND rootcint -f ${DICT} -c ${CMAKE_CURRENT_SOURCE_DIR}/GuiSignalController.h ${CMAKE_CURRENT_SOURCE_DIR}/GuiController.h ${CMAKE_CURRENT_SOURCE_DIR}/GuiLinkDef.h)
-
+add_custom_command(OUTPUT ${DICT}
+  COMMAND rootcint 
+  -f ${DICT} 
+  -c 
+  ${CMAKE_CURRENT_SOURCE_DIR}/EventDisplay.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/GuiLinkDef.h )
+add_custom_target(disttarget DEPENDS ${DICT})
 
 add_library(eventDisplay SHARED ${SOURCES} ${DICT})
-add_dependencies(eventDisplay dict)
+add_dependencies(eventDisplay disttarget)
+set_source_files_properties(
+    ${DICT}
+    PROPERTIES GENERATED TRUE
+    )

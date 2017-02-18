@@ -17,7 +17,7 @@
 #define GUICONTROLLER_H
 
 #include <memory>
-#include <TRint.h>
+
 #include <TCanvas.h>
 #include <TGraph.h>
 #include <TGMenu.h>
@@ -33,7 +33,7 @@
 #include <TBox.h>
 #include <TMarker.h>
 #include <TGNumberEntry.h>
-
+/*
 #include "GuiSignalController.h"
 #include "GeometryVisualizator.h"
 #include "DataProcessor.h"
@@ -81,10 +81,8 @@ namespace jpet_event_display
 
     
     #ifndef __CINT__
-    std::unique_ptr<TRint> fApplication;
     std::shared_ptr<TCanvas> fCanvas;
     #endif
-    TGMainFrame *fMainWindow;
     TGMenuBar* fMenuBar;
     TGPopupMenu* fMenuFile;
     TRootEmbeddedCanvas *fEcanvas;
@@ -92,7 +90,6 @@ namespace jpet_event_display
     TGHProgressBar* fProgBar;
     TGNumberEntry *fNumberEntryStep;
     TGNumberEntry *fNumberEntryEventNo;
-    GUIControlls* fGUIControls;
 
     GuiSignalController* guiSignalController;
     GeometryVisualizator* visualizator;
@@ -103,5 +100,5 @@ namespace jpet_event_display
 
 
 }
-
+*/
 #endif /*  !GUICONTROLLER_H */

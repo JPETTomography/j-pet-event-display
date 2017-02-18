@@ -26,45 +26,43 @@
 
 namespace jpet_event_display
 {
+EventDisplay::EventDisplay() { }
+
 EventDisplay::EventDisplay(const std::string& inFile, const std::string& inFileType, 
                            const std::string& geomFile)
 {
+  fGUIControls->eventNo = 0;
+  fGUIControls->stepNo = 0;
+  fGUIControls->displayFullSig = 0;
+  run(inFile, geomFile);
+  fApplication->Run();
   DATE_AND_TIME();
   INFO("J-PET Event Display created");
   INFO("*********************");
-  guiSignalController = new GuiSignalController();
-  guiController = new GuiController(guiSignalController);
-  guiSignalController->Connect("updateGUIControlls()", "jpet_event_display::GuiController", guiController, "updateGUIControlls()");
-  guiSignalController->Connect("openFileDialog(TGFileInfo*, EFileDialogMode)", "jpet_event_display::GuiController", guiController, "openFileDialog(TGFileInfo*, EFileDialogMode)");
-  guiController->loadGeometry(geomFile);
-  guiController->openFile(inFile);
-  guiController->run();
-  //run(inFile, geomFile);
 }
 
 EventDisplay::~EventDisplay() { }
 
 void EventDisplay::run(const std::string& inFile, const std::string& geomFile)
 {
-  /*gui.loadGeometry(geomFile);
-  gui.openFile(inFile);
-  std::map<int, std::vector<int> > selection;
-  DataProcessor myProcessor;
-  if(myProcessor.openFile(inFile.c_str())) {
-    myProcessor.getParamBank();
-    while(myProcessor.nextEvent()) {
-    //  if()
-    //  ERROR("Next event is not read correctly!");
-    //} else {
-      std::map<int, std::vector<int> > sel = DataProcessor::getActiveScintillators(myProcessor.getCurrentEvent());
-      selection.insert(sel.begin(), sel.end());
-    }
-  }
-  //visualizator.drawStrips(selection);
+  fMainWindow = std::unique_ptr<TGMainFrame>(new TGMainFrame(gClient->GetRoot()));
+  fMainWindow->SetCleanup(kDeepCleanup);
+  fMainWindow->Connect("CloseWindow()", "jpet_event_display::EventDisplay", this, "CloseWindow()");
+  const Int_t w_max = 1024;
+  const Int_t h_max = 720;
+  fMainWindow->SetWMSize(w_max,h_max);  //this is the only way to set the size of the main frame
+  fMainWindow->SetLayoutBroken(kTRUE);
+  assert(fMainWindow != 0);
+
   
-  gEnv = new TEnv(".rootrc");
-  //gui.draw();
-  gui.run();
-  */
+
+  fMainWindow->SetWindowName("Single Strip Event Display ver 0.1");
+  fMainWindow->MapSubwindows();
+  fMainWindow->Resize(fMainWindow->GetDefaultSize());
+  fMainWindow->MapWindow();
+}
+
+void EventDisplay::CloseWindow() {
+  gApplication->Terminate();
 }
 }

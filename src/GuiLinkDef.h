@@ -4,8 +4,6 @@
 #pragma link off all classes;
 #pragma link off all functions;
 
-
-#pragma link C++ class jpet_event_display::GuiController;
-#pragma link C++ class jpet_event_display::GuiSignalController;
+#pragma link C++ class jpet_event_display::EventDisplay;
 
 #endif

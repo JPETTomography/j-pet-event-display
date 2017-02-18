@@ -37,16 +37,11 @@
 #include <string>
 
 using namespace std;
-
+/*
 namespace jpet_event_display
 {
   GuiController::GuiController(GuiSignalController* guiSigController) 
   {
-    fGUIControls = new GUIControlls;
-    fGUIControls->eventNo = 0;
-    fGUIControls->stepNo = 0;
-    fGUIControls->displayFullSig = 0;
-    fApplication = std::unique_ptr<TRint>(new TRint("App", 0, 0));
     createGraphicalElements();
     TCanvas *fCanvas = getfEcanvas()->GetCanvas();
     visualizator = new GeometryVisualizator(fCanvas);
@@ -194,12 +189,12 @@ namespace jpet_event_display
     // adding Frame1_4
     TGCompositeFrame *frame1_4 = new TGCompositeFrame(frame1,1,1,kHorizontalFrame);
     frame1_4->ChangeBackground(ucolor);
-    frame1->AddFrame(frame1_4, new TGLayoutHints(kLHintsExpandX /*| kLHintsExpandY*/));
+    frame1->AddFrame(frame1_4, new TGLayoutHints(kLHintsExpandX));
     
     TGCheckButton *ShowFullSig = new TGCheckButton(frame1_4, "Full signal",1);
     frame1_4->AddFrame(ShowFullSig, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY,5,5,3,4) );
     ShowFullSig->ChangeBackground(ucolor);
-    /** @todo find a way to make ShowFullSig emit a bool value */
+    
     ShowFullSig->Connect("Clicked()","jpet_event_display::GuiController", this , "fullSigDisplay()");
 
 // adding Frame1_2
@@ -259,18 +254,7 @@ namespace jpet_event_display
     nextButton->Connect("Clicked()","jpet_event_display::GuiController",this,"doNext()");
     nextButton->ChangeBackground(ucolor);
 
-    /*TGTextButton *resetButton = new TGTextButton(frame1_3_1,"&Reset >");
-    frame1_3_1->AddFrame(resetButton,new TGLayoutHints(kLHintsExpandX | kLHintsExpandY,5,5,3,4));
-    resetButton->Connect("Clicked()","GuiController",this,"doReset()");
-    resetButton->SetTextJustify(36);
-    resetButton->ChangeBackground(ucolor);
-
-    TGTextButton *showButton = new TGTextButton(frame1_3_1,"Show Data");
-    frame1_3_1->AddFrame(showButton, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY,5,5,3,4));
-    showButton->Connect("Clicked()","GuiController",this,"clearPads()");
-    showButton->Connect("Clicked()","GuiController",this,"updateGUIControlls()");
-    showButton->Connect("Clicked()","GuiController",this,"showData()");
-    showButton->ChangeBackground(ucolor);*/
+    
 
     // adding Frame1_3_2
 
@@ -341,4 +325,15 @@ void GuiController::openFileDialog (TGFileInfo* fFileInfo, EFileDialogMode dlg_t
   void GuiController::draw() { fCanvas->Draw(); }
   void GuiController::run() { fApplication->Run(); }
 
-}
+}/*TGTextButton *resetButton = new TGTextButton(frame1_3_1,"&Reset >");
+    frame1_3_1->AddFrame(resetButton,new TGLayoutHints(kLHintsExpandX | kLHintsExpandY,5,5,3,4));
+    resetButton->Connect("Clicked()","GuiController",this,"doReset()");
+    resetButton->SetTextJustify(36);
+    resetButton->ChangeBackground(ucolor);
+
+    TGTextButton *showButton = new TGTextButton(frame1_3_1,"Show Data");
+    frame1_3_1->AddFrame(showButton, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY,5,5,3,4));
+    showButton->Connect("Clicked()","GuiController",this,"clearPads()");
+    showButton->Connect("Clicked()","GuiController",this,"updateGUIControlls()");
+    showButton->Connect("Clicked()","GuiController",this,"showData()");
+    showButton->ChangeBackground(ucolor);*/
