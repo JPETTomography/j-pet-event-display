@@ -43,6 +43,9 @@ add_custom_command(OUTPUT ${DICT}
   -f ${DICT} 
   -c 
   ${CMAKE_CURRENT_SOURCE_DIR}/EventDisplay.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/GuiLinkDef.h
+  DEPENDS
+  ${CMAKE_CURRENT_SOURCE_DIR}/EventDisplay.h
   ${CMAKE_CURRENT_SOURCE_DIR}/GuiLinkDef.h )
 add_custom_target(disttarget DEPENDS ${DICT})
 
