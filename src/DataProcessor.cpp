@@ -105,7 +105,9 @@ ScintillatorsInLayers DataProcessor::getActiveScintillators(const JPetParamBank*
 
 bool DataProcessor::openFile(const char* filename)
 {
-  return fReader.openFileAndLoadData(filename);
+  bool r = fReader.openFileAndLoadData(filename);
+  numberOfEventsInFile = fReader.getNbOfAllEvents();
+  return r;
 }
 
 void DataProcessor::closeFile()
@@ -118,7 +120,8 @@ JPetTimeWindow& DataProcessor::getCurrentEvent()
   return dynamic_cast<JPetTimeWindow&> (fReader.getCurrentEvent());
 }
 
-JPetParamBank* DataProcessor::getParamBank() {
+JPetParamBank* DataProcessor::getParamBank() 
+{
   return dynamic_cast<JPetParamBank*> (fReader.getObjectFromFile("ParamBank"));
 }
 
@@ -127,4 +130,27 @@ bool DataProcessor::nextEvent()
   return fReader.nextEvent();
 }
 
+bool DataProcessor::firstEvent()
+{
+  return fReader.firstEvent();
+}
+
+bool DataProcessor::lastEvent()
+{
+  return fReader.lastEvent();
+}
+
+bool DataProcessor::nthEvent(long long n)
+{
+  if(n < numberOfEventsInFile)
+    return fReader.nthEvent(n);
+  else
+    return false;
+}
+
+std::string DataProcessor::getDataInfo()
+{
+  std::unique_ptr<JPetTreeHeader> header = std::unique_ptr<JPetTreeHeader>(fReader.getHeaderClone());
+  return header->stringify();
+}
 }

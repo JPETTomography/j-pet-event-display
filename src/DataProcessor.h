@@ -17,10 +17,12 @@
 
 #include <map>
 #include <vector>
+#include <string>
 #ifndef __CINT__
 #include <JPetTimeWindow/JPetTimeWindow.h>
 #include <JPetReader/JPetReader.h>
 #include <JPetParamBank/JPetParamBank.h>
+#include <JPetTreeHeader/JPetTreeHeader.h>
 #endif
 
 namespace jpet_event_display
@@ -40,13 +42,19 @@ public:
   void closeFile();
   JPetTimeWindow& getCurrentEvent();
   JPetParamBank* getParamBank();
+  bool firstEvent();
   bool nextEvent();
+  bool lastEvent();
+  bool nthEvent(long long n);
+
+  std::string getDataInfo();
 
 private:
   #ifndef __CINT__
   DataProcessor(const DataProcessor&) = delete;
   DataProcessor& operator=(const DataProcessor&) = delete;
   
+  long long numberOfEventsInFile = 0;
 
   JPetReader fReader;
   #endif
