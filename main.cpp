@@ -12,7 +12,7 @@
  *
  */
 
-#include <boost/program_options.hpp> /// for command line option parsing
+//#include <boost/program_options.hpp> /// for command line option parsing
 #include <TRint.h>
 #include <iostream>
 #include "src/EventDisplay.h"
@@ -20,7 +20,7 @@
 int main(int argc, char** argv)
 {
   using namespace jpet_event_display;
-  namespace po = boost::program_options;
+  /*namespace po = boost::program_options;
 
   std::string inFile = "";
   std::string fileType = "JPetTimeWindow";
@@ -41,8 +41,9 @@ int main(int argc, char** argv)
   } catch (std::exception& e) {
     std::cout << e.what() << "\n";
     return 1;
-  }
-  EventDisplay myDisplay(inFile, fileType, "JPET_geom.root");
+  }*/
+
+  EventDisplay myDisplay;
 
   return 0;
 }
