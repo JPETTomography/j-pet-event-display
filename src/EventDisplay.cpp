@@ -32,16 +32,15 @@ const char *filetypes[] = {
     "Text files", "*.[tT][xX][tT]",
     0, 0};
 
-EventDisplay::EventDisplay() {}
-
-EventDisplay::EventDisplay(const std::string &inFile, const std::string &inFileType,
-                           const std::string &geomFile)
+EventDisplay::EventDisplay() 
 {
   fGUIControls->eventNo = 0;
   fGUIControls->stepNo = 0;
   fGUIControls->displayFullSig = 0;
 
-  run(inFile, geomFile);
+  run();
+  updateGUIControlls();
+  visualizator = std::unique_ptr<GeometryVisualizator>(new GeometryVisualizator(fEcanvas->GetCanvas()));
   fApplication->Run();
   DATE_AND_TIME();
   INFO("J-PET Event Display created");
@@ -52,7 +51,7 @@ EventDisplay::~EventDisplay() {
   fMainWindow->Cleanup();
 }
 
-void EventDisplay::run(const std::string &inFile, const std::string &geomFile)
+void EventDisplay::run()
 {
   fMainWindow = std::unique_ptr<TGMainFrame>(new TGMainFrame(gClient->GetRoot()));
   fMainWindow->SetCleanup(kDeepCleanup);
@@ -88,13 +87,15 @@ void EventDisplay::run(const std::string &inFile, const std::string &geomFile)
   TGLayoutHints *fMenuBarLayout = new TGLayoutHints(kLHintsLeft | kLHintsTop, 0, 0, 0, 0);
 
   TGPopupMenu *fMenuFile = new TGPopupMenu(gClient->GetRoot());
-  fMenuFile->AddEntry(" &Open...\tCtrl+O", M_FILE_OPEN);
+  fMenuFile->AddEntry(" &Open Geometry...\tCtrl+O", E_OpenGeometry);
   fMenuFile->AddSeparator();
-  fMenuFile->AddEntry(" E&xit\tCtrl+Q", M_FILE_EXIT);
+  fMenuFile->AddEntry(" &Open Data...\tCtrl+O", E_OpenData);
+  fMenuFile->AddSeparator();
+  fMenuFile->AddEntry(" E&xit\tCtrl+Q", E_Close);
   fMenuFile->Associate(fMainWindow.get());
   fMenuFile->Connect("Activated(Int_t)", "jpet_event_display::EventDisplay", this, "handleMenu(Int_t)");
 
-  fMenuFile->DisableEntry(0);
+  fMenuFile->DisableEntry(1);
 
   fMenuBar->AddPopup("&File", fMenuFile, fMenuBarItemLayout);
 
@@ -120,13 +121,13 @@ void EventDisplay::run(const std::string &inFile, const std::string &geomFile)
 
   // adding embedded canvas
 
-  TRootEmbeddedCanvas *fEcanvas = new TRootEmbeddedCanvas("Ecanvas",frame2,600,600);
+  fEcanvas = std::unique_ptr<TRootEmbeddedCanvas>(new TRootEmbeddedCanvas("Ecanvas",frame2,600,600));
   TCanvas* canv=fEcanvas->GetCanvas();
   canv->Divide(1,2);
   canv->cd(1)->SetPad(0.0,0.9,1.0,1.0); 
   canv->cd(2)->SetPad(0.0,0.0,1.0,0.9);
   canv->cd(2)->Divide(2,2);
-  frame2->AddFrame(fEcanvas, new TGLayoutHints(kLHintsExpandX| kLHintsExpandY,10,10,10,1));
+  frame2->AddFrame(fEcanvas.get(), new TGLayoutHints(kLHintsExpandX| kLHintsExpandY,10,10,10,1));
 
   // adding Frame1_1
 
@@ -163,17 +164,17 @@ void EventDisplay::run(const std::string &inFile, const std::string &geomFile)
   frame1_1_2->ChangeBackground(ucolor);
   frame1_1->AddFrame(frame1_1_2, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY,2,2,2,2));
 
-  TGTextButton *readButton = new TGTextButton(frame1_1_2,"Read Data");
-  frame1_1_2->AddFrame(readButton,new TGLayoutHints(kLHintsExpandX | kLHintsExpandY,5,5,3,4));
-  readButton->Connect("Clicked()", "jpet_event_display::EventDisplay", this, "handleMenu(=0)");
-  readButton->SetTextJustify(36);
-  readButton->ChangeBackground(ucolor);
+  TGTextButton *readGeometryButton = new TGTextButton(frame1_1_2,"Read Geometry");
+  frame1_1_2->AddFrame(readGeometryButton,new TGLayoutHints(kLHintsExpandX | kLHintsExpandY,5,5,3,4));
+  readGeometryButton->Connect("Clicked()", "jpet_event_display::EventDisplay", this, "handleMenu(=0)");
+  readGeometryButton->SetTextJustify(36);
+  readGeometryButton->ChangeBackground(ucolor);
 
-  TGTextButton *readBaseButton = new TGTextButton(frame1_1_2,"Read Base");
-  frame1_1_2->AddFrame(readBaseButton, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY,5,5,3,4));
-  //reconstructButton->Connect("Clicked()","EDController",fManager,"recreate()");
-  readBaseButton->ChangeBackground(ucolor);
-  readBaseButton->SetEnabled(kFALSE);
+  TGTextButton *readDataButton = new TGTextButton(frame1_1_2,"Read Data");
+  frame1_1_2->AddFrame(readDataButton,new TGLayoutHints(kLHintsExpandX | kLHintsExpandY,5,5,3,4));
+  readDataButton->Connect("Clicked()", "jpet_event_display::EventDisplay", this, "handleMenu(=1)");
+  readDataButton->SetTextJustify(36);
+  readDataButton->ChangeBackground(ucolor);
 
   // adding Frame1_4
   TGCompositeFrame *frame1_4 = new TGCompositeFrame(frame1,1,1,kHorizontalFrame);
@@ -281,23 +282,30 @@ void EventDisplay::handleMenu(Int_t id)
   switch (id)
   {
 
-  case M_FILE_OPEN:
+  case E_OpenGeometry:
   {
     TString dir("");
     fFileInfo->fFileTypes = filetypes;
     fFileInfo->fIniDir = StrDup(dir);
     new TGFileDialog(gClient->GetRoot(), fMainWindow.get(), kFDOpen, fFileInfo.get());
+    assert(visualizator);
+    visualizator->loadGeometry(fFileInfo->fFilename);
+    visualizator->drawOnlyGeometry();
   }
   break;
-  case M_FILE_SAVE:
+  case E_OpenData:
   {
     TString dir("");
     fFileInfo->fFileTypes = filetypes;
     fFileInfo->fIniDir = StrDup(dir);
-    new TGFileDialog(gClient->GetRoot(), fMainWindow.get(), kFDSave, fFileInfo.get());
+    new TGFileDialog(gClient->GetRoot(), fMainWindow.get(), kFDOpen, fFileInfo.get());
+    assert(dataProcessor);
+    dataProcessor->openFile(fFileInfo->fFilename);
+    dataProcessor->getParamBank();
+    drawSelectedStrips();
   }
   break;
-  case M_FILE_EXIT:
+  case E_Close:
   {
     Emit("exit()");
   }
@@ -321,6 +329,14 @@ void EventDisplay::doNext()
 {
   fNumberEntryEventNo->SetIntNumber(fGUIControls->eventNo + fGUIControls->stepNo);
   updateGUIControlls();
+  dataProcessor->nextEvent();
+  drawSelectedStrips();
+}
+
+void EventDisplay::drawSelectedStrips()
+{
+  std::map<int, std::vector<int> > selection = DataProcessor::getActiveScintillators(dataProcessor->getCurrentEvent());
+  visualizator->drawStrips(selection);
 }
 
 }

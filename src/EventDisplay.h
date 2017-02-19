@@ -39,7 +39,8 @@
 
 #include <RQ_OBJECT.h>
 
-//#include "GuiSignalController.h"
+#include "GeometryVisualizator.h"
+#include "DataProcessor.h"
 
 namespace jpet_event_display
 {
@@ -64,13 +65,20 @@ class EventDisplay
 {
   RQ_OBJECT("EventDisplay")
 public:
-  EventDisplay(const std::string &inFile, const std::string &inFileType,
-               const std::string &geomFile = "JPET_geom.root");
   EventDisplay();
   ~EventDisplay();
 
 #ifndef __CINT__
-  void run(const std::string &inFile, const std::string &geomFile);
+  void run();
+  void drawSelectedStrips();
+
+  enum HandleMenuAction
+  {
+    E_OpenGeometry,
+    E_OpenData,
+    E_Close
+  };
+  
   enum FileType
   {
     TimeWindow,
@@ -91,8 +99,12 @@ private:
   EventDisplay(const EventDisplay &) = delete;
   EventDisplay &operator=(const EventDisplay &) = delete;
 
+  std::unique_ptr<GeometryVisualizator> visualizator;
+  std::unique_ptr<DataProcessor> dataProcessor = std::unique_ptr<DataProcessor>(new DataProcessor());
+
   std::unique_ptr<TRint> fApplication = std::unique_ptr<TRint>(new TRint("EventDisplay Gui", 0, 0));
   std::unique_ptr<GUIControlls> fGUIControls = std::unique_ptr<GUIControlls>(new GUIControlls);
+  std::unique_ptr<TRootEmbeddedCanvas> fEcanvas;
   std::unique_ptr<TGMainFrame> fMainWindow;
   std::unique_ptr<TGNumberEntry> fNumberEntryStep;
   std::unique_ptr<TGNumberEntry> fNumberEntryEventNo;
