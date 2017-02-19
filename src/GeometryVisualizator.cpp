@@ -96,7 +96,7 @@ namespace jpet_event_display
     setAllStripsUnvisible();
     if (selection.empty()) return;
     assert(fGeoManager);
-    std::unique_ptr<TGeoNode> topNode = std::unique_ptr<TGeoNode>(fGeoManager->GetTopNode());
+    TGeoNode *topNode = fGeoManager->GetTopNode();
     assert(topNode);
     TGeoNode* nodeLayer = 0; //making those shared ptr causing segfault
     TGeoNode* nodeStrip = 0;
