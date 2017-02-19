@@ -71,6 +71,9 @@ public:
 #ifndef __CINT__
   void run();
   void drawSelectedStrips();
+  void setMaxProgressBar (Int_t maxEvent);
+  inline void updateProgressBar () {fProgBar->SetPosition(Float_t(fGUIControls->eventNo));}
+  inline void updateProgressBar (Int_t num) {fProgBar->SetPosition(Float_t(num));}
 
   enum HandleMenuAction
   {
@@ -93,6 +96,8 @@ public:
   void setFiletype(enum FileType type);
   void updateGUIControlls();
   void doNext();
+  void doReset();
+  void showData();
   
 private:
 #ifndef __CINT__
@@ -108,6 +113,8 @@ private:
   std::unique_ptr<TGMainFrame> fMainWindow;
   std::unique_ptr<TGNumberEntry> fNumberEntryStep;
   std::unique_ptr<TGNumberEntry> fNumberEntryEventNo;
+  std::unique_ptr<TGHProgressBar> fProgBar;
+  std::unique_ptr<TGLabel> fInputInfo;
 
   std::unique_ptr<TGFileInfo> fFileInfo = std::unique_ptr<TGFileInfo>(new TGFileInfo);
 #endif

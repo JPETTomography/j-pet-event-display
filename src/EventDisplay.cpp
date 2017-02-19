@@ -202,9 +202,14 @@ void EventDisplay::run()
   tabFrame1->ChangeBackground(ucolor);
   tf1->AddFrame(tabFrame1, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, 5, 5, 5, 5));
 
-  TGLabel *fInputInfo = new TGLabel(tabFrame1,"No file read.",TGLabel::GetDefaultGC()(),TGLabel::GetDefaultFontStruct(),kChildFrame,ucolor);
+  fInputInfo = std::unique_ptr<TGLabel>(new TGLabel(tabFrame1,
+                                        "No file read.",
+                                        TGLabel::GetDefaultGC()(),
+                                        TGLabel::GetDefaultFontStruct(),
+                                        kChildFrame,
+                                        ucolor));
   fInputInfo->SetTextJustify(kTextTop | kTextLeft);
-  tabFrame1->AddFrame(fInputInfo, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY,1,1,1,1));
+  tabFrame1->AddFrame(fInputInfo.get(), new TGLayoutHints(kLHintsExpandX | kLHintsExpandY,1,1,1,1));
   //inputInfo->SetParts(2);
 
   // finalizing pTab
@@ -228,6 +233,17 @@ void EventDisplay::run()
   frame1_3_1->AddFrame(nextButton, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY,5,5,3,4));
   nextButton->Connect("Clicked()","jpet_event_display::EventDisplay",this,"doNext()");
   nextButton->ChangeBackground(ucolor);
+
+  TGTextButton *resetButton = new TGTextButton(frame1_3_1,"&Reset >");
+  frame1_3_1->AddFrame(resetButton,new TGLayoutHints(kLHintsExpandX | kLHintsExpandY,5,5,3,4));
+  resetButton->Connect("Clicked()","jpet_event_display::EventDisplay",this,"doReset()");
+  resetButton->SetTextJustify(36);
+  resetButton->ChangeBackground(ucolor);
+
+  TGTextButton *showButton = new TGTextButton(frame1_3_1,"Show Data");
+  frame1_3_1->AddFrame(showButton, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY,5,5,3,4));
+  showButton->Connect("Clicked()","jpet_event_display::EventDisplay",this,"showData()");
+  showButton->ChangeBackground(ucolor);
 
     
 
@@ -258,6 +274,12 @@ void EventDisplay::run()
                                                       TGNumberFormat::kNELLimitMinMax, 0, fMaxEvents));
   frame1_3_2->AddFrame(fNumberEntryEventNo.get(), new TGLayoutHints(kLHintsExpandX));
   fNumberEntryEventNo->Connect("ValueSet(Long_t)", "jpet_event_display::EventDisplay", this, "updateGUIControlls()");
+
+  fProgBar = std::unique_ptr<TGHProgressBar>(new TGHProgressBar(frame1_3,TGProgressBar::kFancy,250));
+  fProgBar->SetBarColor("lightblue");
+  fProgBar->ShowPosition(kTRUE,kFALSE,"%.0f events");
+  fProgBar->SetRange(0,fMaxEvents);
+  frame1_3->AddFrame(fProgBar.get(),new TGLayoutHints(kLHintsCenterX,5,5,3,4));
 
   // finalizing layout
 
@@ -322,21 +344,40 @@ void EventDisplay::updateGUIControlls()
 {
   fGUIControls->eventNo = fNumberEntryEventNo->GetIntNumber();
   fGUIControls->stepNo = fNumberEntryStep->GetIntNumber();
-  Emit("updateGUIControlls()");
+}
+
+void EventDisplay::doReset() {
+  fNumberEntryEventNo->SetIntNumber(1);
+  fNumberEntryStep->SetIntNumber(1);
+  updateProgressBar(0);
+  showData();
 }
 
 void EventDisplay::doNext()
 {
-  fNumberEntryEventNo->SetIntNumber(fGUIControls->eventNo + fGUIControls->stepNo);
   updateGUIControlls();
-  dataProcessor->nextEvent();
+  fNumberEntryEventNo->SetIntNumber(fGUIControls->eventNo + fGUIControls->stepNo);
+  showData();
+}
+
+void EventDisplay::showData()
+{
+  updateGUIControlls();
+  dataProcessor->nthEvent(fGUIControls->eventNo);
   drawSelectedStrips();
+  updateProgressBar();
+  fInputInfo->ChangeText(dataProcessor->getDataInfo().c_str());
 }
 
 void EventDisplay::drawSelectedStrips()
 {
   std::map<int, std::vector<int> > selection = DataProcessor::getActiveScintillators(dataProcessor->getCurrentEvent());
   visualizator->drawStrips(selection);
+}
+
+void EventDisplay::setMaxProgressBar (Int_t maxEvent) {
+  fProgBar->Format(Form("%%.0f/%d events",maxEvent));
+  fProgBar->SetRange(0.0f,Float_t(maxEvent));
 }
 
 }
