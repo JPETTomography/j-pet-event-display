@@ -6,12 +6,6 @@ add_subdirectory(j-pet-framework)
 include_directories(j-pet-framework ${Framework_INCLUDE_DIRS})
 add_definitions(${Framework_DEFINITIONS})
 
-add_subdirectory(src)
-add_subdirectory(tests)
-add_subdirectory(geometry)
-
-add_definitions(-std=c++11 -Wall -Wunused-parameter -Wextra)
-
 find_package(ROOT REQUIRED COMPONENTS 
   Gui
   Rint
@@ -28,9 +22,6 @@ find_package(ROOT REQUIRED COMPONENTS
   Html
   Core
   )
-include_directories(${ROOT_INCLUDE_DIRS})
-add_definitions(${ROOT_DEFINITIONS})
-link_directories(${ROOT_LIBRARY_DIRS})
 
 find_package(Boost 1.41.0 REQUIRED COMPONENTS
   filesystem
@@ -39,9 +30,21 @@ find_package(Boost 1.41.0 REQUIRED COMPONENTS
   system
   unit_test_framework
   )
-include_directories(${Boost_INCLUDE_DIRS})
-add_definitions(${Boost_DEFINITIONS})
-link_directories(${Boost_LIBRARY_DIRS})
+
+set(INCLUDE_PARENT ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} )
+set(DEFINITIONS_PARENT ${ROOT_DEFINITIONS} ${Boost_DEFINITIONS} )
+set(LIBRARY_PARENT ${ROOT_LIBRARY_DIRS} ${Boost_LIBRARY_DIRS} )
+
+add_subdirectory(src)
+add_subdirectory(tests)
+add_subdirectory(geometry)
+
+add_definitions(-std=c++11 -Wall -Wunused-parameter -Wextra)
+
+
+include_directories(${INCLUDE_PARENT})
+add_definitions(${DEFINITIONS_PARENT})
+link_directories(${LIBRARY_PARENT})
 
 add_executable(EventDisplay.exe ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp)
 target_link_libraries(EventDisplay.exe eventDisplay JPetFramework ${Boost_LIBRARIES} ${ROOT_LIBRARIES})
