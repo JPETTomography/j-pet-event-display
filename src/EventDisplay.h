@@ -21,9 +21,25 @@
 
 #include <TRint.h>
 
+#include <TGLabel.h>
+#include <TGNumberEntry.h>
+#include <TGMenu.h>
+#include <TGToolBar.h>
+#include <TGFileDialog.h>
+#include <TGStatusBar.h>
+#include <TGProgressBar.h>
+#include <TGButtonGroup.h>
+#include <TGTab.h>
+
+#include <TGraph.h>
+#include <TBox.h>
+#include <TMarker.h>
+#include <TRootEmbeddedCanvas.h>
+#include <TCanvas.h>
+
 #include <RQ_OBJECT.h>
 
-#include "GuiSignalController.h"
+//#include "GuiSignalController.h"
 
 namespace jpet_event_display
 {
@@ -36,6 +52,12 @@ struct GUIControlls
   Int_t rootEntries;
   Int_t *rootMatrices;
   bool displayFullSig;
+};
+
+enum EMessageTypes {
+ M_FILE_OPEN,
+ M_FILE_SAVE,
+ M_FILE_EXIT
 };
 
 class EventDisplay
@@ -51,12 +73,18 @@ public:
   void run(const std::string &inFile, const std::string &geomFile);
   enum FileType
   {
-    TimeWindow
+    TimeWindow,
+    FileType2,
+    FileType3
   };
 #endif
 
   //signals
   void CloseWindow();
+  void handleMenu (Int_t id);
+  void setFiletype(enum FileType type);
+  void updateGUIControlls();
+  void doNext();
   
 private:
 #ifndef __CINT__
@@ -66,7 +94,12 @@ private:
   std::unique_ptr<TRint> fApplication = std::unique_ptr<TRint>(new TRint("EventDisplay Gui", 0, 0));
   std::unique_ptr<GUIControlls> fGUIControls = std::unique_ptr<GUIControlls>(new GUIControlls);
   std::unique_ptr<TGMainFrame> fMainWindow;
+  std::unique_ptr<TGNumberEntry> fNumberEntryStep;
+  std::unique_ptr<TGNumberEntry> fNumberEntryEventNo;
+
+  std::unique_ptr<TGFileInfo> fFileInfo = std::unique_ptr<TGFileInfo>(new TGFileInfo);
 #endif
+  
 };
 }
 #endif /*  !EVENTDISPLAY_H */
