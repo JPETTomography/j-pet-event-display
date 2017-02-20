@@ -23,8 +23,6 @@ ScintillatorsInLayers DataProcessor::getActiveScintillators(const JPetTimeWindow
   auto sigChannels = tWindow.getSigChVect();
   
   ScintillatorsInLayers selection;
-  int skipped = 0;
-  int added = 0;
   /// This loop makes not much sense, but just for tests.
   for (const auto & channel : sigChannels) {
     /// we need to use some mapping of those numbers but for a moment let's use those values.
@@ -36,67 +34,26 @@ ScintillatorsInLayers DataProcessor::getActiveScintillators(const JPetTimeWindow
     
     auto PM = channel.getPM();
     if(PM.isNullObject()) {
-      skipped++;
       continue;
     }
     auto scin = PM.getScin();
     if(scin.isNullObject()) {
-      skipped++;
       continue;
     }
     auto scinId = scin.getID();
     auto barrel = scin.getBarrelSlot();
     if(barrel.isNullObject()) {
-      skipped++;
       continue;
     }
     auto layer = barrel.getLayer();
     if(layer.isNullObject()) {
-      skipped++;
       continue;
     }
     auto layerId = layer.getID();
     if (selection.find(layerId) != selection.end()) {
       /// The key already exists so we just add this element
-      added++;
       selection[layerId].push_back(scinId);
     } else {
-      added++;
-      selection[layerId] = {scinId};
-    }
-  }
-  return selection;
-}
-
-ScintillatorsInLayers DataProcessor::getActiveScintillators(const JPetParamBank* pBank)
-{
-  ScintillatorsInLayers selection;
-  int skipped = 0;
-  int added = 0;
-  auto scins = pBank->getScintillators();
-
-  for(auto scin : scins) {
-    if(scin.second->isNullObject()) {
-      skipped++;
-      continue;
-    }
-    auto scinId = scin.second->getID();
-    auto barrel = scin.second->getBarrelSlot();
-    if(barrel.isNullObject()) {
-      skipped++;
-      continue;
-    }
-    auto layer = barrel.getLayer();
-    if(layer.isNullObject()) {
-      skipped++;
-      continue;
-    }
-    auto layerId = layer.getID();
-    if (selection.find(layerId) != selection.end()) {
-      added++;
-      selection[layerId].push_back(scinId);
-    } else {
-      added++;
       selection[layerId] = {scinId};
     }
   }
