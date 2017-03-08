@@ -25,10 +25,10 @@
 namespace jpet_event_display
 {
 
-  GeometryVisualizator::GeometryVisualizator(TCanvas* fMyCanv):
-    fMyCanv(fMyCanv)
+  GeometryVisualizator::GeometryVisualizator(TCanvas* fMyCanv, TCanvas* f2dCanvas):
+    fMyCanv(fMyCanv), f2dCanvas(f2dCanvas)
   {
-    if (fMyCanv) fMyCanv->Divide(2, 1);
+    //if (fMyCanv) fMyCanv->Divide(2, 1);
   }
 
   GeometryVisualizator::~GeometryVisualizator() { }
@@ -58,6 +58,89 @@ namespace jpet_event_display
     fGeoManager->SetVisOption(0);
     fMyCanv->Modified();
     fMyCanv->Update();
+    draw2dGeometry();
+  }
+
+  void GeometryVisualizator::draw2dGeometry()
+  {
+    //const int scintilatorHeight = 25;
+    //const int scintilatorWidth = 50;
+    const int marginBetweenScin = 5;
+    const int marginBetweenLayers = 10;
+    const int topMargin = 10;
+    const int bottomMargin = 10;
+    const int leftMargin = 20;
+    const int rightMargin = 20;
+    const int canvasScale = 900;
+    int startX = canvasScale - leftMargin;
+    int startY = canvasScale - topMargin;
+    int canvasWidth = canvasScale - leftMargin - rightMargin;
+    int canvasHeight = canvasScale - topMargin - bottomMargin;
+    f2dCanvas->cd();
+    f2dCanvas->Range(0, 0, canvasScale, canvasScale);
+    TGeoVolume* topVolume = fGeoManager->GetTopVolume();
+    numberOfLayers = topVolume->GetNdaughters();
+    numberOfScintilatorsInLayer = new int[numberOfLayers];
+    if(numberOfLayers == 0)
+      return;
+    double layerWidth = (canvasWidth - (marginBetweenLayers * numberOfLayers)) / numberOfLayers;
+    allScintilatorsCanv = new ScintillatorCanv *[numberOfLayers];
+    for (int i = 0; i < numberOfLayers; i++) {
+      TGeoNode* node = topVolume->GetNode(i);
+      numberOfScintilatorsInLayer[i] = node->GetNdaughters();
+      double scintilatorHeight = canvasHeight / numberOfScintilatorsInLayer[i];
+      std::cout << "height: " << scintilatorHeight << "\n";
+      allScintilatorsCanv[i] =
+          new ScintillatorCanv[numberOfScintilatorsInLayer[i]];
+      for (int j = 0; j < numberOfScintilatorsInLayer[i]; j++) {
+        allScintilatorsCanv[i][j].image = new TBox(
+            leftMargin + (layerWidth * i), 
+            startY - ((j + 1) * scintilatorHeight) + marginBetweenScin, 
+            leftMargin + (layerWidth * (i + 1)) - marginBetweenLayers, 
+            startY - (j * scintilatorHeight)
+            );
+        allScintilatorsCanv[i][j].image->SetFillColor(1);
+        allScintilatorsCanv[i][j].image->Draw();
+        //allScintilatorsCanv[i][j].event = new TMarker(0.5, 0.5, 3);
+        //allScintilatorsCanv[i][j].event->SetMarkerColor(2);
+        //allScintilatorsCanv[i][j].event->SetMarkerSize(3);
+        //allScintilatorsCanv[i][j].event->Draw();
+      }
+    }
+
+    f2dCanvas->Modified();
+    f2dCanvas->Update();
+  }
+
+  void GeometryVisualizator::setAllStripsUnvisible2d()
+  {
+    assert(allScintilatorsCanv);
+    for(int i = 0; i < numberOfLayers; i++)
+    {
+      for(int j = 0; j < numberOfScintilatorsInLayer[i]; j++)
+      {
+        allScintilatorsCanv[i][j].image->SetFillColor(1);
+      }
+    }
+    f2dCanvas->Modified();
+    f2dCanvas->Update();
+  }
+
+  void GeometryVisualizator::setVisibility2d(const std::map<int, std::vector<int> >& selection)
+  {
+    for (auto iter = selection.begin(); iter != selection.end(); ++iter) {
+      int layer = iter->first;
+      const std::vector<int>& strips = iter->second;
+      for (auto stripIter = strips.begin(); stripIter != strips.end(); ++stripIter) {
+        int strip = *stripIter;
+        if(layer < numberOfLayers && layer >= 0 && strip < numberOfScintilatorsInLayer[layer] && strip >= 0)
+        {
+          allScintilatorsCanv[layer][strip].image->SetFillColor(2);
+        }
+      }
+    }
+    f2dCanvas->Modified();
+    f2dCanvas->Update();
   }
 
   void GeometryVisualizator::drawStrips(const std::map<int, std::vector<int> >& selection)
@@ -83,10 +166,10 @@ namespace jpet_event_display
     fGeoManager->GetTopVolume()->Draw();
     assert(gPad);
     TView* view = gPad->GetView();
-    view = gPad->GetView();
     assert(view);
-    view->ZoomView(0, 1.9);
-    view->SetView(view->GetLongitude(), view->GetLatitude() , view->GetPsi() - 90, irep);
+    view->ZoomView(0, 1);
+    view->SetView(0, 0 , 0, irep);
+    
     gPad->Modified();
     gPad->Update();
   }
@@ -94,6 +177,8 @@ namespace jpet_event_display
   void GeometryVisualizator::setVisibility(const std::map<int, std::vector<int> >& selection)
   {
     setAllStripsUnvisible();
+    setAllStripsUnvisible2d();
+    setVisibility2d(selection);
     if (selection.empty()) return;
     assert(fGeoManager);
     TGeoNode *topNode = fGeoManager->GetTopNode();
@@ -111,12 +196,16 @@ namespace jpet_event_display
       std::vector<int>::const_iterator stripIter;
       nodeName = getLayerNodeName(layer + 1); /// layer numbers starts from 1
       nodeLayer = topNode->GetVolume()->FindNode(nodeName.c_str());
+      if(!nodeLayer) //TODO remove, just for tests
+        return;
       
       assert(nodeLayer);
       for (stripIter = strips.begin(); stripIter != strips.end(); ++stripIter) {
         strip = *stripIter;
         nodeName = getStripNodeName(strip + 1); /// strips numbers starts from ?
         nodeStrip = nodeLayer->GetVolume()->FindNode(nodeName.c_str());
+        if(!nodeStrip) //TODO remove, just for tests
+          return;
         assert(nodeStrip);
         nodeStrip->SetVisibility(kTRUE);
       }
@@ -154,18 +243,6 @@ namespace jpet_event_display
     }
 
     node = topNode->GetVolume()->FindNode("layer_3_1");
-    assert(node);
-    node->SetVisibility(kTRUE);
-    node->GetVolume()->SetLineColor(kBlack);
-    array = node->GetNodes();
-    assert(array);
-    it  = array->MakeIterator();
-    while ((node = (TGeoNode*)it.Next())) {
-      node->SetVisibility(kFALSE);
-      node->GetVolume()->SetLineWidth(5);
-    }
-
-    node = topNode->GetVolume()->FindNode("layer_4_1");
     assert(node);
     node->SetVisibility(kTRUE);
     node->GetVolume()->SetLineColor(kBlack);
