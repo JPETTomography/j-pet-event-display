@@ -40,7 +40,8 @@ EventDisplay::EventDisplay()
 
   run();
   updateGUIControlls();
-  visualizator = std::unique_ptr<GeometryVisualizator>(new GeometryVisualizator(fEcanvas->GetCanvas()));
+  visualizator = std::unique_ptr<GeometryVisualizator>(
+                          new GeometryVisualizator(fEcanvas->GetCanvas(), f2dcanvas->GetCanvas()));
   fApplication->Run();
   DATE_AND_TIME();
   INFO("J-PET Event Display created");
@@ -119,16 +120,39 @@ void EventDisplay::run()
   frame2->Resize(w_Frame2,h_Frame2);
   globalFrame->AddFrame(frame2, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY,1,1,1,1));
 
-  // adding embedded canvas
+  
+  // adding display tabs
+  TGTab* pTabViews = new TGTab(frame2, 1, 1);
+  pTabViews->ChangeBackground(ucolor);
 
-  fEcanvas = std::unique_ptr<TRootEmbeddedCanvas>(new TRootEmbeddedCanvas("Ecanvas",frame2,600,600));
+  // adding tabFrame1
+
+  TGCompositeFrame* viewTab3d = pTabViews->AddTab("3d view");
+  viewTab3d->ChangeBackground(ucolor);
+
+  // adding embedded canvas
+  fEcanvas = std::unique_ptr<TRootEmbeddedCanvas>(new TRootEmbeddedCanvas("Ecanvas",viewTab3d,600,600));
   TCanvas* canv=fEcanvas->GetCanvas();
   canv->Divide(1,2);
   canv->cd(1)->SetPad(0.0,0.9,1.0,1.0); 
   canv->cd(2)->SetPad(0.0,0.0,1.0,0.9);
   canv->cd(2)->Divide(2,2);
-  frame2->AddFrame(fEcanvas.get(), new TGLayoutHints(kLHintsExpandX| kLHintsExpandY,10,10,10,1));
+  viewTab3d->AddFrame(fEcanvas.get(), new TGLayoutHints(kLHintsExpandX| kLHintsExpandY,10,10,10,1));
 
+  // adding tabFrame1
+
+  TGCompositeFrame* viewTab2d = pTabViews->AddTab("2d view");
+  viewTab2d->ChangeBackground(ucolor);
+
+  //TGVerticalFrame *fVFrame = new TGVerticalFrame(viewTab2d, 10, 10);
+
+  // adding embedded canvas
+  f2dcanvas = std::unique_ptr<TRootEmbeddedCanvas>(
+      new TRootEmbeddedCanvas("Ecanvas2", viewTab2d, 600, 600));
+  viewTab2d->AddFrame(f2dcanvas.get(), new TGLayoutHints(kLHintsExpandX| kLHintsExpandY,10,10,10,1));
+
+  pTabViews->SetEnabled(1,kTRUE);
+  frame2->AddFrame(pTabViews, new TGLayoutHints(kLHintsTop | kLHintsExpandX | kLHintsExpandY, 2, 2, 5, 1));
   // adding Frame1_1
 
   TGCompositeFrame *frame1_1 = new TGCompositeFrame(frame1,1,1,kVerticalFrame);
@@ -329,7 +353,7 @@ void EventDisplay::handleMenu(Int_t id)
   break;
   case E_Close:
   {
-    Emit("exit()");
+    CloseWindow();
   }
   break;
   }
