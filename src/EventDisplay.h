@@ -110,6 +110,7 @@ private:
   std::unique_ptr<TRint> fApplication = std::unique_ptr<TRint>(new TRint("EventDisplay Gui", 0, 0));
   std::unique_ptr<GUIControlls> fGUIControls = std::unique_ptr<GUIControlls>(new GUIControlls);
   std::unique_ptr<TRootEmbeddedCanvas> fEcanvas;
+  std::unique_ptr<TRootEmbeddedCanvas> f2dcanvas;
   std::unique_ptr<TGMainFrame> fMainWindow;
   std::unique_ptr<TGNumberEntry> fNumberEntryStep;
   std::unique_ptr<TGNumberEntry> fNumberEntryEventNo;
