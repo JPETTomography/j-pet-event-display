@@ -25,7 +25,7 @@ void createDetector(TGeoVolume *top, TGeoRotation* rotation)
   // concentric cylinder layers
   
   static const double kLength = 70;
-  static const int kNumberOfLayers = 4; 
+  static const int kNumberOfLayers = 3; 
   static const double kLayerThickness = 0.9; 
   // radius of every layer without layer thickness 
   static const double kRadii[] = {13., 15.5, 18., 20.5};
@@ -33,8 +33,7 @@ void createDetector(TGeoVolume *top, TGeoRotation* rotation)
 
   // XStrips are parallel to OZ axis
   // VStrips are inclined by some value i dont know what 
-  static const int kNumberOfXStrips[] = { 1344, 1578, 1818, 2058 };
-  static const int kNumberOfVStrips[] = { 2670, 3156, 3636, 4116 };
+  static const int kNumberOfXStrips[] = { 48, 48, 96 };
   
   std::vector<TGeoTube*> layers; 
   
