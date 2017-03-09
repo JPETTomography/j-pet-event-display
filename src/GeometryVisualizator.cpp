@@ -129,12 +129,12 @@ namespace jpet_event_display
   void GeometryVisualizator::setVisibility2d(const std::map<int, std::vector<int> >& selection)
   {
     for (auto iter = selection.begin(); iter != selection.end(); ++iter) {
-      int layer = iter->first;
+      int layer = iter->first - 1; // table start form 0, layers from 1
       const std::vector<int>& strips = iter->second;
       for (auto stripIter = strips.begin(); stripIter != strips.end(); ++stripIter) {
-        int strip = *stripIter;
-        if(layer < numberOfLayers && layer >= 0 && strip < numberOfScintilatorsInLayer[layer] && strip >= 0)
-        {
+        int strip = *stripIter - 1; // scintilators start from 1
+        if (layer < numberOfLayers && layer >= 0 &&
+            strip < numberOfScintilatorsInLayer[layer] && strip >= 0) {
           allScintilatorsCanv[layer][strip].image->SetFillColor(2);
         }
       }
