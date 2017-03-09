@@ -23,6 +23,7 @@
 #include <JPetReader/JPetReader.h>
 #include <JPetParamBank/JPetParamBank.h>
 #include <JPetTreeHeader/JPetTreeHeader.h>
+#include <JPetRawSignal/JPetRawSignal.h>
 #endif
 
 namespace jpet_event_display
@@ -35,12 +36,12 @@ class DataProcessor
 public:
   DataProcessor() {}
   /// this method should probably be in some other class
-  static ScintillatorsInLayers getActiveScintillators(const JPetTimeWindow& tWindow);
-  static ScintillatorsInLayers getActiveScintillators(const JPetParamBank* pBank);
+  ScintillatorsInLayers getActiveScintillators();
+  ScintillatorsInLayers getActiveScintillators(const JPetTimeWindow& tWindow);
+  ScintillatorsInLayers getActiveScintillators(const JPetRawSignal& pBank);
 
   bool openFile(const char* filename);
   void closeFile();
-  JPetTimeWindow& getCurrentEvent();
   JPetParamBank* getParamBank();
   bool firstEvent();
   bool nextEvent();
