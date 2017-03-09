@@ -132,11 +132,11 @@ void EventDisplay::run()
 
   // adding embedded canvas
   fEcanvas = std::unique_ptr<TRootEmbeddedCanvas>(new TRootEmbeddedCanvas("Ecanvas",viewTab3d,600,600));
-  TCanvas* canv=fEcanvas->GetCanvas();
-  canv->Divide(1,2);
-  canv->cd(1)->SetPad(0.0,0.9,1.0,1.0); 
-  canv->cd(2)->SetPad(0.0,0.0,1.0,0.9);
-  canv->cd(2)->Divide(2,2);
+  //TCanvas* canv=fEcanvas->GetCanvas();
+  //canv->Divide(1,2);
+  //canv->cd(1)->SetPad(0.0,0.9,1.0,1.0); 
+  //canv->cd(2)->SetPad(0.0,0.0,1.0,0.9);
+  //canv->cd(2)->Divide(2,2);
   viewTab3d->AddFrame(fEcanvas.get(), new TGLayoutHints(kLHintsExpandX| kLHintsExpandY,10,10,10,1));
 
   // adding tabFrame1
@@ -144,12 +144,20 @@ void EventDisplay::run()
   TGCompositeFrame* viewTab2d = pTabViews->AddTab("2d view");
   viewTab2d->ChangeBackground(ucolor);
 
-  //TGVerticalFrame *fVFrame = new TGVerticalFrame(viewTab2d, 10, 10);
-
   // adding embedded canvas
   f2dcanvas = std::unique_ptr<TRootEmbeddedCanvas>(
       new TRootEmbeddedCanvas("Ecanvas2", viewTab2d, 600, 600));
   viewTab2d->AddFrame(f2dcanvas.get(), new TGLayoutHints(kLHintsExpandX| kLHintsExpandY,10,10,10,1));
+
+  TGCompositeFrame *diagramTabView = pTabViews->AddTab("Diagram view");
+  diagramTabView->ChangeBackground(ucolor);
+
+  // adding embedded canvas
+  fDiagramCanvas = std::unique_ptr<TRootEmbeddedCanvas>(
+      new TRootEmbeddedCanvas("Diagrams", diagramTabView, 600, 600));
+  diagramTabView->AddFrame(
+      f2dcanvas.get(),
+      new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, 10, 10, 10, 1));
 
   pTabViews->SetEnabled(1,kTRUE);
   frame2->AddFrame(pTabViews, new TGLayoutHints(kLHintsTop | kLHintsExpandX | kLHintsExpandY, 2, 2, 5, 1));
@@ -395,7 +403,7 @@ void EventDisplay::showData()
 
 void EventDisplay::drawSelectedStrips()
 {
-  std::map<int, std::vector<int> > selection = DataProcessor::getActiveScintillators(dataProcessor->getCurrentEvent());
+  std::map<int, std::vector<int> > selection = dataProcessor->getActiveScintillators();
   visualizator->drawStrips(selection);
 }
 
