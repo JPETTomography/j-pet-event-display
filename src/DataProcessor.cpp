@@ -18,20 +18,22 @@
 namespace jpet_event_display
 {
 
+ScintillatorsInLayers DataProcessor::getActiveScintillators()
+{
+  ScintillatorsInLayers selection;
+  if(fReader.getBranch("JPetTimeWindow"))
+    selection = getActiveScintillators(dynamic_cast<JPetTimeWindow&> (fReader.getCurrentEvent()));
+  else if (fReader.getBranch("JPetRawSignal"))
+    selection = getActiveScintillators(dynamic_cast<JPetRawSignal &>(fReader.getCurrentEvent()));
+  return selection;
+}
+
 ScintillatorsInLayers DataProcessor::getActiveScintillators(const JPetTimeWindow& tWindow)
 {
   auto sigChannels = tWindow.getSigChVect();
   
   ScintillatorsInLayers selection;
-  /// This loop makes not much sense, but just for tests.
   for (const auto & channel : sigChannels) {
-    /// we need to use some mapping of those numbers but for a moment let's use those values.
-    /// ! In some analyses PM, Scin, BarrelSlots etc will be not set 
-    /// We should use part of the code from TaskB1 with LargeBarrelMapping
-    /// auto scinId = channel.getPM().getScin().getID();
-    /// auto layerId = channel.getPM().getScin().getBarrelSlot().getLayer().getID();
-    /// Just for tests.
-    
     auto PM = channel.getPM();
     if(PM.isNullObject()) {
       continue;
@@ -51,7 +53,6 @@ ScintillatorsInLayers DataProcessor::getActiveScintillators(const JPetTimeWindow
     }
     auto layerId = layer.getID();
     if (selection.find(layerId) != selection.end()) {
-      /// The key already exists so we just add this element
       selection[layerId].push_back(scinId);
     } else {
       selection[layerId] = {scinId};
@@ -60,8 +61,68 @@ ScintillatorsInLayers DataProcessor::getActiveScintillators(const JPetTimeWindow
   return selection;
 }
 
-bool DataProcessor::openFile(const char* filename)
+ScintillatorsInLayers
+DataProcessor::getActiveScintillators(const JPetRawSignal &rawSignal)
 {
+  auto leadingSigCh = rawSignal.getPoints(JPetSigCh::Leading);
+  auto trailingSigCh = rawSignal.getPoints(JPetSigCh::Trailing);
+  ScintillatorsInLayers selection;
+  for (const auto &channel : leadingSigCh) {
+    auto PM = channel.getPM();
+    if (PM.isNullObject()) {
+      continue;
+    }
+    auto scin = PM.getScin();
+    if (scin.isNullObject()) {
+      continue;
+    }
+    auto scinId = scin.getID();
+    auto barrel = scin.getBarrelSlot();
+    if (barrel.isNullObject()) {
+      continue;
+    }
+    auto layer = barrel.getLayer();
+    if (layer.isNullObject()) {
+      continue;
+    }
+    auto layerId = layer.getID();
+    if (selection.find(layerId) != selection.end()) {
+      selection[layerId].push_back(scinId);
+    } else {
+      selection[layerId] = {scinId};
+    }
+  }
+
+  for (const auto &channel : trailingSigCh) {
+    auto PM = channel.getPM();
+    if (PM.isNullObject()) {
+      continue;
+    }
+    auto scin = PM.getScin();
+    if (scin.isNullObject()) {
+      continue;
+    }
+    auto scinId = scin.getID();
+    auto barrel = scin.getBarrelSlot();
+    if (barrel.isNullObject()) {
+      continue;
+    }
+    auto layer = barrel.getLayer();
+    if (layer.isNullObject()) {
+      continue;
+    }
+    auto layerId = layer.getID();
+    if (selection.find(layerId) != selection.end()) {
+      selection[layerId].push_back(scinId);
+    } else {
+      selection[layerId] = {scinId};
+    }
+  }
+
+  return selection;
+}
+
+bool DataProcessor::openFile(const char *filename) {
   bool r = fReader.openFileAndLoadData(filename);
   numberOfEventsInFile = fReader.getNbOfAllEvents();
   return r;
@@ -70,11 +131,6 @@ bool DataProcessor::openFile(const char* filename)
 void DataProcessor::closeFile()
 {
   fReader.closeFile();
-}
-
-JPetTimeWindow& DataProcessor::getCurrentEvent()
-{
-  return dynamic_cast<JPetTimeWindow&> (fReader.getCurrentEvent());
 }
 
 JPetParamBank* DataProcessor::getParamBank() 
