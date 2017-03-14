@@ -41,7 +41,8 @@ EventDisplay::EventDisplay()
   run();
   updateGUIControlls();
   visualizator = std::unique_ptr<GeometryVisualizator>(
-                          new GeometryVisualizator(fEcanvas->GetCanvas(), f2dcanvas->GetCanvas()));
+      new GeometryVisualizator(fEcanvas->GetCanvas(), f2dcanvas->GetCanvas(),
+                               fDiagramCanvas->GetCanvas()));
   fApplication->Run();
   DATE_AND_TIME();
   INFO("J-PET Event Display created");
@@ -156,7 +157,7 @@ void EventDisplay::run()
   fDiagramCanvas = std::unique_ptr<TRootEmbeddedCanvas>(
       new TRootEmbeddedCanvas("Diagrams", diagramTabView, 600, 600));
   diagramTabView->AddFrame(
-      f2dcanvas.get(),
+      fDiagramCanvas.get(),
       new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, 10, 10, 10, 1));
 
   pTabViews->SetEnabled(1,kTRUE);
@@ -405,6 +406,7 @@ void EventDisplay::drawSelectedStrips()
 {
   std::map<int, std::vector<int> > selection = dataProcessor->getActiveScintillators();
   visualizator->drawStrips(selection);
+  visualizator->drawDiagram(dataProcessor->getDataForDiagram());
 }
 
 void EventDisplay::setMaxProgressBar (Int_t maxEvent) {
