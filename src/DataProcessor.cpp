@@ -141,7 +141,7 @@ DiagramDataMap DataProcessor::getDataForDiagram(const JPetRawSignal &rawSignal)
 
 bool DataProcessor::openFile(const char *filename) {
   bool r = fReader.openFileAndLoadData(filename);
-  numberOfEventsInFile = fReader.getNbOfAllEvents();
+  fNumberOfEventsInFile = fReader.getNbOfAllEvents();
   return r;
 }
 
@@ -172,7 +172,7 @@ bool DataProcessor::lastEvent()
 
 bool DataProcessor::nthEvent(long long n)
 {
-  if(n < numberOfEventsInFile)
+  if (n < fNumberOfEventsInFile)
     return fReader.nthEvent(n);
   else
     return false;

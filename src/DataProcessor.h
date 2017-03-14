@@ -57,7 +57,7 @@ private:
   DataProcessor(const DataProcessor&) = delete;
   DataProcessor& operator=(const DataProcessor&) = delete;
   
-  long long numberOfEventsInFile = 0;
+  long long fNumberOfEventsInFile = 0;
 
   JPetReader fReader;
   #endif
