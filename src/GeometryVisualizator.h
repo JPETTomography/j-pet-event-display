@@ -23,6 +23,7 @@
 #include <TGeoVolume.h>
 #include <TMarker.h>
 #include <TBox.h>
+#include <TGraph.h>
 #include <cassert>
 #include <map>
 #include <vector>
@@ -36,7 +37,7 @@ namespace jpet_event_display
   class GeometryVisualizator
   {
   public:
-    GeometryVisualizator(TCanvas* fMyCanv, TCanvas* f2dCanvas);
+    GeometryVisualizator(TCanvas *fMyCanv, TCanvas *f2dCanvas, TCanvas *diagramCanvas);
     ~GeometryVisualizator();
     bool isGeoManagerInitialized() const;
     void loadGeometry(const std::string& geomFile);
@@ -50,9 +51,10 @@ namespace jpet_event_display
     void setVisibility2d(const std::map<int, std::vector<int> >& selection);
     std::string getLayerNodeName(int layer) const;
     std::string getStripNodeName(int strip) const;
+    void drawDiagram(const std::map<int, std::pair<float, float>> &diagramData);
 
   private:
-    enum ColorTable { kBlack = 1, kRed = 2, kBlue = 34, kGreen = 30};
+    enum ColorTable { kBlack = 1, kRed = 2, kBlue = 34, kGreen = 30 };
     #ifndef __CINT__
     std::unique_ptr<TGeoManager> fGeoManager;
     int numberOfLayers = 0;
@@ -60,6 +62,7 @@ namespace jpet_event_display
     #endif
     TCanvas* fMyCanv;
     TCanvas* f2dCanvas;
+    TCanvas *diagramCanvas;
     struct ScintillatorCanv {
       TBox* image;
       TMarker* event;

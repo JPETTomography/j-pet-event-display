@@ -25,11 +25,9 @@
 namespace jpet_event_display
 {
 
-  GeometryVisualizator::GeometryVisualizator(TCanvas* fMyCanv, TCanvas* f2dCanvas):
-    fMyCanv(fMyCanv), f2dCanvas(f2dCanvas)
-  {
-    //if (fMyCanv) fMyCanv->Divide(2, 1);
-  }
+GeometryVisualizator::GeometryVisualizator(TCanvas *fMyCanv, TCanvas *f2dCanvas,
+                                           TCanvas *diagramCanvas)
+    : fMyCanv(fMyCanv), f2dCanvas(f2dCanvas), diagramCanvas(diagramCanvas) { }
 
   GeometryVisualizator::~GeometryVisualizator() { }
 
@@ -63,8 +61,6 @@ namespace jpet_event_display
 
   void GeometryVisualizator::draw2dGeometry()
   {
-    //const int scintilatorHeight = 25;
-    //const int scintilatorWidth = 50;
     const int marginBetweenScin = 5;
     const int marginBetweenLayers = 10;
     const int topMargin = 10;
@@ -277,5 +273,25 @@ namespace jpet_event_display
     std::string name("XStrip_");
     name.append(CommonTools::intToString(strip));
     return name;
+  }
+
+  void GeometryVisualizator::drawDiagram(const std::map<int, std::pair<float, float>>& diagramData)
+  {
+    int n = diagramData.size();
+    //std::cout << "n: " << n << "\n";
+    double x[n], y[n];
+    int i = 0;
+    for (auto it = diagramData.begin(); it != diagramData.end(); it++) {
+      y[i] = static_cast<double>(it->first);
+      // y[i] = static_cast<double>(it->second.first);
+      x[i] = static_cast<double>(it->second.second);
+      //std::cout << "x: " << x[i] << " y: " << y[i] << "\n";
+      i++;
+    }
+    diagramCanvas->cd();
+    TGraph *gr = new TGraph(n, x, y);
+    gr->Draw("ACP*");
+    diagramCanvas->Update();
+    diagramCanvas->Modified();
   }
 }
