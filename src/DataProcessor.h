@@ -30,15 +30,17 @@ namespace jpet_event_display
 {
 
 typedef std::map<int, std::vector<int> > ScintillatorsInLayers;
+typedef std::map<int, std::pair<float, float>> DiagramDataMap;
 
-class DataProcessor
-{
+class DataProcessor {
 public:
   DataProcessor() {}
   /// this method should probably be in some other class
   ScintillatorsInLayers getActiveScintillators();
   ScintillatorsInLayers getActiveScintillators(const JPetTimeWindow& tWindow);
-  ScintillatorsInLayers getActiveScintillators(const JPetRawSignal& pBank);
+  ScintillatorsInLayers getActiveScintillators(const JPetRawSignal& rawSignal);
+  DiagramDataMap getDataForDiagram();
+  DiagramDataMap getDataForDiagram(const JPetRawSignal &rawSignal);
 
   bool openFile(const char* filename);
   void closeFile();
@@ -48,7 +50,7 @@ public:
   bool lastEvent();
   bool nthEvent(long long n);
 
-  std::string getDataInfo();
+  std::string getDataInfo(); // change when imp new mapper
 
 private:
   #ifndef __CINT__

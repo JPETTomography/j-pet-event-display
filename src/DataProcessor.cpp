@@ -24,7 +24,9 @@ ScintillatorsInLayers DataProcessor::getActiveScintillators()
   if(fReader.getBranch("JPetTimeWindow"))
     selection = getActiveScintillators(dynamic_cast<JPetTimeWindow&> (fReader.getCurrentEvent()));
   else if (fReader.getBranch("JPetRawSignal"))
+  {
     selection = getActiveScintillators(dynamic_cast<JPetRawSignal &>(fReader.getCurrentEvent()));
+  }
   return selection;
 }
 
@@ -120,6 +122,21 @@ DataProcessor::getActiveScintillators(const JPetRawSignal &rawSignal)
   }
 
   return selection;
+}
+
+DiagramDataMap DataProcessor::getDataForDiagram() 
+{ 
+  DiagramDataMap data;
+  if (fReader.getBranch("JPetRawSignal"))
+    data = getDataForDiagram(
+        dynamic_cast<JPetRawSignal &>(fReader.getCurrentEvent()));
+
+  return data;
+}
+
+DiagramDataMap DataProcessor::getDataForDiagram(const JPetRawSignal &rawSignal)
+{
+  return rawSignal.getTimesVsThresholdValue(JPetSigCh::Leading);
 }
 
 bool DataProcessor::openFile(const char *filename) {
