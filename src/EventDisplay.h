@@ -110,6 +110,9 @@ private:
               std::unique_ptr<TRootEmbeddedCanvas> &saveCanvasPtr,
               const char *tabName, const char *canvasName);
 
+  void AddButton(TGCompositeFrame *parentFrame, const char *buttonText,
+                 const char *signalFunction);
+                 
   ULong_t fFrameBackgroundColor = 0;
 
   std::unique_ptr<GeometryVisualizator> visualizator;

@@ -147,17 +147,8 @@ void EventDisplay::run()
   frame1_1_2->ChangeBackground(fFrameBackgroundColor);
   frame1_1->AddFrame(frame1_1_2, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY,2,2,2,2));
 
-  TGTextButton *readGeometryButton = new TGTextButton(frame1_1_2,"Read Geometry");
-  frame1_1_2->AddFrame(readGeometryButton,new TGLayoutHints(kLHintsExpandX | kLHintsExpandY,5,5,3,4));
-  readGeometryButton->Connect("Clicked()", "jpet_event_display::EventDisplay", this, "handleMenu(=0)");
-  readGeometryButton->SetTextJustify(36);
-  readGeometryButton->ChangeBackground(fFrameBackgroundColor);
-
-  TGTextButton *readDataButton = new TGTextButton(frame1_1_2,"Read Data");
-  frame1_1_2->AddFrame(readDataButton,new TGLayoutHints(kLHintsExpandX | kLHintsExpandY,5,5,3,4));
-  readDataButton->Connect("Clicked()", "jpet_event_display::EventDisplay", this, "handleMenu(=1)");
-  readDataButton->SetTextJustify(36);
-  readDataButton->ChangeBackground(fFrameBackgroundColor);
+  AddButton(frame1_1_2, "Read Geometry", "handleMenu(=0)");
+  AddButton(frame1_1_2, "Read Data", "handleMenu(=1)");
 
   // adding Frame1_4
   TGCompositeFrame *frame1_4 = new TGCompositeFrame(frame1,1,1,kHorizontalFrame);
@@ -301,6 +292,18 @@ void EventDisplay::AddTab(TGTab *pTabViews,
   tabView->AddFrame(
       saveCanvasPtr.get(),
       new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, 10, 10, 10, 1));
+}
+
+void EventDisplay::AddButton(TGCompositeFrame *parentFrame,
+                             const char *buttonText,
+                             const char *signalFunction) {
+  TGTextButton *button = new TGTextButton(parentFrame, buttonText);
+  parentFrame->AddFrame(
+      button, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, 5, 5, 3, 4));
+  button->Connect("Clicked()", "jpet_event_display::EventDisplay", this,
+                  signalFunction);
+  button->SetTextJustify(36);
+  button->ChangeBackground(fFrameBackgroundColor);
 }
 
 void EventDisplay::CloseWindow()
