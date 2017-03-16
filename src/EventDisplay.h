@@ -81,19 +81,11 @@ public:
     E_OpenData,
     E_Close
   };
-  
-  enum FileType
-  {
-    TimeWindow,
-    FileType2,
-    FileType3
-  };
 #endif
 
   //signals
   void CloseWindow();
   void handleMenu (Int_t id);
-  void setFiletype(enum FileType type);
   void updateGUIControlls();
   void doNext();
   void doReset();

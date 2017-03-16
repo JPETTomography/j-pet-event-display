@@ -70,9 +70,6 @@ void EventDisplay::run()
   const Int_t w_Frame2 = w_max - w_Frame1;
   const Int_t h_Frame2 = h_max - 12;
   
-
-  // adding baseFrame
-
   TGCompositeFrame *baseFrame =
       AddCompositeFrame(fMainWindow.get(), w_GlobalFrame, h_GlobalFrame - 10, kVerticalFrame);
   fMainWindow->AddFrame(baseFrame, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, 0, 0, 0, 0));
@@ -81,22 +78,18 @@ void EventDisplay::run()
   gClient->GetColorByName("#e6e6e6", fFrameBackgroundColor); 
   baseFrame->ChangeBackground(fFrameBackgroundColor);
 
-  AddMenuBar(baseFrame); // add menu bar
+  AddMenuBar(baseFrame);
 
-  // adding globalFrame
   TGCompositeFrame *globalFrame =
       AddCompositeFrame(baseFrame, w_GlobalFrame, h_GlobalFrame - 10);
 
-  TGGroupFrame *frame1 =
+  TGGroupFrame *optionsFrame =
       AddGroupFrame(globalFrame, "Options", w_Frame1, h_Frame1);
   TGGroupFrame *displayFrame =
       AddGroupFrame(globalFrame, "Display", w_Frame2, h_Frame2);
 
-  CreateDisplayFrame(displayFrame); // create display frame with tabs
-  CreateOptionsFrame(frame1);
-  
-
-  // finalizing layout
+  CreateOptionsFrame(optionsFrame); 
+  CreateDisplayFrame(displayFrame);
 
   globalFrame->Resize(globalFrame->GetDefaultSize());
   baseFrame->Resize(baseFrame->GetDefaultSize());
@@ -314,10 +307,6 @@ void EventDisplay::handleMenu(Int_t id)
     break;
   }
   return;
-}
-
-void EventDisplay::setFiletype(enum FileType type){
-  assert(type == TimeWindow || type == FileType2 || type == FileType3);
 }
 
 void EventDisplay::updateGUIControlls() 
