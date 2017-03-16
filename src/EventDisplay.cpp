@@ -203,23 +203,9 @@ void EventDisplay::run()
   frame1_3_1->ChangeBackground(fFrameBackgroundColor);
   frame1_3->AddFrame(frame1_3_1, new TGLayoutHints(kLHintsExpandX| kLHintsTop,2,2,2,2));
 
-  TGTextButton *nextButton = new TGTextButton(frame1_3_1,"&Next >");
-  frame1_3_1->AddFrame(nextButton, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY,5,5,3,4));
-  nextButton->Connect("Clicked()","jpet_event_display::EventDisplay",this,"doNext()");
-  nextButton->ChangeBackground(fFrameBackgroundColor);
-
-  TGTextButton *resetButton = new TGTextButton(frame1_3_1,"&Reset >");
-  frame1_3_1->AddFrame(resetButton,new TGLayoutHints(kLHintsExpandX | kLHintsExpandY,5,5,3,4));
-  resetButton->Connect("Clicked()","jpet_event_display::EventDisplay",this,"doReset()");
-  resetButton->SetTextJustify(36);
-  resetButton->ChangeBackground(fFrameBackgroundColor);
-
-  TGTextButton *showButton = new TGTextButton(frame1_3_1,"Show Data");
-  frame1_3_1->AddFrame(showButton, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY,5,5,3,4));
-  showButton->Connect("Clicked()","jpet_event_display::EventDisplay",this,"showData()");
-  showButton->ChangeBackground(fFrameBackgroundColor);
-
-    
+  AddButton(frame1_3_1, "&Next >", "doNext()");
+  AddButton(frame1_3_1, "&Reset >", "doReset()");
+  AddButton(frame1_3_1, "Show Data", "showData()");
 
   // adding Frame1_3_2
 
