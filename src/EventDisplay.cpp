@@ -73,7 +73,8 @@ void EventDisplay::run()
 
   // adding baseFrame
 
-  TGCompositeFrame *baseFrame = new TGCompositeFrame(fMainWindow.get(), w_GlobalFrame, h_GlobalFrame - 10, kVerticalFrame);
+  TGCompositeFrame *baseFrame =
+      AddCompositeFrame(fMainWindow.get(), w_GlobalFrame, h_GlobalFrame - 10, kVerticalFrame);
   fMainWindow->AddFrame(baseFrame, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, 0, 0, 0, 0));
 
   
@@ -104,10 +105,8 @@ void EventDisplay::run()
   baseFrame->AddFrame(fMenuBar, fMenuBarLayout);
 
   // adding globalFrame
-
-  TGCompositeFrame *globalFrame = new TGCompositeFrame(baseFrame,w_GlobalFrame,h_GlobalFrame-10,kHorizontalFrame);
-  globalFrame->ChangeBackground(fFrameBackgroundColor);
-  baseFrame->AddFrame(globalFrame, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY,0,0,0,0));
+  TGCompositeFrame *globalFrame =
+      AddCompositeFrame(baseFrame, w_GlobalFrame, h_GlobalFrame - 10);
 
   TGGroupFrame *frame1 =
       AddGroupFrame(globalFrame, "Options", w_Frame1, h_Frame1);
@@ -118,52 +117,44 @@ void EventDisplay::run()
 
   // adding Frame1_1
 
-  TGCompositeFrame *frame1_1 =
-      new TGCompositeFrame(frame1, 1, 1, kVerticalFrame);
-  frame1_1->ChangeBackground(fFrameBackgroundColor);
-  //frame1_1->SetLayoutBroken(kTRUE);
-  frame1->AddFrame(frame1_1, new TGLayoutHints(kLHintsExpandX |kLHintsTop,1,1,1,1));
+  TGCompositeFrame *frame1_1 = 
+    AddCompositeFrame(frame1, 1, 1, kVerticalFrame, kLHintsExpandX |kLHintsTop, 1, 1, 1, 1);
+
 
   // adding Frame1_1_1
 
-  TGCompositeFrame *frame1_1_1 = new TGCompositeFrame(frame1_1,1,1,kHorizontalFrame);
-  frame1_1_1->ChangeBackground(fFrameBackgroundColor);
-  frame1_1->AddFrame(frame1_1_1, new TGLayoutHints(kLHintsExpandX | kLHintsTop,1,1,0,0));
+  //TGCompositeFrame *frame1_1_1 = 
+  //  AddCompositeFrame(frame1_1, 1, 1, kHorizontalFrame, kLHintsExpandX | kLHintsTop, 1, 1, 0, 0);
+
 
   // adding Frame1_1_2
 
-  TGCompositeFrame *frame1_1_2 = new TGCompositeFrame(frame1_1,1,1,kHorizontalFrame);
-  frame1_1_2->ChangeBackground(fFrameBackgroundColor);
-  frame1_1->AddFrame(frame1_1_2, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY,2,2,2,2));
+  TGCompositeFrame *frame1_1_2 = 
+    AddCompositeFrame(frame1_1, 1, 1, kHorizontalFrame, kLHintsExpandX | kLHintsExpandY, 2, 2, 2, 2);
 
   AddButton(frame1_1_2, "Read Geometry", "handleMenu(=0)");
   AddButton(frame1_1_2, "Read Data", "handleMenu(=1)");
 
   // adding Frame1_4
-  TGCompositeFrame *frame1_4 = new TGCompositeFrame(frame1,1,1,kHorizontalFrame);
-  frame1_4->ChangeBackground(fFrameBackgroundColor);
-  frame1->AddFrame(frame1_4, new TGLayoutHints(kLHintsExpandX));
+  //TGCompositeFrame *frame1_4 = AddCompositeFrame(frame1, 1, 1, kHorizontalFrame, kLHintsExpandX);
 
 // adding Frame1_2
 
-  TGCompositeFrame *frame1_2 = new TGCompositeFrame(frame1,1,1,kVerticalFrame);
-  frame1_2->ChangeBackground(fFrameBackgroundColor);
-  frame1->AddFrame(frame1_2, new TGLayoutHints(kLHintsExpandX |kLHintsExpandY,1,1,1,1));
+  TGCompositeFrame *frame1_2 = 
+    AddCompositeFrame(frame1, 1, 1, kVerticalFrame, kLHintsExpandX | kLHintsExpandY, 1, 1, 1, 1);
+
 
   //adding pTab
 
   TGTab* pTab = new TGTab(frame1_2, 1, 1);
   pTab->ChangeBackground(fFrameBackgroundColor);
-  //pTab->Connect("Selected(Int_t)", "EDGui", this, "doTab(Int_t)");
-
-  // adding tabFrame1
 
   TGCompositeFrame* tf1 = pTab->AddTab("Info");
   tf1->ChangeBackground(fFrameBackgroundColor);
 
-  TGCompositeFrame* tabFrame1 = new TGCompositeFrame(tf1, 1, 1, kVerticalFrame);
-  tabFrame1->ChangeBackground(fFrameBackgroundColor);
-  tf1->AddFrame(tabFrame1, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, 5, 5, 5, 5));
+  TGCompositeFrame* tabFrame1 = 
+    AddCompositeFrame(tf1, 1, 1, kVerticalFrame, kLHintsExpandX | kLHintsExpandY, 5, 5, 5, 5);
+
 
   fInputInfo = std::unique_ptr<TGLabel>(new TGLabel(tabFrame1,
                                         "No file read.",
@@ -182,15 +173,14 @@ void EventDisplay::run()
 
   // adding Frame1_3
 
-  TGCompositeFrame *frame1_3 = new TGCompositeFrame(frame1,1,1,kVerticalFrame);
-  frame1_3->ChangeBackground(fFrameBackgroundColor);
-  frame1->AddFrame(frame1_3, new TGLayoutHints(kLHintsExpandX| kLHintsBottom,2,2,2,2));
+  TGCompositeFrame *frame1_3 = 
+    AddCompositeFrame(frame1, 1, 1, kVerticalFrame, kLHintsExpandX| kLHintsBottom, 2, 2, 2, 2);
+
 
   // adding Frame1_3_1
 
-  TGCompositeFrame *frame1_3_1 = new TGCompositeFrame(frame1_3,1,1,kHorizontalFrame);
-  frame1_3_1->ChangeBackground(fFrameBackgroundColor);
-  frame1_3->AddFrame(frame1_3_1, new TGLayoutHints(kLHintsExpandX| kLHintsTop,2,2,2,2));
+  TGCompositeFrame *frame1_3_1 = 
+    AddCompositeFrame(frame1_3, 1, 1, kHorizontalFrame, kLHintsExpandX | kLHintsTop, 2, 2, 2, 2);
 
   AddButton(frame1_3_1, "&Next >", "doNext()");
   AddButton(frame1_3_1, "&Reset >", "doReset()");
@@ -198,9 +188,8 @@ void EventDisplay::run()
 
   // adding Frame1_3_2
 
-  TGCompositeFrame *frame1_3_2 = new TGCompositeFrame(frame1_3,1,1,kHorizontalFrame);
-  frame1_3_2->ChangeBackground(fFrameBackgroundColor);
-  frame1_3->AddFrame(frame1_3_2, new TGLayoutHints(kLHintsExpandX| kLHintsTop,5,5,5,5));
+  TGCompositeFrame *frame1_3_2 =
+    AddCompositeFrame(frame1_3, 1, 1, kHorizontalFrame, kLHintsExpandX| kLHintsTop, 5, 5, 5, 5);
 
   TGLabel *labelStep = new TGLabel(frame1_3_2,"Step",TGLabel::GetDefaultGC()(),TGLabel::GetDefaultFontStruct(),kChildFrame,fFrameBackgroundColor);
   labelStep->SetTextJustify(36);
@@ -293,10 +282,20 @@ TGGroupFrame* EventDisplay::AddGroupFrame(TGCompositeFrame *parentFrame,
   return frame;
 }
 
-void EventDisplay::CloseWindow()
-{
-  gApplication->Terminate();
+TGCompositeFrame *EventDisplay::AddCompositeFrame(TGCompositeFrame *parentFrame,
+                                                  Int_t width, Int_t height,
+                                                  Int_t options, ULong_t hints,
+                                                  Int_t padleft,Int_t padright,
+                                                  Int_t padtop, Int_t padbottom) {
+  TGCompositeFrame *frame =
+      new TGCompositeFrame(parentFrame, width, height, options);
+  frame->ChangeBackground(fFrameBackgroundColor);
+  parentFrame->AddFrame(
+      frame, new TGLayoutHints(hints, padleft, padright, padtop, padbottom));
+  return frame;
 }
+
+void EventDisplay::CloseWindow() { gApplication->Terminate(); }
 
 void EventDisplay::handleMenu(Int_t id)
 {

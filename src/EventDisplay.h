@@ -116,6 +116,13 @@ private:
   TGGroupFrame *AddGroupFrame(TGCompositeFrame *parentFrame,
                               const char *frameName, Int_t width, Int_t height);
 
+  TGCompositeFrame *AddCompositeFrame(TGCompositeFrame *parentFrame,
+                                      Int_t width, Int_t height,
+                                      Int_t options = kHorizontalFrame, 
+                                      ULong_t hints = kLHintsExpandX | kLHintsExpandY,
+                                      Int_t padleft = 0, Int_t padright = 0,
+                                      Int_t padtop = 0, Int_t padbottom = 0);
+
   ULong_t fFrameBackgroundColor = 0;
 
   std::unique_ptr<GeometryVisualizator> visualizator;
