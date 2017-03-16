@@ -14,14 +14,7 @@
  */
 
 #include "EventDisplay.h"
-
-//#include <TError.h>
-//#include <TROOT.h>
-//#include <TEnv.h>
-//#include <TCanvas.h>
 #include <JPetLoggerInclude.h>
-//#include "GeometryVisualizator.h"
-//#include "DataProcessor.h"
 
 namespace jpet_event_display
 {
@@ -36,13 +29,8 @@ EventDisplay::EventDisplay()
 {
   fGUIControls->eventNo = 0;
   fGUIControls->stepNo = 0;
-  fGUIControls->displayFullSig = 0;
-
   run();
   updateGUIControlls();
-  visualizator = std::unique_ptr<GeometryVisualizator>(
-      new GeometryVisualizator(fEcanvas->GetCanvas(), f2dcanvas->GetCanvas(),
-                               fDiagramCanvas->GetCanvas()));
   fApplication->Run();
   DATE_AND_TIME();
   INFO("J-PET Event Display created");
@@ -101,16 +89,16 @@ void EventDisplay::run()
 }
 
 void EventDisplay::CreateDisplayFrame(TGGroupFrame* parentFrame) {
-  TGTab *pTabViews = new TGTab(parentFrame, 1, 1);
-  pTabViews->ChangeBackground(fFrameBackgroundColor);
+  fDisplayTabView = std::unique_ptr<TGTab>(new TGTab(parentFrame, 1, 1));
+  fDisplayTabView->ChangeBackground(fFrameBackgroundColor);
 
-  AddTab(pTabViews, fEcanvas, "3d view", "3dViewCanvas");
-  AddTab(pTabViews, f2dcanvas, "2d view", "2dViewCanvas");
-  AddTab(pTabViews, fDiagramCanvas, "Diagram view", "diagramCanvas");
+  AddTab(fDisplayTabView, visualizator->getCanvas3d(), "3d view", "3dViewCanvas");
+  AddTab(fDisplayTabView, visualizator->getCanvas2d(), "2d view", "2dViewCanvas");
+  AddTab(fDisplayTabView, visualizator->getCanvasDiagrams(), "Diagram view", "diagramCanvas");
 
-  pTabViews->SetEnabled(1, kTRUE);
+  fDisplayTabView->SetEnabled(1, kTRUE);
   parentFrame->AddFrame(
-      pTabViews, new TGLayoutHints(kLHintsTop | kLHintsExpandX | kLHintsExpandY,
+      fDisplayTabView.get(), new TGLayoutHints(kLHintsTop | kLHintsExpandX | kLHintsExpandY,
                                    2, 2, 5, 1));
 }
 
@@ -193,8 +181,8 @@ void EventDisplay::CreateOptionsFrame(TGGroupFrame* parentFrame)
   frame1_3->AddFrame(fProgBar.get(),new TGLayoutHints(kLHintsCenterX,5,5,3,4));
 }
 
-void EventDisplay::AddTab(TGTab *pTabViews,
-                          std::unique_ptr < TRootEmbeddedCanvas> &saveCanvasPtr,
+void EventDisplay::AddTab(std::unique_ptr<TGTab> &pTabViews,
+                          std::unique_ptr<TRootEmbeddedCanvas> &saveCanvasPtr,
                           const char *tabName,
                           const char *canvasName) {
   TGCompositeFrame *tabView = pTabViews->AddTab(tabName);
@@ -272,17 +260,16 @@ void EventDisplay::CloseWindow() { gApplication->Terminate(); }
 
 void EventDisplay::handleMenu(Int_t id)
 {
-  std::cout << "in handleMenu " << id << "\n";
-
   switch (id)
   {
-
     case E_OpenGeometry:
     {
       TString dir("");
       fFileInfo->fFileTypes = filetypes;
       fFileInfo->fIniDir = StrDup(dir);
       new TGFileDialog(gClient->GetRoot(), fMainWindow.get(), kFDOpen, fFileInfo.get());
+      if(fFileInfo->fFilename == 0)
+        return;
       assert(visualizator);
       visualizator->loadGeometry(fFileInfo->fFilename);
       visualizator->drawOnlyGeometry();
@@ -294,9 +281,23 @@ void EventDisplay::handleMenu(Int_t id)
       fFileInfo->fFileTypes = filetypes;
       fFileInfo->fIniDir = StrDup(dir);
       new TGFileDialog(gClient->GetRoot(), fMainWindow.get(), kFDOpen, fFileInfo.get());
+      if(fFileInfo->fFilename == 0)
+        return;
       assert(dataProcessor);
       dataProcessor->openFile(fFileInfo->fFilename);
       dataProcessor->getParamBank();
+      /*switch(dataProcessor->getCurrentFileType())
+      {
+        case DataProcessor::FileTypes::fTimeWindow:
+          AddTab(fDisplayTabView, visualizator->getCanvas2d(), "2d view", "2dViewCanvas");
+          break;
+        case DataProcessor::FileTypes::fRawSignal:
+          AddTab(fDisplayTabView, visualizator->getCanvas2d(), "2d view", "2dViewCanvas");
+          AddTab(fDisplayTabView, visualizator->getCanvasDiagrams(), "Diagram view", "diagramCanvas");
+          break;
+        default:
+          break;
+      }*/
       drawSelectedStrips();
     }
     break;

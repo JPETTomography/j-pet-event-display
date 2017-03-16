@@ -30,6 +30,9 @@
 #include <memory>
 #include "./CommonTools.h"
 
+
+#include <TRootEmbeddedCanvas.h>
+
 class TCanvas;
 
 namespace jpet_event_display
@@ -37,7 +40,7 @@ namespace jpet_event_display
   class GeometryVisualizator
   {
   public:
-    GeometryVisualizator(TCanvas *fMyCanv, TCanvas *f2dCanvas, TCanvas *diagramCanvas);
+    GeometryVisualizator();
     ~GeometryVisualizator();
     bool isGeoManagerInitialized() const;
     void loadGeometry(const std::string& geomFile);
@@ -53,16 +56,23 @@ namespace jpet_event_display
     std::string getStripNodeName(int strip) const;
     void drawDiagram(const std::map<int, std::pair<float, float>> &diagramData);
 
+    inline std::unique_ptr<TRootEmbeddedCanvas>& getCanvas3d() { return fRootCanvas3d; }
+    inline std::unique_ptr<TRootEmbeddedCanvas>& getCanvas2d() { return fRootCanvas2d; }
+    inline std::unique_ptr<TRootEmbeddedCanvas>& getCanvasDiagrams() { return fRootCanvasDiagrams; }
+
   private:
     enum ColorTable { kBlack = 1, kRed = 2, kBlue = 34, kGreen = 30 };
     #ifndef __CINT__
     std::unique_ptr<TGeoManager> fGeoManager;
     int numberOfLayers = 0;
     int* numberOfScintilatorsInLayer; 
+    std::unique_ptr<TRootEmbeddedCanvas> fRootCanvas3d;
+    std::unique_ptr<TRootEmbeddedCanvas> fRootCanvas2d;
+    std::unique_ptr<TRootEmbeddedCanvas> fRootCanvasDiagrams;
+    std::unique_ptr<TCanvas> fCanvas3d;
+    std::unique_ptr<TCanvas> fCanvas2d;
+    std::unique_ptr<TCanvas> fCanvasDiagrams;
     #endif
-    TCanvas* fMyCanv;
-    TCanvas* f2dCanvas;
-    TCanvas *diagramCanvas;
     struct ScintillatorCanv {
       TBox* image;
       TMarker* event;

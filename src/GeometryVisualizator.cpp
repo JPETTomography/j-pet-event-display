@@ -25,9 +25,7 @@
 namespace jpet_event_display
 {
 
-GeometryVisualizator::GeometryVisualizator(TCanvas *fMyCanv, TCanvas *f2dCanvas,
-                                           TCanvas *diagramCanvas)
-    : fMyCanv(fMyCanv), f2dCanvas(f2dCanvas), diagramCanvas(diagramCanvas) { }
+GeometryVisualizator::GeometryVisualizator() { }
 
   GeometryVisualizator::~GeometryVisualizator() { }
 
@@ -45,22 +43,30 @@ GeometryVisualizator::GeometryVisualizator(TCanvas *fMyCanv, TCanvas *f2dCanvas,
 
   void GeometryVisualizator::drawOnlyGeometry()
   {
-    if (fMyCanv == 0) {
+    if (fRootCanvas3d == 0) {
       WARNING("Canvas not set");
       return;
     }
+    if(fCanvas3d == 0)
+      fCanvas3d = std::unique_ptr<TCanvas>(fRootCanvas3d->GetCanvas());
     setAllStripsUnvisible();
     //fGeoManager->GetTopVolume()->Draw();
     drawPads();
     fGeoManager->SetVisLevel(4);
     fGeoManager->SetVisOption(0);
-    fMyCanv->Modified();
-    fMyCanv->Update();
+    fCanvas3d->Modified();
+    fCanvas3d->Update();
     draw2dGeometry();
   }
 
   void GeometryVisualizator::draw2dGeometry()
   {
+    if (fRootCanvas2d == 0) {
+      WARNING("Canvas not set");
+      return;
+    }
+    if(fCanvas2d == 0)
+      fCanvas2d = std::unique_ptr<TCanvas>(fRootCanvas2d->GetCanvas());
     const int marginBetweenScin = 5;
     const int marginBetweenLayers = 10;
     const int topMargin = 10;
@@ -72,8 +78,8 @@ GeometryVisualizator::GeometryVisualizator(TCanvas *fMyCanv, TCanvas *f2dCanvas,
     int startY = canvasScale - topMargin;
     int canvasWidth = canvasScale - leftMargin - rightMargin;
     int canvasHeight = canvasScale - topMargin - bottomMargin;
-    f2dCanvas->cd();
-    f2dCanvas->Range(0, 0, canvasScale, canvasScale);
+    fCanvas2d->cd();
+    fCanvas2d->Range(0, 0, canvasScale, canvasScale);
     TGeoVolume* topVolume = fGeoManager->GetTopVolume();
     numberOfLayers = topVolume->GetNdaughters();
     numberOfScintilatorsInLayer = new int[numberOfLayers];
@@ -85,7 +91,6 @@ GeometryVisualizator::GeometryVisualizator(TCanvas *fMyCanv, TCanvas *f2dCanvas,
       TGeoNode* node = topVolume->GetNode(i);
       numberOfScintilatorsInLayer[i] = node->GetNdaughters();
       double scintilatorHeight = canvasHeight / numberOfScintilatorsInLayer[i];
-      std::cout << "height: " << scintilatorHeight << "\n";
       allScintilatorsCanv[i] =
           new ScintillatorCanv[numberOfScintilatorsInLayer[i]];
       for (int j = 0; j < numberOfScintilatorsInLayer[i]; j++) {
@@ -104,8 +109,8 @@ GeometryVisualizator::GeometryVisualizator(TCanvas *fMyCanv, TCanvas *f2dCanvas,
       }
     }
 
-    f2dCanvas->Modified();
-    f2dCanvas->Update();
+    fCanvas2d->Modified();
+    fCanvas2d->Update();
   }
 
   void GeometryVisualizator::setAllStripsUnvisible2d()
@@ -118,8 +123,8 @@ GeometryVisualizator::GeometryVisualizator(TCanvas *fMyCanv, TCanvas *f2dCanvas,
         allScintilatorsCanv[i][j].image->SetFillColor(1);
       }
     }
-    f2dCanvas->Modified();
-    f2dCanvas->Update();
+    fCanvas2d->Modified();
+    fCanvas2d->Update();
   }
 
   void GeometryVisualizator::setVisibility2d(const std::map<int, std::vector<int> >& selection)
@@ -135,13 +140,13 @@ GeometryVisualizator::GeometryVisualizator(TCanvas *fMyCanv, TCanvas *f2dCanvas,
         }
       }
     }
-    f2dCanvas->Modified();
-    f2dCanvas->Update();
+    fCanvas2d->Modified();
+    fCanvas2d->Update();
   }
 
   void GeometryVisualizator::drawStrips(const std::map<int, std::vector<int> >& selection)
   {
-    if (fMyCanv == 0) {
+    if (fCanvas3d == 0) {
       WARNING("Canvas not set");
       return;
     }
@@ -152,11 +157,11 @@ GeometryVisualizator::GeometryVisualizator(TCanvas *fMyCanv, TCanvas *f2dCanvas,
 
   void GeometryVisualizator::drawPads()
   {
-    if (fMyCanv == 0) {
+    if (fCanvas3d == 0) {
       WARNING("Canvas not set");
       return;
     }
-    fMyCanv->cd(0);
+    fCanvas3d->cd(0);
     assert(fGeoManager);
     Int_t irep;
     fGeoManager->GetTopVolume()->Draw();
@@ -277,8 +282,15 @@ GeometryVisualizator::GeometryVisualizator(TCanvas *fMyCanv, TCanvas *f2dCanvas,
 
   void GeometryVisualizator::drawDiagram(const std::map<int, std::pair<float, float>>& diagramData)
   {
+    if (fRootCanvasDiagrams == 0) {
+      WARNING("Canvas not set");
+      return;
+    }
+    if(fCanvasDiagrams == 0)
+      fCanvasDiagrams = std::unique_ptr<TCanvas>(fRootCanvasDiagrams->GetCanvas());
     int n = diagramData.size();
-    //std::cout << "n: " << n << "\n";
+    if(n == 0)
+      return;
     double x[n], y[n];
     int i = 0;
     for (auto it = diagramData.begin(); it != diagramData.end(); it++) {
@@ -288,10 +300,10 @@ GeometryVisualizator::GeometryVisualizator(TCanvas *fMyCanv, TCanvas *f2dCanvas,
       //std::cout << "x: " << x[i] << " y: " << y[i] << "\n";
       i++;
     }
-    diagramCanvas->cd();
+    fCanvasDiagrams->cd();
     TGraph *gr = new TGraph(n, x, y);
     gr->Draw("ACP*");
-    diagramCanvas->Update();
-    diagramCanvas->Modified();
+    fCanvasDiagrams->Update();
+    fCanvasDiagrams->Modified();
   }
 }

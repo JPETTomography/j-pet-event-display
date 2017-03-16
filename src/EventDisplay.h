@@ -42,17 +42,15 @@
 #include "GeometryVisualizator.h"
 #include "DataProcessor.h"
 
+
 namespace jpet_event_display
 {
 
 struct GUIControlls
 {
-
   Int_t eventNo;
   Int_t stepNo;
   Int_t rootEntries;
-  Int_t *rootMatrices;
-  bool displayFullSig;
 };
 
 enum EMessageTypes {
@@ -101,7 +99,7 @@ private:
   void CreateDisplayFrame(TGGroupFrame *parentFrame);
   void CreateOptionsFrame(TGGroupFrame* parentFrame);
 
-  void AddTab(TGTab *pTabViews,
+  void AddTab(std::unique_ptr<TGTab> &pTabViews,
               std::unique_ptr<TRootEmbeddedCanvas> &saveCanvasPtr,
               const char *tabName, const char *canvasName);
 
@@ -122,14 +120,12 @@ private:
 
   ULong_t fFrameBackgroundColor = 0;
 
-  std::unique_ptr<GeometryVisualizator> visualizator;
+  std::unique_ptr<GeometryVisualizator> visualizator = std::unique_ptr<GeometryVisualizator>(new GeometryVisualizator());
   std::unique_ptr<DataProcessor> dataProcessor = std::unique_ptr<DataProcessor>(new DataProcessor());
 
   std::unique_ptr<TRint> fApplication = std::unique_ptr<TRint>(new TRint("EventDisplay Gui", 0, 0));
   std::unique_ptr<GUIControlls> fGUIControls = std::unique_ptr<GUIControlls>(new GUIControlls);
-  std::unique_ptr<TRootEmbeddedCanvas> fEcanvas;
-  std::unique_ptr<TRootEmbeddedCanvas> f2dcanvas;
-  std::unique_ptr<TRootEmbeddedCanvas> fDiagramCanvas;
+  std::unique_ptr<TGTab> fDisplayTabView;
   std::unique_ptr<TGMainFrame> fMainWindow;
   std::unique_ptr<TGNumberEntry> fNumberEntryStep;
   std::unique_ptr<TGNumberEntry> fNumberEntryEventNo;
