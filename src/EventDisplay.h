@@ -112,7 +112,10 @@ private:
 
   void AddButton(TGCompositeFrame *parentFrame, const char *buttonText,
                  const char *signalFunction);
-                 
+
+  TGGroupFrame *AddGroupFrame(TGCompositeFrame *parentFrame,
+                              const char *frameName, Int_t width, Int_t height);
+
   ULong_t fFrameBackgroundColor = 0;
 
   std::unique_ptr<GeometryVisualizator> visualizator;

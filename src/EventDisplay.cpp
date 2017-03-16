@@ -109,21 +109,10 @@ void EventDisplay::run()
   globalFrame->ChangeBackground(fFrameBackgroundColor);
   baseFrame->AddFrame(globalFrame, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY,0,0,0,0));
 
-  // adding frame1
-
-  TGGroupFrame *frame1 = new TGGroupFrame(globalFrame,"Options",kVerticalFrame,TGGroupFrame::GetDefaultGC()(),TGGroupFrame::GetDefaultFontStruct(),fFrameBackgroundColor);
-  frame1->Resize(w_Frame1,h_Frame1);
-  globalFrame->AddFrame(frame1, new TGLayoutHints(kLHintsLeft| kLHintsExpandY,1,1,1,1));
-
-  // adding frame2
-
-  TGGroupFrame *displayFrame = new TGGroupFrame(
-      globalFrame, "Display", kVerticalFrame, TGGroupFrame::GetDefaultGC()(),
-      TGGroupFrame::GetDefaultFontStruct(), fFrameBackgroundColor);
-  displayFrame->Resize(w_Frame2, h_Frame2);
-  globalFrame->AddFrame(
-      displayFrame,
-      new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, 1, 1, 1, 1));
+  TGGroupFrame *frame1 =
+      AddGroupFrame(globalFrame, "Options", w_Frame1, h_Frame1);
+  TGGroupFrame *displayFrame =
+      AddGroupFrame(globalFrame, "Display", w_Frame2, h_Frame2);
 
   CreateDisplayFrame(displayFrame); // create display frame with tabs
 
@@ -290,6 +279,18 @@ void EventDisplay::AddButton(TGCompositeFrame *parentFrame,
                   signalFunction);
   button->SetTextJustify(36);
   button->ChangeBackground(fFrameBackgroundColor);
+}
+
+TGGroupFrame* EventDisplay::AddGroupFrame(TGCompositeFrame *parentFrame,
+                                         const char *frameName, Int_t width,
+                                         Int_t height) {
+  TGGroupFrame *frame = new TGGroupFrame(
+      parentFrame, frameName, kVerticalFrame, TGGroupFrame::GetDefaultGC()(),
+      TGGroupFrame::GetDefaultFontStruct(), fFrameBackgroundColor);
+  frame->Resize(width, height);
+  parentFrame->AddFrame(
+      frame, new TGLayoutHints(kLHintsLeft | kLHintsExpandY, 1, 1, 1, 1));
+  return frame;
 }
 
 void EventDisplay::CloseWindow()
