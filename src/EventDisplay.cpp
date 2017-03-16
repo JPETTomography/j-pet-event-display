@@ -140,22 +140,6 @@ void EventDisplay::run()
   TGCompositeFrame *frame1_1_1 = new TGCompositeFrame(frame1_1,1,1,kHorizontalFrame);
   frame1_1_1->ChangeBackground(fFrameBackgroundColor);
   frame1_1->AddFrame(frame1_1_1, new TGLayoutHints(kLHintsExpandX | kLHintsTop,1,1,0,0));
-    
-  TGButtonGroup * chooseFiletype = new TGButtonGroup(frame1_1_1,"File type",kHorizontalFrame);
-  TGRadioButton * chooseROOT = new TGRadioButton(chooseFiletype, new TGHotString("TimeWindow"),0);
-  TGRadioButton * chooseScope = new TGRadioButton(chooseFiletype ,new TGHotString("filetype2"),1);
-  TGRadioButton * chooseSim = new TGRadioButton(chooseFiletype ,new TGHotString("filetype3"),2);
-  chooseFiletype->ChangeBackground(fFrameBackgroundColor);
-  chooseROOT->ChangeBackground(fFrameBackgroundColor);
-  chooseSim->ChangeBackground(fFrameBackgroundColor);
-  chooseScope->ChangeBackground(fFrameBackgroundColor);
-  chooseFiletype->Show();
-  frame1_1_1->AddFrame(chooseFiletype,new TGLayoutHints(kLHintsExpandX | kLHintsExpandY,5,5,3,4));
-  chooseFiletype->Connect("Pressed(Int_t)", "jpet_event_display::EventDisplay", 
-                          this, "setFiletype(enum FileType)");
-  chooseScope->SetState(kButtonDown,kFALSE);
-  chooseSim->SetState(kButtonDown,kFALSE);
-  chooseROOT->SetState(kButtonDown,kTRUE);
 
   // adding Frame1_1_2
 
