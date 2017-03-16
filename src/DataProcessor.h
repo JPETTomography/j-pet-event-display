@@ -32,6 +32,8 @@ namespace jpet_event_display
 typedef std::map<int, std::vector<int> > ScintillatorsInLayers;
 typedef std::map<int, std::pair<float, float>> DiagramDataMap;
 
+enum FileTypes { fNone, fTimeWindow, fRawSignal };
+
 class DataProcessor {
 public:
   DataProcessor() {}
@@ -56,7 +58,9 @@ private:
   #ifndef __CINT__
   DataProcessor(const DataProcessor&) = delete;
   DataProcessor& operator=(const DataProcessor&) = delete;
-  
+
+  FileTypes fCurrentFileType = fNone;
+
   long long fNumberOfEventsInFile = 0;
 
   JPetReader fReader;

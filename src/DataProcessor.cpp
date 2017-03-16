@@ -21,12 +21,20 @@ namespace jpet_event_display
 ScintillatorsInLayers DataProcessor::getActiveScintillators()
 {
   ScintillatorsInLayers selection;
-  if(fReader.getBranch("JPetTimeWindow"))
-    selection = getActiveScintillators(dynamic_cast<JPetTimeWindow&> (fReader.getCurrentEvent()));
-  else if (fReader.getBranch("JPetRawSignal"))
+  switch(fCurrentFileType)
   {
-    selection = getActiveScintillators(dynamic_cast<JPetRawSignal &>(fReader.getCurrentEvent()));
+    case FileTypes::fTimeWindow :
+      selection = getActiveScintillators(
+          dynamic_cast<JPetTimeWindow &>(fReader.getCurrentEvent()));
+      break;
+    case FileTypes::fRawSignal :
+      selection = getActiveScintillators(
+          dynamic_cast<JPetRawSignal &>(fReader.getCurrentEvent()));
+      break;
+    default:
+      break;
   }
+
   return selection;
 }
 
@@ -127,7 +135,7 @@ DataProcessor::getActiveScintillators(const JPetRawSignal &rawSignal)
 DiagramDataMap DataProcessor::getDataForDiagram() 
 { 
   DiagramDataMap data;
-  if (fReader.getBranch("JPetRawSignal"))
+  if (fCurrentFileType == FileTypes::fRawSignal)
     data = getDataForDiagram(
         dynamic_cast<JPetRawSignal &>(fReader.getCurrentEvent()));
 
@@ -140,8 +148,33 @@ DiagramDataMap DataProcessor::getDataForDiagram(const JPetRawSignal &rawSignal)
 }
 
 bool DataProcessor::openFile(const char *filename) {
+  static std::map<std::string, int> compareMap;
+  if (compareMap.empty())
+  {
+    compareMap["JPetTimeWindow"] = FileTypes::fTimeWindow;
+    compareMap["JPetRawSignal"] = FileTypes::fRawSignal;
+  }
   bool r = fReader.openFileAndLoadData(filename);
   fNumberOfEventsInFile = fReader.getNbOfAllEvents();
+  if(r)
+  {
+    TTree *fTree = dynamic_cast<TTree *>(fReader.getObjectFromFile("tree"));
+    TObjArray *arr = fTree->GetListOfBranches();
+    TBranch *fBranch = dynamic_cast<TBranch*>(arr->At(0));
+    const char *branchName = fBranch->GetClassName();
+    switch(compareMap[branchName])
+    {
+      case FileTypes::fTimeWindow:
+        fCurrentFileType = FileTypes::fTimeWindow;
+        break;
+      case FileTypes::fRawSignal:
+        fCurrentFileType = FileTypes::fRawSignal;
+        break;
+      default:
+        fCurrentFileType = FileTypes::fNone;
+        break;
+    }
+  }
   return r;
 }
 
