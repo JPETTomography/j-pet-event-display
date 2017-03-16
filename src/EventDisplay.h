@@ -123,6 +123,8 @@ private:
                                       Int_t padleft = 0, Int_t padright = 0,
                                       Int_t padtop = 0, Int_t padbottom = 0);
 
+  void AddMenuBar(TGCompositeFrame *parentFrame);
+
   ULong_t fFrameBackgroundColor = 0;
 
   std::unique_ptr<GeometryVisualizator> visualizator;

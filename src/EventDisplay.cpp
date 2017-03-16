@@ -83,26 +83,7 @@ void EventDisplay::run()
 
   // adding fmenuBar
 
-  TGMenuBar *fMenuBar = new TGMenuBar(baseFrame, 1, 1, kHorizontalFrame);
-  fMenuBar->ChangeBackground(fFrameBackgroundColor);
-
-  TGLayoutHints *fMenuBarItemLayout = new TGLayoutHints(kLHintsTop | kLHintsRight, 0, 0, 0, 0);
-  TGLayoutHints *fMenuBarLayout = new TGLayoutHints(kLHintsLeft | kLHintsTop, 0, 0, 0, 0);
-
-  TGPopupMenu *fMenuFile = new TGPopupMenu(gClient->GetRoot());
-  fMenuFile->AddEntry(" &Open Geometry...\tCtrl+O", E_OpenGeometry);
-  fMenuFile->AddSeparator();
-  fMenuFile->AddEntry(" &Open Data...\tCtrl+O", E_OpenData);
-  fMenuFile->AddSeparator();
-  fMenuFile->AddEntry(" E&xit\tCtrl+Q", E_Close);
-  fMenuFile->Associate(fMainWindow.get());
-  fMenuFile->Connect("Activated(Int_t)", "jpet_event_display::EventDisplay", this, "handleMenu(Int_t)");
-
-  fMenuFile->DisableEntry(1);
-
-  fMenuBar->AddPopup("&File", fMenuFile, fMenuBarItemLayout);
-
-  baseFrame->AddFrame(fMenuBar, fMenuBarLayout);
+  AddMenuBar(baseFrame);
 
   // adding globalFrame
   TGCompositeFrame *globalFrame =
@@ -293,6 +274,30 @@ TGCompositeFrame *EventDisplay::AddCompositeFrame(TGCompositeFrame *parentFrame,
   parentFrame->AddFrame(
       frame, new TGLayoutHints(hints, padleft, padright, padtop, padbottom));
   return frame;
+}
+
+void EventDisplay::AddMenuBar(TGCompositeFrame *parentFrame)
+{
+  TGMenuBar *fMenuBar = new TGMenuBar(parentFrame, 1, 1, kHorizontalFrame);
+  fMenuBar->ChangeBackground(fFrameBackgroundColor);
+
+  TGLayoutHints *fMenuBarItemLayout = new TGLayoutHints(kLHintsTop | kLHintsRight, 0, 0, 0, 0);
+  TGLayoutHints *fMenuBarLayout = new TGLayoutHints(kLHintsLeft | kLHintsTop, 0, 0, 0, 0);
+
+  TGPopupMenu *fMenuFile = new TGPopupMenu(gClient->GetRoot());
+  fMenuFile->AddEntry(" &Open Geometry...\tCtrl+O", E_OpenGeometry);
+  fMenuFile->AddSeparator();
+  fMenuFile->AddEntry(" &Open Data...\tCtrl+O", E_OpenData);
+  fMenuFile->AddSeparator();
+  fMenuFile->AddEntry(" E&xit\tCtrl+Q", E_Close);
+  fMenuFile->Associate(fMainWindow.get());
+  fMenuFile->Connect("Activated(Int_t)", "jpet_event_display::EventDisplay", this, "handleMenu(Int_t)");
+
+  fMenuFile->DisableEntry(1);
+
+  fMenuBar->AddPopup("&File", fMenuFile, fMenuBarItemLayout);
+
+  parentFrame->AddFrame(fMenuBar, fMenuBarLayout);
 }
 
 void EventDisplay::CloseWindow() { gApplication->Terminate(); }
