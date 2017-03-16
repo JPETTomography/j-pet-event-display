@@ -100,11 +100,14 @@ public:
   void showData();
   
 private:
-  void CreateDisplayFrame(TGGroupFrame *parentFrame);
+  
 
 #ifndef __CINT__
   EventDisplay(const EventDisplay &) = delete;
   EventDisplay &operator=(const EventDisplay &) = delete;
+
+  void CreateDisplayFrame(TGGroupFrame *parentFrame);
+  void CreateOptionsFrame(TGGroupFrame* parentFrame);
 
   void AddTab(TGTab *pTabViews,
               std::unique_ptr<TRootEmbeddedCanvas> &saveCanvasPtr,

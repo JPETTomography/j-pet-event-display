@@ -69,7 +69,7 @@ void EventDisplay::run()
   const Int_t h_Frame1 = h_max - 12; // cause 2*5 margins from GlobalFrame and 2*1 margins from Frame1
   const Int_t w_Frame2 = w_max - w_Frame1;
   const Int_t h_Frame2 = h_max - 12;
-  int fMaxEvents = 1000; // temporary
+  
 
   // adding baseFrame
 
@@ -77,13 +77,11 @@ void EventDisplay::run()
       AddCompositeFrame(fMainWindow.get(), w_GlobalFrame, h_GlobalFrame - 10, kVerticalFrame);
   fMainWindow->AddFrame(baseFrame, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, 0, 0, 0, 0));
 
-  
-  gClient->GetColorByName("#e6e6e6", fFrameBackgroundColor);
+  //saving background color in fFrameBackgroundColor
+  gClient->GetColorByName("#e6e6e6", fFrameBackgroundColor); 
   baseFrame->ChangeBackground(fFrameBackgroundColor);
 
-  // adding fmenuBar
-
-  AddMenuBar(baseFrame);
+  AddMenuBar(baseFrame); // add menu bar
 
   // adding globalFrame
   TGCompositeFrame *globalFrame =
@@ -95,110 +93,8 @@ void EventDisplay::run()
       AddGroupFrame(globalFrame, "Display", w_Frame2, h_Frame2);
 
   CreateDisplayFrame(displayFrame); // create display frame with tabs
-
-  // adding Frame1_1
-
-  TGCompositeFrame *frame1_1 = 
-    AddCompositeFrame(frame1, 1, 1, kVerticalFrame, kLHintsExpandX |kLHintsTop, 1, 1, 1, 1);
-
-
-  // adding Frame1_1_1
-
-  //TGCompositeFrame *frame1_1_1 = 
-  //  AddCompositeFrame(frame1_1, 1, 1, kHorizontalFrame, kLHintsExpandX | kLHintsTop, 1, 1, 0, 0);
-
-
-  // adding Frame1_1_2
-
-  TGCompositeFrame *frame1_1_2 = 
-    AddCompositeFrame(frame1_1, 1, 1, kHorizontalFrame, kLHintsExpandX | kLHintsExpandY, 2, 2, 2, 2);
-
-  AddButton(frame1_1_2, "Read Geometry", "handleMenu(=0)");
-  AddButton(frame1_1_2, "Read Data", "handleMenu(=1)");
-
-  // adding Frame1_4
-  //TGCompositeFrame *frame1_4 = AddCompositeFrame(frame1, 1, 1, kHorizontalFrame, kLHintsExpandX);
-
-// adding Frame1_2
-
-  TGCompositeFrame *frame1_2 = 
-    AddCompositeFrame(frame1, 1, 1, kVerticalFrame, kLHintsExpandX | kLHintsExpandY, 1, 1, 1, 1);
-
-
-  //adding pTab
-
-  TGTab* pTab = new TGTab(frame1_2, 1, 1);
-  pTab->ChangeBackground(fFrameBackgroundColor);
-
-  TGCompositeFrame* tf1 = pTab->AddTab("Info");
-  tf1->ChangeBackground(fFrameBackgroundColor);
-
-  TGCompositeFrame* tabFrame1 = 
-    AddCompositeFrame(tf1, 1, 1, kVerticalFrame, kLHintsExpandX | kLHintsExpandY, 5, 5, 5, 5);
-
-
-  fInputInfo = std::unique_ptr<TGLabel>(new TGLabel(tabFrame1,
-                                        "No file read.",
-                                        TGLabel::GetDefaultGC()(),
-                                        TGLabel::GetDefaultFontStruct(),
-                                        kChildFrame,
-                                        fFrameBackgroundColor));
-  fInputInfo->SetTextJustify(kTextTop | kTextLeft);
-  tabFrame1->AddFrame(fInputInfo.get(), new TGLayoutHints(kLHintsExpandX | kLHintsExpandY,1,1,1,1));
-  //inputInfo->SetParts(2);
-
-  // finalizing pTab
+  CreateOptionsFrame(frame1);
   
-  pTab->SetEnabled(1,kTRUE);
-  frame1_2->AddFrame(pTab, new TGLayoutHints(kLHintsTop | kLHintsExpandX | kLHintsExpandY, 2, 2, 5, 1));
-
-  // adding Frame1_3
-
-  TGCompositeFrame *frame1_3 = 
-    AddCompositeFrame(frame1, 1, 1, kVerticalFrame, kLHintsExpandX| kLHintsBottom, 2, 2, 2, 2);
-
-
-  // adding Frame1_3_1
-
-  TGCompositeFrame *frame1_3_1 = 
-    AddCompositeFrame(frame1_3, 1, 1, kHorizontalFrame, kLHintsExpandX | kLHintsTop, 2, 2, 2, 2);
-
-  AddButton(frame1_3_1, "&Next >", "doNext()");
-  AddButton(frame1_3_1, "&Reset >", "doReset()");
-  AddButton(frame1_3_1, "Show Data", "showData()");
-
-  // adding Frame1_3_2
-
-  TGCompositeFrame *frame1_3_2 =
-    AddCompositeFrame(frame1_3, 1, 1, kHorizontalFrame, kLHintsExpandX| kLHintsTop, 5, 5, 5, 5);
-
-  TGLabel *labelStep = new TGLabel(frame1_3_2,"Step",TGLabel::GetDefaultGC()(),TGLabel::GetDefaultFontStruct(),kChildFrame,fFrameBackgroundColor);
-  labelStep->SetTextJustify(36);
-  frame1_3_2->AddFrame(labelStep, new TGLayoutHints(kLHintsLeft | kLHintsTop,2,2,2,2));
-
-  fNumberEntryStep = std::unique_ptr<TGNumberEntry>(new TGNumberEntry(frame1_3_2,
-                                                  1, 5, -1, TGNumberFormat::kNESInteger,
-                                                  TGNumberFormat::kNEAPositive,
-                                                  TGNumberFormat::kNELLimitMinMax, 1,fMaxEvents));
-  frame1_3_2->AddFrame(fNumberEntryStep.get(), new TGLayoutHints(kLHintsCenterX,5,5,3,4));
-  fNumberEntryStep->Connect("ValueSet(Long_t)", "jpet_event_display::EventDisplay", this, "updateGUIControlls()");
-
-  TGLabel *labelEventNo = new TGLabel(frame1_3_2,"Event no",TGLabel::GetDefaultGC()(),TGLabel::GetDefaultFontStruct(),kChildFrame,fFrameBackgroundColor);
-  labelEventNo->SetTextJustify(36);
-  frame1_3_2->AddFrame(labelEventNo, new TGLayoutHints(kLHintsLeft | kLHintsTop,2,2,2,2));
-
-  fNumberEntryEventNo = std::unique_ptr<TGNumberEntry>(new TGNumberEntry(frame1_3_2,
-                                                      1, 5, -1, TGNumberFormat::kNESInteger,
-                                                      TGNumberFormat::kNEANonNegative,
-                                                      TGNumberFormat::kNELLimitMinMax, 0, fMaxEvents));
-  frame1_3_2->AddFrame(fNumberEntryEventNo.get(), new TGLayoutHints(kLHintsExpandX));
-  fNumberEntryEventNo->Connect("ValueSet(Long_t)", "jpet_event_display::EventDisplay", this, "updateGUIControlls()");
-
-  fProgBar = std::unique_ptr<TGHProgressBar>(new TGHProgressBar(frame1_3,TGProgressBar::kFancy,250));
-  fProgBar->SetBarColor("lightblue");
-  fProgBar->ShowPosition(kTRUE,kFALSE,"%.0f events");
-  fProgBar->SetRange(0,fMaxEvents);
-  frame1_3->AddFrame(fProgBar.get(),new TGLayoutHints(kLHintsCenterX,5,5,3,4));
 
   // finalizing layout
 
@@ -223,6 +119,85 @@ void EventDisplay::CreateDisplayFrame(TGGroupFrame* parentFrame) {
   parentFrame->AddFrame(
       pTabViews, new TGLayoutHints(kLHintsTop | kLHintsExpandX | kLHintsExpandY,
                                    2, 2, 5, 1));
+}
+
+void EventDisplay::CreateOptionsFrame(TGGroupFrame* parentFrame)
+{
+  TGCompositeFrame *frame1_1 = 
+    AddCompositeFrame(parentFrame, 1, 1, kVerticalFrame, kLHintsExpandX |kLHintsTop, 1, 1, 1, 1);
+
+  TGCompositeFrame *frame1_1_2 = 
+    AddCompositeFrame(frame1_1, 1, 1, kHorizontalFrame, kLHintsExpandX | kLHintsExpandY, 2, 2, 2, 2);
+
+  AddButton(frame1_1_2, "Read Geometry", "handleMenu(=0)");
+  AddButton(frame1_1_2, "Read Data", "handleMenu(=1)");
+
+  TGCompositeFrame *frame1_2 = 
+    AddCompositeFrame(parentFrame, 1, 1, kVerticalFrame, kLHintsExpandX | kLHintsExpandY, 1, 1, 1, 1);
+
+  TGTab* pTab = new TGTab(frame1_2, 1, 1);
+  pTab->ChangeBackground(fFrameBackgroundColor);
+
+  TGCompositeFrame* tf1 = pTab->AddTab("Info");
+  tf1->ChangeBackground(fFrameBackgroundColor);
+
+  TGCompositeFrame* tabFrame1 = 
+    AddCompositeFrame(tf1, 1, 1, kVerticalFrame, kLHintsExpandX | kLHintsExpandY, 5, 5, 5, 5);
+
+  fInputInfo = std::unique_ptr<TGLabel>(new TGLabel(tabFrame1,
+                                        "No file read.",
+                                        TGLabel::GetDefaultGC()(),
+                                        TGLabel::GetDefaultFontStruct(),
+                                        kChildFrame,
+                                        fFrameBackgroundColor));
+  fInputInfo->SetTextJustify(kTextTop | kTextLeft);
+  tabFrame1->AddFrame(fInputInfo.get(), new TGLayoutHints(kLHintsExpandX | kLHintsExpandY,1,1,1,1));
+
+  pTab->SetEnabled(1,kTRUE);
+  frame1_2->AddFrame(pTab, new TGLayoutHints(kLHintsTop | kLHintsExpandX | kLHintsExpandY, 2, 2, 5, 1));
+
+  TGCompositeFrame *frame1_3 = 
+    AddCompositeFrame(parentFrame, 1, 1, kVerticalFrame, kLHintsExpandX| kLHintsBottom, 2, 2, 2, 2);
+
+  TGCompositeFrame *frame1_3_1 = 
+    AddCompositeFrame(frame1_3, 1, 1, kHorizontalFrame, kLHintsExpandX | kLHintsTop, 2, 2, 2, 2);
+
+  AddButton(frame1_3_1, "&Next >", "doNext()");
+  AddButton(frame1_3_1, "&Reset >", "doReset()");
+  AddButton(frame1_3_1, "Show Data", "showData()");
+
+  TGCompositeFrame *frame1_3_2 =
+    AddCompositeFrame(frame1_3, 1, 1, kHorizontalFrame, kLHintsExpandX| kLHintsTop, 5, 5, 5, 5);
+
+  TGLabel *labelStep = new TGLabel(frame1_3_2,"Step",TGLabel::GetDefaultGC()(),TGLabel::GetDefaultFontStruct(),kChildFrame,fFrameBackgroundColor);
+  labelStep->SetTextJustify(36);
+  frame1_3_2->AddFrame(labelStep, new TGLayoutHints(kLHintsLeft | kLHintsTop,2,2,2,2));
+
+  int fMaxEvents = 1000; // temporary
+
+  fNumberEntryStep = std::unique_ptr<TGNumberEntry>(new TGNumberEntry(frame1_3_2,
+                                                  1, 5, -1, TGNumberFormat::kNESInteger,
+                                                  TGNumberFormat::kNEAPositive,
+                                                  TGNumberFormat::kNELLimitMinMax, 1,fMaxEvents));
+  frame1_3_2->AddFrame(fNumberEntryStep.get(), new TGLayoutHints(kLHintsCenterX,5,5,3,4));
+  fNumberEntryStep->Connect("ValueSet(Long_t)", "jpet_event_display::EventDisplay", this, "updateGUIControlls()");
+
+  TGLabel *labelEventNo = new TGLabel(frame1_3_2,"Event no",TGLabel::GetDefaultGC()(),TGLabel::GetDefaultFontStruct(),kChildFrame,fFrameBackgroundColor);
+  labelEventNo->SetTextJustify(36);
+  frame1_3_2->AddFrame(labelEventNo, new TGLayoutHints(kLHintsLeft | kLHintsTop,2,2,2,2));
+
+  fNumberEntryEventNo = std::unique_ptr<TGNumberEntry>(new TGNumberEntry(frame1_3_2,
+                                                      1, 5, -1, TGNumberFormat::kNESInteger,
+                                                      TGNumberFormat::kNEANonNegative,
+                                                      TGNumberFormat::kNELLimitMinMax, 0, fMaxEvents));
+  frame1_3_2->AddFrame(fNumberEntryEventNo.get(), new TGLayoutHints(kLHintsExpandX));
+  fNumberEntryEventNo->Connect("ValueSet(Long_t)", "jpet_event_display::EventDisplay", this, "updateGUIControlls()");
+
+  fProgBar = std::unique_ptr<TGHProgressBar>(new TGHProgressBar(frame1_3,TGProgressBar::kFancy,250));
+  fProgBar->SetBarColor("lightblue");
+  fProgBar->ShowPosition(kTRUE,kFALSE,"%.0f events");
+  fProgBar->SetRange(0,fMaxEvents);
+  frame1_3->AddFrame(fProgBar.get(),new TGLayoutHints(kLHintsCenterX,5,5,3,4));
 }
 
 void EventDisplay::AddTab(TGTab *pTabViews,
@@ -309,34 +284,34 @@ void EventDisplay::handleMenu(Int_t id)
   switch (id)
   {
 
-  case E_OpenGeometry:
-  {
-    TString dir("");
-    fFileInfo->fFileTypes = filetypes;
-    fFileInfo->fIniDir = StrDup(dir);
-    new TGFileDialog(gClient->GetRoot(), fMainWindow.get(), kFDOpen, fFileInfo.get());
-    assert(visualizator);
-    visualizator->loadGeometry(fFileInfo->fFilename);
-    visualizator->drawOnlyGeometry();
-  }
-  break;
-  case E_OpenData:
-  {
-    TString dir("");
-    fFileInfo->fFileTypes = filetypes;
-    fFileInfo->fIniDir = StrDup(dir);
-    new TGFileDialog(gClient->GetRoot(), fMainWindow.get(), kFDOpen, fFileInfo.get());
-    assert(dataProcessor);
-    dataProcessor->openFile(fFileInfo->fFilename);
-    dataProcessor->getParamBank();
-    drawSelectedStrips();
-  }
-  break;
-  case E_Close:
-  {
-    CloseWindow();
-  }
-  break;
+    case E_OpenGeometry:
+    {
+      TString dir("");
+      fFileInfo->fFileTypes = filetypes;
+      fFileInfo->fIniDir = StrDup(dir);
+      new TGFileDialog(gClient->GetRoot(), fMainWindow.get(), kFDOpen, fFileInfo.get());
+      assert(visualizator);
+      visualizator->loadGeometry(fFileInfo->fFilename);
+      visualizator->drawOnlyGeometry();
+    }
+    break;
+    case E_OpenData:
+    {
+      TString dir("");
+      fFileInfo->fFileTypes = filetypes;
+      fFileInfo->fIniDir = StrDup(dir);
+      new TGFileDialog(gClient->GetRoot(), fMainWindow.get(), kFDOpen, fFileInfo.get());
+      assert(dataProcessor);
+      dataProcessor->openFile(fFileInfo->fFilename);
+      dataProcessor->getParamBank();
+      drawSelectedStrips();
+    }
+    break;
+    case E_Close:
+    {
+      CloseWindow();
+    }
+    break;
   }
   return;
 }
