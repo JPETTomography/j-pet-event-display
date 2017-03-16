@@ -100,9 +100,17 @@ public:
   void showData();
   
 private:
+  void CreateDisplayFrame(TGGroupFrame *parentFrame);
+
 #ifndef __CINT__
   EventDisplay(const EventDisplay &) = delete;
   EventDisplay &operator=(const EventDisplay &) = delete;
+
+  void AddTab(TGTab *pTabViews,
+              std::unique_ptr<TRootEmbeddedCanvas> &saveCanvasPtr,
+              const char *tabName, const char *canvasName);
+
+  ULong_t fFrameBackgroundColor = 0;
 
   std::unique_ptr<GeometryVisualizator> visualizator;
   std::unique_ptr<DataProcessor> dataProcessor = std::unique_ptr<DataProcessor>(new DataProcessor());

@@ -76,14 +76,14 @@ void EventDisplay::run()
   TGCompositeFrame *baseFrame = new TGCompositeFrame(fMainWindow.get(), w_GlobalFrame, h_GlobalFrame - 10, kVerticalFrame);
   fMainWindow->AddFrame(baseFrame, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, 0, 0, 0, 0));
 
-  ULong_t ucolor = 0;
-  gClient->GetColorByName("#e6e6e6", ucolor);
-  baseFrame->ChangeBackground(ucolor);
+  
+  gClient->GetColorByName("#e6e6e6", fFrameBackgroundColor);
+  baseFrame->ChangeBackground(fFrameBackgroundColor);
 
   // adding fmenuBar
 
   TGMenuBar *fMenuBar = new TGMenuBar(baseFrame, 1, 1, kHorizontalFrame);
-  fMenuBar->ChangeBackground(ucolor);
+  fMenuBar->ChangeBackground(fFrameBackgroundColor);
 
   TGLayoutHints *fMenuBarItemLayout = new TGLayoutHints(kLHintsTop | kLHintsRight, 0, 0, 0, 0);
   TGLayoutHints *fMenuBarLayout = new TGLayoutHints(kLHintsLeft | kLHintsTop, 0, 0, 0, 0);
@@ -106,83 +106,49 @@ void EventDisplay::run()
   // adding globalFrame
 
   TGCompositeFrame *globalFrame = new TGCompositeFrame(baseFrame,w_GlobalFrame,h_GlobalFrame-10,kHorizontalFrame);
-  globalFrame->ChangeBackground(ucolor);
+  globalFrame->ChangeBackground(fFrameBackgroundColor);
   baseFrame->AddFrame(globalFrame, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY,0,0,0,0));
 
   // adding frame1
 
-  TGGroupFrame *frame1 = new TGGroupFrame(globalFrame,"Options",kVerticalFrame,TGGroupFrame::GetDefaultGC()(),TGGroupFrame::GetDefaultFontStruct(),ucolor);
+  TGGroupFrame *frame1 = new TGGroupFrame(globalFrame,"Options",kVerticalFrame,TGGroupFrame::GetDefaultGC()(),TGGroupFrame::GetDefaultFontStruct(),fFrameBackgroundColor);
   frame1->Resize(w_Frame1,h_Frame1);
   globalFrame->AddFrame(frame1, new TGLayoutHints(kLHintsLeft| kLHintsExpandY,1,1,1,1));
 
   // adding frame2
 
-  TGGroupFrame *frame2 = new TGGroupFrame(globalFrame,"Display",kVerticalFrame,TGGroupFrame::GetDefaultGC()(),TGGroupFrame::GetDefaultFontStruct(),ucolor);
-  frame2->Resize(w_Frame2,h_Frame2);
-  globalFrame->AddFrame(frame2, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY,1,1,1,1));
+  TGGroupFrame *displayFrame = new TGGroupFrame(
+      globalFrame, "Display", kVerticalFrame, TGGroupFrame::GetDefaultGC()(),
+      TGGroupFrame::GetDefaultFontStruct(), fFrameBackgroundColor);
+  displayFrame->Resize(w_Frame2, h_Frame2);
+  globalFrame->AddFrame(
+      displayFrame,
+      new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, 1, 1, 1, 1));
 
-  
-  // adding display tabs
-  TGTab* pTabViews = new TGTab(frame2, 1, 1);
-  pTabViews->ChangeBackground(ucolor);
+  CreateDisplayFrame(displayFrame); // create display frame with tabs
 
-  // adding tabFrame1
-
-  TGCompositeFrame* viewTab3d = pTabViews->AddTab("3d view");
-  viewTab3d->ChangeBackground(ucolor);
-
-  // adding embedded canvas
-  fEcanvas = std::unique_ptr<TRootEmbeddedCanvas>(new TRootEmbeddedCanvas("Ecanvas",viewTab3d,600,600));
-  //TCanvas* canv=fEcanvas->GetCanvas();
-  //canv->Divide(1,2);
-  //canv->cd(1)->SetPad(0.0,0.9,1.0,1.0); 
-  //canv->cd(2)->SetPad(0.0,0.0,1.0,0.9);
-  //canv->cd(2)->Divide(2,2);
-  viewTab3d->AddFrame(fEcanvas.get(), new TGLayoutHints(kLHintsExpandX| kLHintsExpandY,10,10,10,1));
-
-  // adding tabFrame1
-
-  TGCompositeFrame* viewTab2d = pTabViews->AddTab("2d view");
-  viewTab2d->ChangeBackground(ucolor);
-
-  // adding embedded canvas
-  f2dcanvas = std::unique_ptr<TRootEmbeddedCanvas>(
-      new TRootEmbeddedCanvas("Ecanvas2", viewTab2d, 600, 600));
-  viewTab2d->AddFrame(f2dcanvas.get(), new TGLayoutHints(kLHintsExpandX| kLHintsExpandY,10,10,10,1));
-
-  TGCompositeFrame *diagramTabView = pTabViews->AddTab("Diagram view");
-  diagramTabView->ChangeBackground(ucolor);
-
-  // adding embedded canvas
-  fDiagramCanvas = std::unique_ptr<TRootEmbeddedCanvas>(
-      new TRootEmbeddedCanvas("Diagrams", diagramTabView, 600, 600));
-  diagramTabView->AddFrame(
-      fDiagramCanvas.get(),
-      new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, 10, 10, 10, 1));
-
-  pTabViews->SetEnabled(1,kTRUE);
-  frame2->AddFrame(pTabViews, new TGLayoutHints(kLHintsTop | kLHintsExpandX | kLHintsExpandY, 2, 2, 5, 1));
   // adding Frame1_1
 
-  TGCompositeFrame *frame1_1 = new TGCompositeFrame(frame1,1,1,kVerticalFrame);
-  frame1_1->ChangeBackground(ucolor);
+  TGCompositeFrame *frame1_1 =
+      new TGCompositeFrame(frame1, 1, 1, kVerticalFrame);
+  frame1_1->ChangeBackground(fFrameBackgroundColor);
   //frame1_1->SetLayoutBroken(kTRUE);
   frame1->AddFrame(frame1_1, new TGLayoutHints(kLHintsExpandX |kLHintsTop,1,1,1,1));
 
   // adding Frame1_1_1
 
   TGCompositeFrame *frame1_1_1 = new TGCompositeFrame(frame1_1,1,1,kHorizontalFrame);
-  frame1_1_1->ChangeBackground(ucolor);
+  frame1_1_1->ChangeBackground(fFrameBackgroundColor);
   frame1_1->AddFrame(frame1_1_1, new TGLayoutHints(kLHintsExpandX | kLHintsTop,1,1,0,0));
     
   TGButtonGroup * chooseFiletype = new TGButtonGroup(frame1_1_1,"File type",kHorizontalFrame);
   TGRadioButton * chooseROOT = new TGRadioButton(chooseFiletype, new TGHotString("TimeWindow"),0);
   TGRadioButton * chooseScope = new TGRadioButton(chooseFiletype ,new TGHotString("filetype2"),1);
   TGRadioButton * chooseSim = new TGRadioButton(chooseFiletype ,new TGHotString("filetype3"),2);
-  chooseFiletype->ChangeBackground(ucolor);
-  chooseROOT->ChangeBackground(ucolor);
-  chooseSim->ChangeBackground(ucolor);
-  chooseScope->ChangeBackground(ucolor);
+  chooseFiletype->ChangeBackground(fFrameBackgroundColor);
+  chooseROOT->ChangeBackground(fFrameBackgroundColor);
+  chooseSim->ChangeBackground(fFrameBackgroundColor);
+  chooseScope->ChangeBackground(fFrameBackgroundColor);
   chooseFiletype->Show();
   frame1_1_1->AddFrame(chooseFiletype,new TGLayoutHints(kLHintsExpandX | kLHintsExpandY,5,5,3,4));
   chooseFiletype->Connect("Pressed(Int_t)", "jpet_event_display::EventDisplay", 
@@ -194,45 +160,45 @@ void EventDisplay::run()
   // adding Frame1_1_2
 
   TGCompositeFrame *frame1_1_2 = new TGCompositeFrame(frame1_1,1,1,kHorizontalFrame);
-  frame1_1_2->ChangeBackground(ucolor);
+  frame1_1_2->ChangeBackground(fFrameBackgroundColor);
   frame1_1->AddFrame(frame1_1_2, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY,2,2,2,2));
 
   TGTextButton *readGeometryButton = new TGTextButton(frame1_1_2,"Read Geometry");
   frame1_1_2->AddFrame(readGeometryButton,new TGLayoutHints(kLHintsExpandX | kLHintsExpandY,5,5,3,4));
   readGeometryButton->Connect("Clicked()", "jpet_event_display::EventDisplay", this, "handleMenu(=0)");
   readGeometryButton->SetTextJustify(36);
-  readGeometryButton->ChangeBackground(ucolor);
+  readGeometryButton->ChangeBackground(fFrameBackgroundColor);
 
   TGTextButton *readDataButton = new TGTextButton(frame1_1_2,"Read Data");
   frame1_1_2->AddFrame(readDataButton,new TGLayoutHints(kLHintsExpandX | kLHintsExpandY,5,5,3,4));
   readDataButton->Connect("Clicked()", "jpet_event_display::EventDisplay", this, "handleMenu(=1)");
   readDataButton->SetTextJustify(36);
-  readDataButton->ChangeBackground(ucolor);
+  readDataButton->ChangeBackground(fFrameBackgroundColor);
 
   // adding Frame1_4
   TGCompositeFrame *frame1_4 = new TGCompositeFrame(frame1,1,1,kHorizontalFrame);
-  frame1_4->ChangeBackground(ucolor);
+  frame1_4->ChangeBackground(fFrameBackgroundColor);
   frame1->AddFrame(frame1_4, new TGLayoutHints(kLHintsExpandX));
 
 // adding Frame1_2
 
   TGCompositeFrame *frame1_2 = new TGCompositeFrame(frame1,1,1,kVerticalFrame);
-  frame1_2->ChangeBackground(ucolor);
+  frame1_2->ChangeBackground(fFrameBackgroundColor);
   frame1->AddFrame(frame1_2, new TGLayoutHints(kLHintsExpandX |kLHintsExpandY,1,1,1,1));
 
   //adding pTab
 
   TGTab* pTab = new TGTab(frame1_2, 1, 1);
-  pTab->ChangeBackground(ucolor);
+  pTab->ChangeBackground(fFrameBackgroundColor);
   //pTab->Connect("Selected(Int_t)", "EDGui", this, "doTab(Int_t)");
 
   // adding tabFrame1
 
   TGCompositeFrame* tf1 = pTab->AddTab("Info");
-  tf1->ChangeBackground(ucolor);
+  tf1->ChangeBackground(fFrameBackgroundColor);
 
   TGCompositeFrame* tabFrame1 = new TGCompositeFrame(tf1, 1, 1, kVerticalFrame);
-  tabFrame1->ChangeBackground(ucolor);
+  tabFrame1->ChangeBackground(fFrameBackgroundColor);
   tf1->AddFrame(tabFrame1, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, 5, 5, 5, 5));
 
   fInputInfo = std::unique_ptr<TGLabel>(new TGLabel(tabFrame1,
@@ -240,7 +206,7 @@ void EventDisplay::run()
                                         TGLabel::GetDefaultGC()(),
                                         TGLabel::GetDefaultFontStruct(),
                                         kChildFrame,
-                                        ucolor));
+                                        fFrameBackgroundColor));
   fInputInfo->SetTextJustify(kTextTop | kTextLeft);
   tabFrame1->AddFrame(fInputInfo.get(), new TGLayoutHints(kLHintsExpandX | kLHintsExpandY,1,1,1,1));
   //inputInfo->SetParts(2);
@@ -253,40 +219,40 @@ void EventDisplay::run()
   // adding Frame1_3
 
   TGCompositeFrame *frame1_3 = new TGCompositeFrame(frame1,1,1,kVerticalFrame);
-  frame1_3->ChangeBackground(ucolor);
+  frame1_3->ChangeBackground(fFrameBackgroundColor);
   frame1->AddFrame(frame1_3, new TGLayoutHints(kLHintsExpandX| kLHintsBottom,2,2,2,2));
 
   // adding Frame1_3_1
 
   TGCompositeFrame *frame1_3_1 = new TGCompositeFrame(frame1_3,1,1,kHorizontalFrame);
-  frame1_3_1->ChangeBackground(ucolor);
+  frame1_3_1->ChangeBackground(fFrameBackgroundColor);
   frame1_3->AddFrame(frame1_3_1, new TGLayoutHints(kLHintsExpandX| kLHintsTop,2,2,2,2));
 
   TGTextButton *nextButton = new TGTextButton(frame1_3_1,"&Next >");
   frame1_3_1->AddFrame(nextButton, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY,5,5,3,4));
   nextButton->Connect("Clicked()","jpet_event_display::EventDisplay",this,"doNext()");
-  nextButton->ChangeBackground(ucolor);
+  nextButton->ChangeBackground(fFrameBackgroundColor);
 
   TGTextButton *resetButton = new TGTextButton(frame1_3_1,"&Reset >");
   frame1_3_1->AddFrame(resetButton,new TGLayoutHints(kLHintsExpandX | kLHintsExpandY,5,5,3,4));
   resetButton->Connect("Clicked()","jpet_event_display::EventDisplay",this,"doReset()");
   resetButton->SetTextJustify(36);
-  resetButton->ChangeBackground(ucolor);
+  resetButton->ChangeBackground(fFrameBackgroundColor);
 
   TGTextButton *showButton = new TGTextButton(frame1_3_1,"Show Data");
   frame1_3_1->AddFrame(showButton, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY,5,5,3,4));
   showButton->Connect("Clicked()","jpet_event_display::EventDisplay",this,"showData()");
-  showButton->ChangeBackground(ucolor);
+  showButton->ChangeBackground(fFrameBackgroundColor);
 
     
 
   // adding Frame1_3_2
 
   TGCompositeFrame *frame1_3_2 = new TGCompositeFrame(frame1_3,1,1,kHorizontalFrame);
-  frame1_3_2->ChangeBackground(ucolor);
+  frame1_3_2->ChangeBackground(fFrameBackgroundColor);
   frame1_3->AddFrame(frame1_3_2, new TGLayoutHints(kLHintsExpandX| kLHintsTop,5,5,5,5));
 
-  TGLabel *labelStep = new TGLabel(frame1_3_2,"Step",TGLabel::GetDefaultGC()(),TGLabel::GetDefaultFontStruct(),kChildFrame,ucolor);
+  TGLabel *labelStep = new TGLabel(frame1_3_2,"Step",TGLabel::GetDefaultGC()(),TGLabel::GetDefaultFontStruct(),kChildFrame,fFrameBackgroundColor);
   labelStep->SetTextJustify(36);
   frame1_3_2->AddFrame(labelStep, new TGLayoutHints(kLHintsLeft | kLHintsTop,2,2,2,2));
 
@@ -297,7 +263,7 @@ void EventDisplay::run()
   frame1_3_2->AddFrame(fNumberEntryStep.get(), new TGLayoutHints(kLHintsCenterX,5,5,3,4));
   fNumberEntryStep->Connect("ValueSet(Long_t)", "jpet_event_display::EventDisplay", this, "updateGUIControlls()");
 
-  TGLabel *labelEventNo = new TGLabel(frame1_3_2,"Event no",TGLabel::GetDefaultGC()(),TGLabel::GetDefaultFontStruct(),kChildFrame,ucolor);
+  TGLabel *labelEventNo = new TGLabel(frame1_3_2,"Event no",TGLabel::GetDefaultGC()(),TGLabel::GetDefaultFontStruct(),kChildFrame,fFrameBackgroundColor);
   labelEventNo->SetTextJustify(36);
   frame1_3_2->AddFrame(labelEventNo, new TGLayoutHints(kLHintsLeft | kLHintsTop,2,2,2,2));
 
@@ -323,6 +289,34 @@ void EventDisplay::run()
   fMainWindow->MapSubwindows();
   fMainWindow->Resize(fMainWindow->GetDefaultSize());
   fMainWindow->MapWindow();
+}
+
+void EventDisplay::CreateDisplayFrame(TGGroupFrame* parentFrame) {
+  TGTab *pTabViews = new TGTab(parentFrame, 1, 1);
+  pTabViews->ChangeBackground(fFrameBackgroundColor);
+
+  AddTab(pTabViews, fEcanvas, "3d view", "3dViewCanvas");
+  AddTab(pTabViews, f2dcanvas, "2d view", "2dViewCanvas");
+  AddTab(pTabViews, fDiagramCanvas, "Diagram view", "diagramCanvas");
+
+  pTabViews->SetEnabled(1, kTRUE);
+  parentFrame->AddFrame(
+      pTabViews, new TGLayoutHints(kLHintsTop | kLHintsExpandX | kLHintsExpandY,
+                                   2, 2, 5, 1));
+}
+
+void EventDisplay::AddTab(TGTab *pTabViews,
+                          std::unique_ptr < TRootEmbeddedCanvas> &saveCanvasPtr,
+                          const char *tabName,
+                          const char *canvasName) {
+  TGCompositeFrame *tabView = pTabViews->AddTab(tabName);
+  tabView->ChangeBackground(fFrameBackgroundColor);
+
+  saveCanvasPtr = std::unique_ptr<TRootEmbeddedCanvas>(
+      new TRootEmbeddedCanvas(canvasName, tabView, 600, 600));
+  tabView->AddFrame(
+      saveCanvasPtr.get(),
+      new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, 10, 10, 10, 1));
 }
 
 void EventDisplay::CloseWindow()
