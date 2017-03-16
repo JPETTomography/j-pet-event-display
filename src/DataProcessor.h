@@ -32,11 +32,10 @@ namespace jpet_event_display
 typedef std::map<int, std::vector<int> > ScintillatorsInLayers;
 typedef std::map<int, std::pair<float, float>> DiagramDataMap;
 
-enum FileTypes { fNone, fTimeWindow, fRawSignal };
-
 class DataProcessor {
 public:
   DataProcessor() {}
+  enum FileTypes { fNone, fTimeWindow, fRawSignal };
   /// this method should probably be in some other class
   ScintillatorsInLayers getActiveScintillators();
   ScintillatorsInLayers getActiveScintillators(const JPetTimeWindow& tWindow);
@@ -51,6 +50,8 @@ public:
   bool nextEvent();
   bool lastEvent();
   bool nthEvent(long long n);
+
+  inline FileTypes getCurrentFileType() { return fCurrentFileType; }
 
   std::string getDataInfo(); // change when imp new mapper
 
