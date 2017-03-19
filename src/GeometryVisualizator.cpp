@@ -302,6 +302,8 @@ GeometryVisualizator::GeometryVisualizator() { }
     }
     fCanvasDiagrams->cd();
     TGraph *gr = new TGraph(n, x, y);
+    gr->GetXaxis()->SetTitle("Time");
+    gr->GetYaxis()->SetTitle("Threshold Number");
     gr->Draw("ACP*");
     fCanvasDiagrams->Update();
     fCanvasDiagrams->Modified();

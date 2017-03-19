@@ -24,6 +24,7 @@
 #include <TMarker.h>
 #include <TBox.h>
 #include <TGraph.h>
+#include <TAxis.h>
 #include <cassert>
 #include <map>
 #include <vector>
