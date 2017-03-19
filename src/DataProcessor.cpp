@@ -41,7 +41,8 @@ ScintillatorsInLayers DataProcessor::getActiveScintillators()
 ScintillatorsInLayers DataProcessor::getActiveScintillators(const JPetTimeWindow& tWindow)
 {
   auto sigChannels = tWindow.getSigChVect();
-  
+  auto mappedScins = fMapper->getTOMBMapping();
+
   ScintillatorsInLayers selection;
   for (const auto & channel : sigChannels) {
     auto PM = channel.getPM();
@@ -54,20 +55,30 @@ ScintillatorsInLayers DataProcessor::getActiveScintillators(const JPetTimeWindow
     }
     auto scinId = scin.getID();
     auto barrel = scin.getBarrelSlot();
-    if(barrel.isNullObject()) {
+    if (barrel.isNullObject()) {
       continue;
     }
-    auto layer = barrel.getLayer();
-    if(layer.isNullObject()) {
-      continue;
-    }
-    auto layerId = layer.getID();
-    if (selection.find(layerId) != selection.end()) {
-      selection[layerId].push_back(scinId);
+    StripPos pos = fMapper->getStripPos(barrel);
+
+    if (selection.find(pos.layer) != selection.end()) {
+      if (std::find(selection[pos.layer].begin(), selection[pos.layer].end(),
+                    pos.slot) == selection[pos.layer].end())
+        selection[pos.layer].push_back(pos.slot);
     } else {
-      selection[layerId] = {scinId};
+      selection[pos.layer] = {pos.slot};
     }
   }
+
+  std::ostringstream oss;
+  for (auto iter = selection.begin(); iter != selection.end(); ++iter) {
+    int layer = iter->first - 1; // table start form 0, layers from 1
+    const std::vector<int> &strips = iter->second;
+    for (auto stripIter = strips.begin(); stripIter != strips.end();
+         ++stripIter) {
+      oss << "layer: " << layer << " scin: " << *stripIter << "\n";
+    }
+  }
+  activedScintilators = oss.str();
   return selection;
 }
 
@@ -91,15 +102,14 @@ DataProcessor::getActiveScintillators(const JPetRawSignal &rawSignal)
     if (barrel.isNullObject()) {
       continue;
     }
-    auto layer = barrel.getLayer();
-    if (layer.isNullObject()) {
-      continue;
-    }
-    auto layerId = layer.getID();
-    if (selection.find(layerId) != selection.end()) {
-      selection[layerId].push_back(scinId);
+    StripPos pos = fMapper->getStripPos(barrel);
+
+    if (selection.find(pos.layer) != selection.end()) {
+      if (std::find(selection[pos.layer].begin(), selection[pos.layer].end(),
+                    pos.slot) == selection[pos.layer].end())
+        selection[pos.layer].push_back(pos.slot);
     } else {
-      selection[layerId] = {scinId};
+      selection[pos.layer] = {pos.slot};
     }
   }
 
@@ -117,18 +127,27 @@ DataProcessor::getActiveScintillators(const JPetRawSignal &rawSignal)
     if (barrel.isNullObject()) {
       continue;
     }
-    auto layer = barrel.getLayer();
-    if (layer.isNullObject()) {
-      continue;
-    }
-    auto layerId = layer.getID();
-    if (selection.find(layerId) != selection.end()) {
-      selection[layerId].push_back(scinId);
+    StripPos pos = fMapper->getStripPos(barrel);
+
+    if (selection.find(pos.layer) != selection.end()) {
+      if (std::find(selection[pos.layer].begin(), selection[pos.layer].end(),
+                    pos.slot) == selection[pos.layer].end())
+        selection[pos.layer].push_back(pos.slot);
     } else {
-      selection[layerId] = {scinId};
+      selection[pos.layer] = {pos.slot};
     }
   }
 
+  std::ostringstream oss;
+  for (auto iter = selection.begin(); iter != selection.end(); ++iter) {
+    int layer = iter->first; // table start form 0, layers from 1
+    const std::vector<int> &strips = iter->second;
+    for (auto stripIter = strips.begin(); stripIter != strips.end();
+         ++stripIter) {
+      oss << "layer: " << layer << " scin: " << *stripIter << "\n";
+    }
+  }
+  activedScintilators = oss.str();
   return selection;
 }
 
@@ -174,6 +193,9 @@ bool DataProcessor::openFile(const char *filename) {
         fCurrentFileType = FileTypes::fNone;
         break;
     }
+    //set mapper
+    fMapper = std::unique_ptr<JPetGeomMapping>(new JPetGeomMapping(
+        dynamic_cast<JPetParamBank *>(fReader.getObjectFromFile("ParamBank"))));
   }
   return r;
 }
@@ -181,11 +203,6 @@ bool DataProcessor::openFile(const char *filename) {
 void DataProcessor::closeFile()
 {
   fReader.closeFile();
-}
-
-JPetParamBank* DataProcessor::getParamBank() 
-{
-  return dynamic_cast<JPetParamBank*> (fReader.getObjectFromFile("ParamBank"));
 }
 
 bool DataProcessor::nextEvent()
@@ -211,9 +228,5 @@ bool DataProcessor::nthEvent(long long n)
     return false;
 }
 
-std::string DataProcessor::getDataInfo()
-{
-  std::unique_ptr<JPetTreeHeader> header = std::unique_ptr<JPetTreeHeader>(fReader.getHeaderClone());
-  return header->stringify();
-}
+std::string DataProcessor::getDataInfo() { return activedScintilators; }
 }

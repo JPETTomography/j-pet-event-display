@@ -16,14 +16,17 @@
 #define DATAPROCESSOR_H
 
 #include <map>
-#include <vector>
+#include <sstream> //TO delete
 #include <string>
+#include <vector>
 #ifndef __CINT__
-#include <JPetTimeWindow/JPetTimeWindow.h>
-#include <JPetReader/JPetReader.h>
+#include <JPetGeomMapping/JPetGeomMapping.h>
+#include <JPetGeomMappingInterface/JPetGeomMappingInterface.h>
 #include <JPetParamBank/JPetParamBank.h>
-#include <JPetTreeHeader/JPetTreeHeader.h>
 #include <JPetRawSignal/JPetRawSignal.h>
+#include <JPetReader/JPetReader.h>
+#include <JPetTimeWindow/JPetTimeWindow.h>
+#include <JPetTreeHeader/JPetTreeHeader.h>
 #endif
 
 namespace jpet_event_display
@@ -45,7 +48,6 @@ public:
 
   bool openFile(const char* filename);
   void closeFile();
-  JPetParamBank* getParamBank();
   bool firstEvent();
   bool nextEvent();
   bool lastEvent();
@@ -60,11 +62,14 @@ private:
   DataProcessor(const DataProcessor&) = delete;
   DataProcessor& operator=(const DataProcessor&) = delete;
 
+  std::string activedScintilators; // TODO Change tmp workaround
+
   FileTypes fCurrentFileType = fNone;
 
   long long fNumberOfEventsInFile = 0;
 
   JPetReader fReader;
+  std::unique_ptr<JPetGeomMapping> fMapper;
   #endif
 };
 

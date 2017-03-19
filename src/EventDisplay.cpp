@@ -285,7 +285,6 @@ void EventDisplay::handleMenu(Int_t id)
         return;
       assert(dataProcessor);
       dataProcessor->openFile(fFileInfo->fFilename);
-      dataProcessor->getParamBank();
       /*switch(dataProcessor->getCurrentFileType())
       {
         case DataProcessor::FileTypes::fTimeWindow:
