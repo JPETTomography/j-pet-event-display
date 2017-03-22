@@ -41,8 +41,6 @@ ScintillatorsInLayers DataProcessor::getActiveScintillators()
 ScintillatorsInLayers DataProcessor::getActiveScintillators(const JPetTimeWindow& tWindow)
 {
   auto sigChannels = tWindow.getSigChVect();
-  auto mappedScins = fMapper->getTOMBMapping();
-
   ScintillatorsInLayers selection;
   for (const auto & channel : sigChannels) {
     auto PM = channel.getPM();
@@ -71,7 +69,7 @@ ScintillatorsInLayers DataProcessor::getActiveScintillators(const JPetTimeWindow
 
   std::ostringstream oss;
   for (auto iter = selection.begin(); iter != selection.end(); ++iter) {
-    int layer = iter->first - 1; // table start form 0, layers from 1
+    int layer = iter->first;
     const std::vector<int> &strips = iter->second;
     for (auto stripIter = strips.begin(); stripIter != strips.end();
          ++stripIter) {
@@ -193,9 +191,13 @@ bool DataProcessor::openFile(const char *filename) {
         fCurrentFileType = FileTypes::fNone;
         break;
     }
-    //set mapper
-    fMapper = std::unique_ptr<JPetGeomMapping>(new JPetGeomMapping(
-        dynamic_cast<JPetParamBank *>(fReader.getObjectFromFile("ParamBank"))));
+    // set mapper
+    JPetParamManager fparamManagerInstance(new JPetParamGetterAscii("large_barrel.json"));
+    fparamManagerInstance.fillParameterBank(43);
+    auto bank = fparamManagerInstance.getParamBank();
+    JPetParamBank *bank2 =
+        dynamic_cast<JPetParamBank *>(fReader.getObjectFromFile("ParamBank"));
+    fMapper = std::unique_ptr<JPetGeomMapping>(new JPetGeomMapping(bank));
   }
   return r;
 }
