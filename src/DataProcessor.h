@@ -22,6 +22,8 @@
 #ifndef __CINT__
 #include <JPetGeomMapping/JPetGeomMapping.h>
 #include <JPetGeomMappingInterface/JPetGeomMappingInterface.h>
+#include <JPetParamGetterAscii/JPetParamGetterAscii.h>
+#include <JPetParamManager/JPetParamManager.h>
 #include <JPetParamBank/JPetParamBank.h>
 #include <JPetRawSignal/JPetRawSignal.h>
 #include <JPetReader/JPetReader.h>
