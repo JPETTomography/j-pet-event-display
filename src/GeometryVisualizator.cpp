@@ -195,18 +195,18 @@ GeometryVisualizator::GeometryVisualizator() { }
       layer = iter->first;
       const std::vector<int>& strips = iter->second;
       std::vector<int>::const_iterator stripIter;
-      nodeName = getLayerNodeName(layer + 1); /// layer numbers starts from 1
+      nodeName = getLayerNodeName(layer); 
       nodeLayer = topNode->GetVolume()->FindNode(nodeName.c_str());
-      if(!nodeLayer) //TODO remove, just for tests
-        return;
+      //if(!nodeLayer) //TODO remove, just for tests
+      //  return;
       
       assert(nodeLayer);
       for (stripIter = strips.begin(); stripIter != strips.end(); ++stripIter) {
         strip = *stripIter;
-        nodeName = getStripNodeName(strip + 1); /// strips numbers starts from ?
+        nodeName = getStripNodeName(strip);
         nodeStrip = nodeLayer->GetVolume()->FindNode(nodeName.c_str());
-        if(!nodeStrip) //TODO remove, just for tests
-          return;
+        //if(!nodeStrip) //TODO remove, just for tests
+        //  return;
         assert(nodeStrip);
         nodeStrip->SetVisibility(kTRUE);
       }
