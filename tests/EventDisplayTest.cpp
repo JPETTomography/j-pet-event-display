@@ -1,12 +1,12 @@
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE GeometryVisualisatorTest
+#define BOOST_TEST_MODULE EventDisplayTest
 #include <boost/test/unit_test.hpp>
 
-#include "../src/GeometryVisualizator.h"
+#include "../src/EventDisplay.h"
 
 BOOST_AUTO_TEST_SUITE(FirstSuite)
 
-BOOST_AUTO_TEST_CASE( GeometryVisualizatorTests )
+BOOST_AUTO_TEST_CASE( EventDisplayTests )
 { 
   BOOST_REQUIRE(1==0); 
 }

@@ -13,53 +13,198 @@
  */
 
 #include "./DataProcessor.h"
+#include <iostream>
 
 namespace jpet_event_display
 {
+
+ScintillatorsInLayers DataProcessor::getActiveScintillators()
+{
+  ScintillatorsInLayers selection;
+  switch(fCurrentFileType)
+  {
+    case FileTypes::fTimeWindow :
+      selection = getActiveScintillators(
+          dynamic_cast<JPetTimeWindow &>(fReader.getCurrentEvent()));
+      break;
+    case FileTypes::fRawSignal :
+      selection = getActiveScintillators(
+          dynamic_cast<JPetRawSignal &>(fReader.getCurrentEvent()));
+      break;
+    default:
+      break;
+  }
+
+  return selection;
+}
 
 ScintillatorsInLayers DataProcessor::getActiveScintillators(const JPetTimeWindow& tWindow)
 {
   auto sigChannels = tWindow.getSigChVect();
   ScintillatorsInLayers selection;
-  /// This loop makes not much sense, but just for tests.
   for (const auto & channel : sigChannels) {
-    /// we need to use some mapping of those numbers but for a moment let's use those values.
-    /// ! In some analyses PM, Scin, BarrelSlots etc will be not set 
-    /// We should use part of the code from TaskB1 with LargeBarrelMapping
-    /// auto scinId = channel.getPM().getScin().getID();
-    /// auto layerId = channel.getPM().getScin().getBarrelSlot().getLayer().getID();
-    /// Just for tests.
-    auto scinId1 = 10;
-    auto scinId2 = 11;
-    auto scinId3 = 12;
-    auto scinId4 = 13;
-    auto layerId = 0;
-    if (selection.find(layerId) != selection.end()) {
-      /// The key already exists so we just add this element
-      selection[layerId].push_back(scinId1);
-    } else {
-      selection[layerId] = {scinId1, scinId2, scinId3, scinId4};
+    auto PM = channel.getPM();
+    if(PM.isNullObject()) {
+      continue;
     }
-    //channels.push_back(10);
-    //channels.push_back(11);
-    //channels.push_back(12);
-    //channels.push_back(13);
-    //selection[0] = channels;
+    auto scin = PM.getScin();
+    if(scin.isNullObject()) {
+      continue;
+    }
+    auto scinId = scin.getID();
+    auto barrel = scin.getBarrelSlot();
+    if (barrel.isNullObject()) {
+      continue;
+    }
+    StripPos pos = fMapper->getStripPos(barrel);
+
+    if (selection.find(pos.layer) != selection.end()) {
+      if (std::find(selection[pos.layer].begin(), selection[pos.layer].end(),
+                    pos.slot) == selection[pos.layer].end())
+        selection[pos.layer].push_back(pos.slot);
+    } else {
+      selection[pos.layer] = {pos.slot};
+    }
   }
+
+  std::ostringstream oss;
+  for (auto iter = selection.begin(); iter != selection.end(); ++iter) {
+    int layer = iter->first;
+    const std::vector<int> &strips = iter->second;
+    for (auto stripIter = strips.begin(); stripIter != strips.end();
+         ++stripIter) {
+      oss << "layer: " << layer << " scin: " << *stripIter << "\n";
+    }
+  }
+  activedScintilators = oss.str();
   return selection;
 }
-bool DataProcessor::openFile(const char* filename)
+
+ScintillatorsInLayers
+DataProcessor::getActiveScintillators(const JPetRawSignal &rawSignal)
 {
-  return fReader.openFileAndLoadData(filename);
+  auto leadingSigCh = rawSignal.getPoints(JPetSigCh::Leading);
+  auto trailingSigCh = rawSignal.getPoints(JPetSigCh::Trailing);
+  ScintillatorsInLayers selection;
+  for (const auto &channel : leadingSigCh) {
+    auto PM = channel.getPM();
+    if (PM.isNullObject()) {
+      continue;
+    }
+    auto scin = PM.getScin();
+    if (scin.isNullObject()) {
+      continue;
+    }
+    auto scinId = scin.getID();
+    auto barrel = scin.getBarrelSlot();
+    if (barrel.isNullObject()) {
+      continue;
+    }
+    StripPos pos = fMapper->getStripPos(barrel);
+
+    if (selection.find(pos.layer) != selection.end()) {
+      if (std::find(selection[pos.layer].begin(), selection[pos.layer].end(),
+                    pos.slot) == selection[pos.layer].end())
+        selection[pos.layer].push_back(pos.slot);
+    } else {
+      selection[pos.layer] = {pos.slot};
+    }
+  }
+
+  for (const auto &channel : trailingSigCh) {
+    auto PM = channel.getPM();
+    if (PM.isNullObject()) {
+      continue;
+    }
+    auto scin = PM.getScin();
+    if (scin.isNullObject()) {
+      continue;
+    }
+    auto scinId = scin.getID();
+    auto barrel = scin.getBarrelSlot();
+    if (barrel.isNullObject()) {
+      continue;
+    }
+    StripPos pos = fMapper->getStripPos(barrel);
+
+    if (selection.find(pos.layer) != selection.end()) {
+      if (std::find(selection[pos.layer].begin(), selection[pos.layer].end(),
+                    pos.slot) == selection[pos.layer].end())
+        selection[pos.layer].push_back(pos.slot);
+    } else {
+      selection[pos.layer] = {pos.slot};
+    }
+  }
+
+  std::ostringstream oss;
+  for (auto iter = selection.begin(); iter != selection.end(); ++iter) {
+    int layer = iter->first; // table start form 0, layers from 1
+    const std::vector<int> &strips = iter->second;
+    for (auto stripIter = strips.begin(); stripIter != strips.end();
+         ++stripIter) {
+      oss << "layer: " << layer << " scin: " << *stripIter << "\n";
+    }
+  }
+  activedScintilators = oss.str();
+  return selection;
+}
+
+DiagramDataMap DataProcessor::getDataForDiagram() 
+{ 
+  DiagramDataMap data;
+  if (fCurrentFileType == FileTypes::fRawSignal)
+    data = getDataForDiagram(
+        dynamic_cast<JPetRawSignal &>(fReader.getCurrentEvent()));
+
+  return data;
+}
+
+DiagramDataMap DataProcessor::getDataForDiagram(const JPetRawSignal &rawSignal)
+{
+  return rawSignal.getTimesVsThresholdValue(JPetSigCh::Leading);
+}
+
+bool DataProcessor::openFile(const char *filename) {
+  static std::map<std::string, int> compareMap;
+  if (compareMap.empty())
+  {
+    compareMap["JPetTimeWindow"] = FileTypes::fTimeWindow;
+    compareMap["JPetRawSignal"] = FileTypes::fRawSignal;
+  }
+  bool r = fReader.openFileAndLoadData(filename);
+  fNumberOfEventsInFile = fReader.getNbOfAllEvents();
+  if(r)
+  {
+    TTree *fTree = dynamic_cast<TTree *>(fReader.getObjectFromFile("tree"));
+    TObjArray *arr = fTree->GetListOfBranches();
+    TBranch *fBranch = dynamic_cast<TBranch*>(arr->At(0));
+    const char *branchName = fBranch->GetClassName();
+    switch(compareMap[branchName])
+    {
+      case FileTypes::fTimeWindow:
+        fCurrentFileType = FileTypes::fTimeWindow;
+        break;
+      case FileTypes::fRawSignal:
+        fCurrentFileType = FileTypes::fRawSignal;
+        break;
+      default:
+        fCurrentFileType = FileTypes::fNone;
+        break;
+    }
+    // set mapper
+    JPetParamManager fparamManagerInstance(new JPetParamGetterAscii("large_barrel.json"));
+    fparamManagerInstance.fillParameterBank(43);
+    auto bank = fparamManagerInstance.getParamBank();
+    JPetParamBank *bank2 =
+        dynamic_cast<JPetParamBank *>(fReader.getObjectFromFile("ParamBank"));
+    fMapper = std::unique_ptr<JPetGeomMapping>(new JPetGeomMapping(bank));
+  }
+  return r;
 }
 
 void DataProcessor::closeFile()
 {
   fReader.closeFile();
-}
-JPetTimeWindow& DataProcessor::getCurrentEvent()
-{
-  return dynamic_cast<JPetTimeWindow&> (fReader.getCurrentEvent());
 }
 
 bool DataProcessor::nextEvent()
@@ -67,4 +212,23 @@ bool DataProcessor::nextEvent()
   return fReader.nextEvent();
 }
 
+bool DataProcessor::firstEvent()
+{
+  return fReader.firstEvent();
+}
+
+bool DataProcessor::lastEvent()
+{
+  return fReader.lastEvent();
+}
+
+bool DataProcessor::nthEvent(long long n)
+{
+  if (n < fNumberOfEventsInFile)
+    return fReader.nthEvent(n);
+  else
+    return false;
+}
+
+std::string DataProcessor::getDataInfo() { return activedScintilators; }
 }

@@ -35,3 +35,6 @@ MakeFile
 
 #visual studio code files
 .vscode
+
+#symbolic link
+j-pet-framework

@@ -13,6 +13,12 @@ The latest stable version can be downloaded from the github repository. You must
 
 git clone --recursive https://github.com/JPETTomography/j-pet-event-display.git
 
+Current status/know bugs
+-----------------------
+Currently only 2 type of files works, TimeWindow and RawSignal. 
+There aren't many checks for data integration so user should always load geometry before loading data. 
+Also after loading data, there is some freez while JPetGeomMapping is mapping scintilators/layers. 
+
 Documentation
 -------------
 
