@@ -27,7 +27,23 @@ namespace jpet_event_display
 
 GeometryVisualizator::GeometryVisualizator() { }
 
-  GeometryVisualizator::~GeometryVisualizator() { }
+GeometryVisualizator::~GeometryVisualizator() { }
+
+void GeometryVisualizator::drawData()
+{
+  switch(ProcessedData::getInstance().getCurrentFileType())
+  {
+    case FileTypes::fTimeWindow:
+      setVisibility(ProcessedData::getInstance().getActivedScintilators());
+      break;
+    case FileTypes::fRawSignal:
+      setVisibility(ProcessedData::getInstance().getActivedScintilators());
+      drawDiagram(ProcessedData::getInstance().getDiagramData());
+      break;
+    default:
+      break;
+  }
+}
 
   void GeometryVisualizator::loadGeometry(const std::string& geomFile)
   {

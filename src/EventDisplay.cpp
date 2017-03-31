@@ -273,6 +273,7 @@ void EventDisplay::handleMenu(Int_t id)
       assert(visualizator);
       visualizator->loadGeometry(fFileInfo->fFilename);
       visualizator->drawOnlyGeometry();
+      showData();
     }
     break;
     case E_OpenData:
@@ -285,19 +286,7 @@ void EventDisplay::handleMenu(Int_t id)
         return;
       assert(dataProcessor);
       dataProcessor->openFile(fFileInfo->fFilename);
-      /*switch(dataProcessor->getCurrentFileType())
-      {
-        case DataProcessor::FileTypes::fTimeWindow:
-          AddTab(fDisplayTabView, visualizator->getCanvas2d(), "2d view", "2dViewCanvas");
-          break;
-        case DataProcessor::FileTypes::fRawSignal:
-          AddTab(fDisplayTabView, visualizator->getCanvas2d(), "2d view", "2dViewCanvas");
-          AddTab(fDisplayTabView, visualizator->getCanvasDiagrams(), "Diagram view", "diagramCanvas");
-          break;
-        default:
-          break;
-      }*/
-      drawSelectedStrips();
+      showData();
     }
     break;
     case E_Close:
@@ -335,14 +324,12 @@ void EventDisplay::showData()
   dataProcessor->nthEvent(fGUIControls->eventNo);
   drawSelectedStrips();
   updateProgressBar();
-  fInputInfo->ChangeText(dataProcessor->getDataInfo().c_str());
+  fInputInfo->ChangeText(ProcessedData::getInstance().getActivedScintilatorsString().c_str());
 }
 
 void EventDisplay::drawSelectedStrips()
 {
-  std::map<int, std::vector<int> > selection = dataProcessor->getActiveScintillators();
-  visualizator->drawStrips(selection);
-  visualizator->drawDiagram(dataProcessor->getDataForDiagram());
+  visualizator->drawData();
 }
 
 void EventDisplay::setMaxProgressBar (Int_t maxEvent) {

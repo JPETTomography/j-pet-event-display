@@ -39,9 +39,10 @@
 
 #include <RQ_OBJECT.h>
 
+#ifndef __CINT__
 #include "GeometryVisualizator.h"
 #include "DataProcessor.h"
-
+#endif
 
 namespace jpet_event_display
 {
@@ -120,8 +121,8 @@ private:
 
   ULong_t fFrameBackgroundColor = 0;
 
-  std::unique_ptr<GeometryVisualizator> visualizator = std::unique_ptr<GeometryVisualizator>(new GeometryVisualizator());
   std::unique_ptr<DataProcessor> dataProcessor = std::unique_ptr<DataProcessor>(new DataProcessor());
+  std::unique_ptr<GeometryVisualizator> visualizator = std::unique_ptr<GeometryVisualizator>(new GeometryVisualizator());
 
   std::unique_ptr<TRint> fApplication = std::unique_ptr<TRint>(new TRint("EventDisplay Gui", 0, 0));
   std::unique_ptr<GUIControlls> fGUIControls = std::unique_ptr<GUIControlls>(new GUIControlls);

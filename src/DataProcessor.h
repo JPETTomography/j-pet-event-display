@@ -19,6 +19,7 @@
 #include <sstream> //TO delete
 #include <string>
 #include <vector>
+#include <memory>
 #ifndef __CINT__
 #include <JPetGeomMapping/JPetGeomMapping.h>
 #include <JPetGeomMappingInterface/JPetGeomMappingInterface.h>
@@ -33,21 +34,64 @@
 
 namespace jpet_event_display
 {
+enum FileTypes { fNone, fTimeWindow, fRawSignal };
 
 typedef std::map<int, std::vector<int> > ScintillatorsInLayers;
 typedef std::map<int, std::pair<float, float>> DiagramDataMap;
 
+class ProcessedData 
+{
+  friend class DataProcessor;
+
+public:
+
+  ProcessedData(const ProcessedData&) = delete;
+  ProcessedData& operator=(const ProcessedData&) = delete;
+  ~ProcessedData() { }
+
+  static inline ProcessedData & getInstance() {
+    static ProcessedData fSingleton;
+    return fSingleton; 
+  }
+
+  void setActivedScins(ScintillatorsInLayers scins) { fActivedScins = scins; }
+  void setDiagram(DiagramDataMap diagram) { fDiagram = diagram; }
+  void setCurrentFileType(FileTypes type) { fCurrentFileType = type; }
+
+  const std::string getActivedScintilatorsString()
+  {
+    std::ostringstream oss;
+    for (auto iter = fActivedScins.begin(); iter != fActivedScins.end(); ++iter)
+    {
+      int layer = iter->first;
+      const std::vector<int> &strips = iter->second;
+      for (auto stripIter = strips.begin(); stripIter != strips.end();
+           ++stripIter)
+      {
+        oss << "layer: " << layer << " scin: " << *stripIter << "\n";
+      }
+    }
+    return oss.str();
+  }
+
+  inline FileTypes getCurrentFileType() { return fCurrentFileType; }
+  inline ScintillatorsInLayers getActivedScintilators() { return fActivedScins; }
+  inline DiagramDataMap getDiagramData() { return fDiagram; }
+private:
+  ProcessedData() { }
+
+
+  ScintillatorsInLayers fActivedScins;
+  DiagramDataMap fDiagram;
+  FileTypes fCurrentFileType = FileTypes::fNone;
+
+
+};
+
 class DataProcessor {
 public:
   DataProcessor() {}
-  enum FileTypes { fNone, fTimeWindow, fRawSignal };
-  /// this method should probably be in some other class
-  ScintillatorsInLayers getActiveScintillators();
-  ScintillatorsInLayers getActiveScintillators(const JPetTimeWindow& tWindow);
-  ScintillatorsInLayers getActiveScintillators(const JPetRawSignal& rawSignal);
-  DiagramDataMap getDataForDiagram();
-  DiagramDataMap getDataForDiagram(const JPetRawSignal &rawSignal);
-
+  void getDataForCurrentEvent();
   bool openFile(const char* filename);
   void closeFile();
   bool firstEvent();
@@ -55,18 +99,16 @@ public:
   bool lastEvent();
   bool nthEvent(long long n);
 
-  inline FileTypes getCurrentFileType() { return fCurrentFileType; }
-
-  std::string getDataInfo(); // change when imp new mapper
-
 private:
   #ifndef __CINT__
   DataProcessor(const DataProcessor&) = delete;
   DataProcessor& operator=(const DataProcessor&) = delete;
 
-  std::string activedScintilators; // TODO Change tmp workaround
+  ScintillatorsInLayers getActiveScintillators(const JPetTimeWindow& tWindow);
+  ScintillatorsInLayers getActiveScintillators(const JPetRawSignal& rawSignal);
+  DiagramDataMap getDataForDiagram(const JPetRawSignal &rawSignal);
 
-  FileTypes fCurrentFileType = fNone;
+  template <typename T> const T &getCurrentEvent();
 
   long long fNumberOfEventsInFile = 0;
 

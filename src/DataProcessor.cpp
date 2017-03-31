@@ -18,24 +18,26 @@
 namespace jpet_event_display
 {
 
-ScintillatorsInLayers DataProcessor::getActiveScintillators()
+void DataProcessor::getDataForCurrentEvent()
 {
-  ScintillatorsInLayers selection;
-  switch(fCurrentFileType)
+  switch(ProcessedData::getInstance().getCurrentFileType())
   {
-    case FileTypes::fTimeWindow :
-      selection = getActiveScintillators(
-          dynamic_cast<JPetTimeWindow &>(fReader.getCurrentEvent()));
+    case FileTypes::fTimeWindow:
+      ProcessedData::getInstance().setActivedScins(getActiveScintillators(getCurrentEvent<JPetTimeWindow>()));
       break;
-    case FileTypes::fRawSignal :
-      selection = getActiveScintillators(
-          dynamic_cast<JPetRawSignal &>(fReader.getCurrentEvent()));
-      break;
+    case FileTypes::fRawSignal:
+    ProcessedData::getInstance().setActivedScins(getActiveScintillators(getCurrentEvent<JPetRawSignal>()));
+    ProcessedData::getInstance().setDiagram(getDataForDiagram(getCurrentEvent<JPetRawSignal>()));
+    break;
     default:
       break;
   }
+}
 
-  return selection;
+template<typename T>
+const T& DataProcessor::getCurrentEvent()
+{
+  return dynamic_cast<T &>(fReader.getCurrentEvent());
 }
 
 ScintillatorsInLayers DataProcessor::getActiveScintillators(const JPetTimeWindow& tWindow)
@@ -66,17 +68,6 @@ ScintillatorsInLayers DataProcessor::getActiveScintillators(const JPetTimeWindow
       selection[pos.layer] = {pos.slot};
     }
   }
-
-  std::ostringstream oss;
-  for (auto iter = selection.begin(); iter != selection.end(); ++iter) {
-    int layer = iter->first;
-    const std::vector<int> &strips = iter->second;
-    for (auto stripIter = strips.begin(); stripIter != strips.end();
-         ++stripIter) {
-      oss << "layer: " << layer << " scin: " << *stripIter << "\n";
-    }
-  }
-  activedScintilators = oss.str();
   return selection;
 }
 
@@ -136,27 +127,7 @@ DataProcessor::getActiveScintillators(const JPetRawSignal &rawSignal)
     }
   }
 
-  std::ostringstream oss;
-  for (auto iter = selection.begin(); iter != selection.end(); ++iter) {
-    int layer = iter->first; // table start form 0, layers from 1
-    const std::vector<int> &strips = iter->second;
-    for (auto stripIter = strips.begin(); stripIter != strips.end();
-         ++stripIter) {
-      oss << "layer: " << layer << " scin: " << *stripIter << "\n";
-    }
-  }
-  activedScintilators = oss.str();
   return selection;
-}
-
-DiagramDataMap DataProcessor::getDataForDiagram() 
-{ 
-  DiagramDataMap data;
-  if (fCurrentFileType == FileTypes::fRawSignal)
-    data = getDataForDiagram(
-        dynamic_cast<JPetRawSignal &>(fReader.getCurrentEvent()));
-
-  return data;
 }
 
 DiagramDataMap DataProcessor::getDataForDiagram(const JPetRawSignal &rawSignal)
@@ -182,20 +153,20 @@ bool DataProcessor::openFile(const char *filename) {
     switch(compareMap[branchName])
     {
       case FileTypes::fTimeWindow:
-        fCurrentFileType = FileTypes::fTimeWindow;
+        ProcessedData::getInstance().setCurrentFileType(FileTypes::fTimeWindow);
         break;
       case FileTypes::fRawSignal:
-        fCurrentFileType = FileTypes::fRawSignal;
+        ProcessedData::getInstance().setCurrentFileType(FileTypes::fRawSignal);
         break;
       default:
-        fCurrentFileType = FileTypes::fNone;
+        ProcessedData::getInstance().setCurrentFileType(FileTypes::fNone);
         break;
     }
     // set mapper
     JPetParamManager fparamManagerInstance(new JPetParamGetterAscii("large_barrel.json"));
     fparamManagerInstance.fillParameterBank(43);
     auto bank = fparamManagerInstance.getParamBank();
-    JPetParamBank *bank2 =
+    const JPetParamBank *bank2 =
         dynamic_cast<JPetParamBank *>(fReader.getObjectFromFile("ParamBank"));
     fMapper = std::unique_ptr<JPetGeomMapping>(new JPetGeomMapping(bank));
   }
@@ -225,10 +196,12 @@ bool DataProcessor::lastEvent()
 bool DataProcessor::nthEvent(long long n)
 {
   if (n < fNumberOfEventsInFile)
-    return fReader.nthEvent(n);
+  {
+    bool returnValue = fReader.nthEvent(n);
+    getDataForCurrentEvent();
+    return returnValue;
+  }
   else
     return false;
 }
-
-std::string DataProcessor::getDataInfo() { return activedScintilators; }
 }
