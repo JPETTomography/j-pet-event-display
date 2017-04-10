@@ -31,6 +31,7 @@ EventDisplay::EventDisplay()
   fGUIControls->stepNo = 0;
   run();
   updateGUIControlls();
+  visualizator->showGeometry();
   fApplication->Run();
   DATE_AND_TIME();
   INFO("J-PET Event Display created");
@@ -110,7 +111,7 @@ void EventDisplay::CreateOptionsFrame(TGGroupFrame* parentFrame)
   TGCompositeFrame *frame1_1_2 = 
     AddCompositeFrame(frame1_1, 1, 1, kHorizontalFrame, kLHintsExpandX | kLHintsExpandY, 2, 2, 2, 2);
 
-  AddButton(frame1_1_2, "Read Geometry", "handleMenu(=0)");
+  //AddButton(frame1_1_2, "Read Geometry", "handleMenu(=0)");
   AddButton(frame1_1_2, "Read Data", "handleMenu(=1)");
 
   TGCompositeFrame *frame1_2 = 
@@ -249,7 +250,7 @@ void EventDisplay::AddMenuBar(TGCompositeFrame *parentFrame)
   fMenuFile->Associate(fMainWindow.get());
   fMenuFile->Connect("Activated(Int_t)", "jpet_event_display::EventDisplay", this, "handleMenu(Int_t)");
 
-  fMenuFile->DisableEntry(1);
+  fMenuFile->DisableEntry(0);
 
   fMenuBar->AddPopup("&File", fMenuFile, fMenuBarItemLayout);
 
@@ -262,7 +263,7 @@ void EventDisplay::handleMenu(Int_t id)
 {
   switch (id)
   {
-    case E_OpenGeometry:
+    /*case E_OpenGeometry:
     {
       TString dir("");
       fFileInfo->fFileTypes = filetypes;
@@ -271,11 +272,11 @@ void EventDisplay::handleMenu(Int_t id)
       if(fFileInfo->fFilename == 0)
         return;
       assert(visualizator);
-      visualizator->loadGeometry(fFileInfo->fFilename);
-      visualizator->drawOnlyGeometry();
+      //visualizator->loadGeometry(fFileInfo->fFilename);
+      //visualizator->drawOnlyGeometry();
       showData();
     }
-    break;
+    break;*/
     case E_OpenData:
     {
       TString dir("");

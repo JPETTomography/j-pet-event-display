@@ -122,7 +122,12 @@ private:
   ULong_t fFrameBackgroundColor = 0;
 
   std::unique_ptr<DataProcessor> dataProcessor = std::unique_ptr<DataProcessor>(new DataProcessor());
-  std::unique_ptr<GeometryVisualizator> visualizator = std::unique_ptr<GeometryVisualizator>(new GeometryVisualizator());
+  std::unique_ptr<GeometryVisualizator> visualizator =
+      std::unique_ptr<GeometryVisualizator>(
+          new GeometryVisualizator(3, std::vector<std::pair<int, double>>(
+                                          {std::pair<int, double>(48, 42.5),
+                                           std::pair<int, double>(48, 46.75),
+                                           std::pair<int, double>(96, 57.5)})));
 
   std::unique_ptr<TRint> fApplication = std::unique_ptr<TRint>(new TRint("EventDisplay Gui", 0, 0));
   std::unique_ptr<GUIControlls> fGUIControls = std::unique_ptr<GUIControlls>(new GUIControlls);
