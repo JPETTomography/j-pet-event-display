@@ -30,21 +30,20 @@
 #include <JPetReader/JPetReader.h>
 #include <JPetTimeWindow/JPetTimeWindow.h>
 #include <JPetTreeHeader/JPetTreeHeader.h>
+#include <JPetHit/JPetHit.h>
 #endif
 
 namespace jpet_event_display
 {
-enum FileTypes { fNone, fTimeWindow, fRawSignal };
+enum FileTypes { fNone, fTimeWindow, fRawSignal, fHit };
 
-typedef std::map<int, std::vector<int> > ScintillatorsInLayers;
+typedef std::map<size_t, std::vector<size_t> > ScintillatorsInLayers;
 typedef std::map<int, std::pair<float, float>> DiagramDataMap;
+typedef std::vector<std::map<int, std::pair<float, float>>> DiagramDataMapVector;
 
 class ProcessedData 
 {
-  friend class DataProcessor;
-
 public:
-
   ProcessedData(const ProcessedData&) = delete;
   ProcessedData& operator=(const ProcessedData&) = delete;
   ~ProcessedData() { }
@@ -55,7 +54,7 @@ public:
   }
 
   void setActivedScins(ScintillatorsInLayers scins) { fActivedScins = scins; }
-  void setDiagram(DiagramDataMap diagram) { fDiagram = diagram; }
+  void setDiagram(DiagramDataMapVector diagram) { fDiagram = diagram; }
   void setCurrentFileType(FileTypes type) { fCurrentFileType = type; }
 
   const std::string getActivedScintilatorsString()
@@ -64,7 +63,7 @@ public:
     for (auto iter = fActivedScins.begin(); iter != fActivedScins.end(); ++iter)
     {
       int layer = iter->first;
-      const std::vector<int> &strips = iter->second;
+      const std::vector<size_t> &strips = iter->second;
       for (auto stripIter = strips.begin(); stripIter != strips.end();
            ++stripIter)
       {
@@ -76,15 +75,13 @@ public:
 
   inline FileTypes getCurrentFileType() { return fCurrentFileType; }
   inline ScintillatorsInLayers getActivedScintilators() { return fActivedScins; }
-  inline DiagramDataMap getDiagramData() { return fDiagram; }
+  inline DiagramDataMapVector getDiagramData() { return fDiagram; }
 private:
   ProcessedData() { }
 
-
   ScintillatorsInLayers fActivedScins;
-  DiagramDataMap fDiagram;
+  DiagramDataMapVector fDiagram;
   FileTypes fCurrentFileType = FileTypes::fNone;
-
 
 };
 
@@ -106,7 +103,9 @@ private:
 
   ScintillatorsInLayers getActiveScintillators(const JPetTimeWindow& tWindow);
   ScintillatorsInLayers getActiveScintillators(const JPetRawSignal& rawSignal);
+  ScintillatorsInLayers getActiveScintillators(const JPetHit &hitSignal);
   DiagramDataMap getDataForDiagram(const JPetRawSignal &rawSignal);
+  DiagramDataMapVector getDataForDiagram(const JPetHit &hitSignal);
 
   template <typename T> const T &getCurrentEvent();
 
