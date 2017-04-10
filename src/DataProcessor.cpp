@@ -39,6 +39,12 @@ void DataProcessor::getDataForCurrentEvent()
       ProcessedData::getInstance().setDiagram(
           getDataForDiagram(getCurrentEvent<JPetHit>()));
       break;
+    case FileTypes::fEvent:
+      ProcessedData::getInstance().setActivedScins(
+          getActiveScintillators(getCurrentEvent<JPetEvent>()));
+      ProcessedData::getInstance().setDiagram(
+          getDataForDiagram(getCurrentEvent<JPetEvent>()));
+      break;
     default:
       break;
   }
@@ -156,6 +162,36 @@ ScintillatorsInLayers DataProcessor::getActiveScintillators(const JPetHit &hitSi
   return selection;
 }
 
+ScintillatorsInLayers
+DataProcessor::getActiveScintillators(const JPetEvent &event)
+{
+  ScintillatorsInLayers selection;
+  for(JPetHit hit : event.getHits())
+  {
+    std::cout << "x: " << hit.getPosX() << " y: " << hit.getPosY()
+              << " z: " << hit.getPosZ() << " energy: " << hit.getEnergy()
+              << " qualityOfEnergy: " << hit.getQualityOfEnergy()
+              << " time: " << hit.getTime()
+              << " timeDiff: " << hit.getTimeDiff()
+              << " qualityOfTime: " << hit.getQualityOfTime()
+              << " qualityOfTimeDiff: " << hit.getQualityOfTimeDiff() << "\n";
+
+    StripPos pos = fMapper->getStripPos(hit.getBarrelSlot());
+    if (selection.find(pos.layer) != selection.end())
+    {
+      if (std::find(selection[pos.layer].begin(), selection[pos.layer].end(),
+                    pos.slot) == selection[pos.layer].end())
+        selection[pos.layer].push_back(pos.slot);
+    }
+    else
+    {
+      selection[pos.layer] = {pos.slot};
+    }
+  }
+
+  return selection;
+}
+
 DiagramDataMap DataProcessor::getDataForDiagram(const JPetRawSignal &rawSignal)
 {
   DiagramDataMap data = rawSignal.getTimesVsThresholdValue(JPetSigCh::Leading);
@@ -179,6 +215,22 @@ DiagramDataMapVector DataProcessor::getDataForDiagram(const JPetHit &hitSignal)
   return result;
 }
 
+DiagramDataMapVector DataProcessor::getDataForDiagram(const JPetEvent &event)
+{
+  DiagramDataMapVector result;
+  for(JPetHit hit : event.getHits())
+  {
+    DiagramDataMap signalA =
+        getDataForDiagram(hit.getSignalA().getRecoSignal().getRawSignal());
+    DiagramDataMap signalB =
+        getDataForDiagram(hit.getSignalB().getRecoSignal().getRawSignal());
+
+    result.push_back(signalA);
+    result.push_back(signalB);
+  }
+  return result;
+}
+
 bool DataProcessor::openFile(const char *filename) {
   static std::map<std::string, int> compareMap;
   if (compareMap.empty())
@@ -186,6 +238,7 @@ bool DataProcessor::openFile(const char *filename) {
     compareMap["JPetTimeWindow"] = FileTypes::fTimeWindow;
     compareMap["JPetRawSignal"] = FileTypes::fRawSignal;
     compareMap["JPetHit"] = FileTypes::fHit;
+    compareMap["JPetEvent"] = FileTypes::fEvent;
   }
   bool r = fReader.openFileAndLoadData(filename);
   fNumberOfEventsInFile = fReader.getNbOfAllEvents();
@@ -195,21 +248,7 @@ bool DataProcessor::openFile(const char *filename) {
     TObjArray *arr = fTree->GetListOfBranches();
     TBranch *fBranch = dynamic_cast<TBranch*>(arr->At(0));
     const char *branchName = fBranch->GetClassName();
-    switch(compareMap[branchName])
-    {
-      case FileTypes::fTimeWindow:
-        ProcessedData::getInstance().setCurrentFileType(FileTypes::fTimeWindow);
-        break;
-      case FileTypes::fRawSignal:
-        ProcessedData::getInstance().setCurrentFileType(FileTypes::fRawSignal);
-        break;
-      case FileTypes::fHit:
-        ProcessedData::getInstance().setCurrentFileType(FileTypes::fHit);
-        break;
-      default:
-        ProcessedData::getInstance().setCurrentFileType(FileTypes::fNone);
-        break;
-    }
+    ProcessedData::getInstance().setCurrentFileType(static_cast<FileTypes>(compareMap[branchName]));
     // set mapper
     JPetParamManager fparamManagerInstance(new JPetParamGetterAscii("large_barrel.json"));
     fparamManagerInstance.fillParameterBank(43);

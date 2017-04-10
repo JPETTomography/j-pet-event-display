@@ -33,9 +33,11 @@
 #include <JPetHit/JPetHit.h>
 #endif
 
+#include <TNamed.h>
+
 namespace jpet_event_display
 {
-enum FileTypes { fNone, fTimeWindow, fRawSignal, fHit };
+enum FileTypes { fNone, fTimeWindow, fRawSignal, fHit, fEvent };
 
 typedef std::map<size_t, std::vector<size_t> > ScintillatorsInLayers;
 typedef std::map<int, std::pair<float, float>> DiagramDataMap;
@@ -104,8 +106,10 @@ private:
   ScintillatorsInLayers getActiveScintillators(const JPetTimeWindow& tWindow);
   ScintillatorsInLayers getActiveScintillators(const JPetRawSignal& rawSignal);
   ScintillatorsInLayers getActiveScintillators(const JPetHit &hitSignal);
+  ScintillatorsInLayers getActiveScintillators(const JPetEvent &event);
   DiagramDataMap getDataForDiagram(const JPetRawSignal &rawSignal);
   DiagramDataMapVector getDataForDiagram(const JPetHit &hitSignal);
+  DiagramDataMapVector getDataForDiagram(const JPetEvent &event);
 
   template <typename T> const T &getCurrentEvent();
 
