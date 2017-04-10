@@ -48,7 +48,7 @@ namespace jpet_event_display
   class GeometryVisualizator
   {
   public:
-    GeometryVisualizator(const int numberOfLayers,
+    GeometryVisualizator(const int numberOfLayers, const int kLength,
                          const std::vector<std::pair<int, double>> &layerStats);
     ~GeometryVisualizator();
     
@@ -66,8 +66,8 @@ namespace jpet_event_display
 
 
 #ifndef __CINT__
-    void createGeometry(const int numberOfLayers,
-                        const std::vector<std::pair<int, double>>& layerStats);
+    void createGeometry(const int numberOfLayers, const int kLength,
+                        const std::vector<std::pair<int, double>> &layerStats);
 
     void updateCanvas(std::unique_ptr<TCanvas> &canvas);
 

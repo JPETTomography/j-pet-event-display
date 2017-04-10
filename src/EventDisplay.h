@@ -124,7 +124,7 @@ private:
   std::unique_ptr<DataProcessor> dataProcessor = std::unique_ptr<DataProcessor>(new DataProcessor());
   std::unique_ptr<GeometryVisualizator> visualizator =
       std::unique_ptr<GeometryVisualizator>(
-          new GeometryVisualizator(3, std::vector<std::pair<int, double>>(
+          new GeometryVisualizator(3, 500, std::vector<std::pair<int, double>>(
                                           {std::pair<int, double>(48, 42.5),
                                            std::pair<int, double>(48, 46.75),
                                            std::pair<int, double>(96, 57.5)})));

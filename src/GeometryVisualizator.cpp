@@ -26,10 +26,10 @@ namespace jpet_event_display
 {
 
 GeometryVisualizator::GeometryVisualizator(
-    const int numberOfLayers,
+    const int numberOfLayers, const int kLength,
     const std::vector<std::pair<int, double>> &layerStats)
 {
-  createGeometry(numberOfLayers, layerStats);
+  createGeometry(numberOfLayers, kLength, layerStats);
 }
 
 GeometryVisualizator::~GeometryVisualizator() {}
@@ -76,7 +76,7 @@ void GeometryVisualizator::showGeometry()
   assert(gPad);
   TView *view = gPad->GetView();
   assert(view);
-  view->ZoomView(0, 2);
+  view->ZoomView(gPad, 1.75);
   view->SetView(0, 90, 0, irep);
   if(irep == -1)
     WARNING("Error in min-max scope setting view to 3d canvas");
@@ -277,14 +277,13 @@ void GeometryVisualizator::drawDiagram(const DiagramDataMapVector &diagramData)
 }
 
 void GeometryVisualizator::createGeometry(
-    const int numberOfLayers,
+    const int numberOfLayers, const int kLength,
     const std::vector<std::pair<int, double>> &layerStats)
 {
-  const double kXWorld = 500;
-  const double kYWorld = 500;
-  const double kZWorld = 500;
+  const double kXWorld = kLength + 100;
+  const double kYWorld = kLength + 100;
+  const double kZWorld = kLength + 100;
 
-  const double kLength = 70;
   const double kLayerThickness = 0.9;
   gSystem->Load("libGeom");
 
@@ -314,7 +313,7 @@ void GeometryVisualizator::createGeometry(
   {
     TGeoTube *layer =
         new TGeoTube(layerStats[i].second,
-                     layerStats[i].second + kLayerThickness, kLength / 2.);
+                     layerStats[i].second + kLayerThickness, kLength);
     assert(layer);
     layers.push_back(layer);
   }
