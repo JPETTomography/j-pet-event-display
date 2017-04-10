@@ -25,295 +25,242 @@
 namespace jpet_event_display
 {
 
-GeometryVisualizator::GeometryVisualizator() { }
+GeometryVisualizator::GeometryVisualizator(
+    const int numberOfLayers,
+    const std::vector<std::pair<int, double>> &layerStats)
+{
+  createGeometry(numberOfLayers, layerStats);
+}
 
-GeometryVisualizator::~GeometryVisualizator() { }
+GeometryVisualizator::~GeometryVisualizator() {}
 
 void GeometryVisualizator::drawData()
 {
-  switch(ProcessedData::getInstance().getCurrentFileType())
+  drawStrips(ProcessedData::getInstance().getActivedScintilators());
+  drawDiagram(ProcessedData::getInstance().getDiagramData());
+
+  updateCanvas(fCanvas3d);
+  updateCanvas(fCanvas2d);
+  updateCanvas(fCanvasDiagrams);
+}
+
+void GeometryVisualizator::updateCanvas(std::unique_ptr<TCanvas>& canvas)
+{
+  canvas->Draw();
+  canvas->Update();
+  canvas->Modified();
+}
+
+void GeometryVisualizator::showGeometry()
+{
+  assert(fRootCanvas3d);
+  assert(fRootCanvas2d);
+  assert(fRootCanvasDiagrams);
+  if (!fCanvas3d)
+    fCanvas3d = std::unique_ptr<TCanvas>(fRootCanvas3d->GetCanvas());
+  if(!fCanvas2d)
+    fCanvas2d = std::unique_ptr<TCanvas>(fRootCanvas2d->GetCanvas());
+  if(!fCanvasDiagrams)
+    fCanvasDiagrams =
+        std::unique_ptr<TCanvas>(fRootCanvasDiagrams->GetCanvas());
+
+  draw2dGeometry();
+  setAllStripsUnvisible();
+  //setAllStripsUnvisible2d();
+
+
+  fCanvas3d->cd();
+  assert(fGeoManager);
+  Int_t irep;
+  fGeoManager->GetTopVolume()->Draw();
+  assert(gPad);
+  TView *view = gPad->GetView();
+  assert(view);
+  view->ZoomView(0, 2);
+  view->SetView(0, 90, 0, irep);
+  if(irep == -1)
+    WARNING("Error in min-max scope setting view to 3d canvas");
+
+  gPad->Modified();
+  gPad->Update();
+}
+
+void GeometryVisualizator::draw2dGeometry()
+{
+  const int marginBetweenScin = 5;
+  const int marginBetweenLayers = 10;
+  const int topMargin = 10;
+  const int bottomMargin = 10;
+  const int leftMargin = 20;
+  const int rightMargin = 20;
+  const int canvasScale = 900;
+  //int startX = canvasScale - leftMargin;
+  int startY = canvasScale - topMargin;
+  int canvasWidth = canvasScale - leftMargin - rightMargin;
+  int canvasHeight = canvasScale - topMargin - bottomMargin;
+  fCanvas2d->cd();
+  fCanvas2d->Range(0, 0, canvasScale, canvasScale);
+  TGeoVolume *topVolume = fGeoManager->GetTopVolume();
+  numberOfLayers = topVolume->GetNdaughters();
+  if (numberOfLayers == 0)
+    return;
+  numberOfScintilatorsInLayer = new int[numberOfLayers];
+  double layerWidth =
+      (canvasWidth - (marginBetweenLayers * numberOfLayers)) / numberOfLayers;
+  allScintilatorsCanv = new ScintillatorCanv *[numberOfLayers];
+  for (int i = 0; i < numberOfLayers; i++)
   {
-    case FileTypes::fTimeWindow:
-      setVisibility(ProcessedData::getInstance().getActivedScintilators());
-      break;
-    case FileTypes::fRawSignal:
-      setVisibility(ProcessedData::getInstance().getActivedScintilators());
-      drawDiagram(ProcessedData::getInstance().getDiagramData());
-      break;
-    default:
-      break;
+    TGeoNode *node = topVolume->GetNode(i);
+    numberOfScintilatorsInLayer[i] = node->GetNdaughters();
+    if (numberOfScintilatorsInLayer[i] == 0)
+      return;
+    double scintilatorHeight = canvasHeight / numberOfScintilatorsInLayer[i];
+    allScintilatorsCanv[i] =
+        new ScintillatorCanv[numberOfScintilatorsInLayer[i]];
+    for (int j = 0; j < numberOfScintilatorsInLayer[i]; j++)
+    {
+      allScintilatorsCanv[i][j].image =
+          new TBox(leftMargin + (layerWidth * i),
+                   startY - ((j + 1) * scintilatorHeight) + marginBetweenScin,
+                   leftMargin + (layerWidth * (i + 1)) - marginBetweenLayers,
+                   startY - (j * scintilatorHeight));
+      allScintilatorsCanv[i][j].image->SetFillColor(1);
+      allScintilatorsCanv[i][j].image->Draw();
+      // allScintilatorsCanv[i][j].event = new TMarker(0.5, 0.5, 3);
+      // allScintilatorsCanv[i][j].event->SetMarkerColor(2);
+      // allScintilatorsCanv[i][j].event->SetMarkerSize(3);
+      // allScintilatorsCanv[i][j].event->Draw();
+    }
+  }
+
+  fCanvas2d->Modified();
+  fCanvas2d->Update();
+}
+
+void GeometryVisualizator::setAllStripsUnvisible2d()
+{
+  assert(allScintilatorsCanv);
+  for (int i = 0; i < numberOfLayers; i++)
+  {
+    for (int j = 0; j < numberOfScintilatorsInLayer[i]; j++)
+    {
+      allScintilatorsCanv[i][j].image->SetFillColor(1);
+    }
+  }
+  assert(fCanvas2d);
+  fCanvas2d->Modified();
+  fCanvas2d->Update();
+}
+
+void GeometryVisualizator::setVisibility2d(
+    const ScintillatorsInLayers &selection)
+{
+  for (auto iter = selection.begin(); iter != selection.end(); ++iter)
+  {
+    int layer = iter->first - 1; // table start form 0, layers from 1
+    const std::vector<size_t> &strips = iter->second;
+    for (auto stripIter = strips.begin(); stripIter != strips.end();
+         ++stripIter)
+    {
+      int strip = *stripIter - 1;
+      if (layer < numberOfLayers && layer >= 0 &&
+          strip < numberOfScintilatorsInLayer[layer] && strip >= 0)
+      {
+        allScintilatorsCanv[layer][strip].image->SetFillColor(2);
+      }
+    }
+  }
+  fCanvas2d->Modified();
+  fCanvas2d->Update();
+}
+
+void GeometryVisualizator::drawStrips(const ScintillatorsInLayers &selection)
+{
+  setAllStripsUnvisible();
+  setAllStripsUnvisible2d();
+  if (selection.empty())
+    return;
+  setVisibility(selection);
+  setVisibility2d(selection);
+}
+
+
+void GeometryVisualizator::setVisibility(const ScintillatorsInLayers &selection)
+{
+  assert(fGeoManager);
+  TGeoNode *topNode = fGeoManager->GetTopNode();
+  assert(topNode);
+  TGeoNode *nodeLayer = 0;
+  TGeoNode *nodeStrip = 0;
+  int layer = -1;
+  int strip = -1;
+  for (auto iter = selection.begin(); iter != selection.end(); ++iter)
+  {
+    layer = iter->first;
+    const std::vector<size_t> &strips = iter->second;
+    nodeLayer = topNode->GetDaughter(layer - 1);
+    assert(nodeLayer);
+
+    for (auto stripIter = strips.begin(); stripIter != strips.end();
+         ++stripIter)
+    {
+      strip = *stripIter;
+      nodeStrip = nodeLayer->GetDaughter(strip - 1);
+      assert(nodeStrip);
+      nodeStrip->SetVisibility(kTRUE);
+    }
   }
 }
 
-  void GeometryVisualizator::loadGeometry(const std::string& geomFile)
+void GeometryVisualizator::setAllStripsUnvisible()
+{
+  assert(fGeoManager);
+  TGeoNodeMatrix *topNode =
+      static_cast < TGeoNodeMatrix * >(fGeoManager->GetTopNode());
+  assert(topNode);
+  int fNumberOfLayers = topNode->GetNdaughters();
+  TGeoNode *node = 0;
+  for (int i = 0; i < fNumberOfLayers; i++)
   {
-    std::shared_ptr<TFile> inputGeomFile = std::make_shared<TFile>(static_cast<TString>(geomFile));
-    if (inputGeomFile->IsZombie()) {
-      assert(1 == 0);
-      ERROR(std::string("Error opening file:" + geomFile));
-      return;
-    }
-    fGeoManager = std::unique_ptr<TGeoManager>(static_cast<TGeoManager*>(inputGeomFile->Get("mgr")));
-    assert(fGeoManager);
-  }
-
-  void GeometryVisualizator::drawOnlyGeometry()
-  {
-    if (fRootCanvas3d == 0) {
-      WARNING("Canvas not set");
-      return;
-    }
-    if(fCanvas3d == 0)
-      fCanvas3d = std::unique_ptr<TCanvas>(fRootCanvas3d->GetCanvas());
-    setAllStripsUnvisible();
-    //fGeoManager->GetTopVolume()->Draw();
-    drawPads();
-    fGeoManager->SetVisLevel(4);
-    fGeoManager->SetVisOption(0);
-    fCanvas3d->Modified();
-    fCanvas3d->Update();
-    draw2dGeometry();
-  }
-
-  void GeometryVisualizator::draw2dGeometry()
-  {
-    if (fRootCanvas2d == 0) {
-      WARNING("Canvas not set");
-      return;
-    }
-    if(fCanvas2d == 0)
-      fCanvas2d = std::unique_ptr<TCanvas>(fRootCanvas2d->GetCanvas());
-    const int marginBetweenScin = 5;
-    const int marginBetweenLayers = 10;
-    const int topMargin = 10;
-    const int bottomMargin = 10;
-    const int leftMargin = 20;
-    const int rightMargin = 20;
-    const int canvasScale = 900;
-    int startX = canvasScale - leftMargin;
-    int startY = canvasScale - topMargin;
-    int canvasWidth = canvasScale - leftMargin - rightMargin;
-    int canvasHeight = canvasScale - topMargin - bottomMargin;
-    fCanvas2d->cd();
-    fCanvas2d->Range(0, 0, canvasScale, canvasScale);
-    TGeoVolume* topVolume = fGeoManager->GetTopVolume();
-    numberOfLayers = topVolume->GetNdaughters();
-    numberOfScintilatorsInLayer = new int[numberOfLayers];
-    if(numberOfLayers == 0)
-      return;
-    double layerWidth = (canvasWidth - (marginBetweenLayers * numberOfLayers)) / numberOfLayers;
-    allScintilatorsCanv = new ScintillatorCanv *[numberOfLayers];
-    for (int i = 0; i < numberOfLayers; i++) {
-      TGeoNode* node = topVolume->GetNode(i);
-      numberOfScintilatorsInLayer[i] = node->GetNdaughters();
-      double scintilatorHeight = canvasHeight / numberOfScintilatorsInLayer[i];
-      allScintilatorsCanv[i] =
-          new ScintillatorCanv[numberOfScintilatorsInLayer[i]];
-      for (int j = 0; j < numberOfScintilatorsInLayer[i]; j++) {
-        allScintilatorsCanv[i][j].image = new TBox(
-            leftMargin + (layerWidth * i), 
-            startY - ((j + 1) * scintilatorHeight) + marginBetweenScin, 
-            leftMargin + (layerWidth * (i + 1)) - marginBetweenLayers, 
-            startY - (j * scintilatorHeight)
-            );
-        allScintilatorsCanv[i][j].image->SetFillColor(1);
-        allScintilatorsCanv[i][j].image->Draw();
-        //allScintilatorsCanv[i][j].event = new TMarker(0.5, 0.5, 3);
-        //allScintilatorsCanv[i][j].event->SetMarkerColor(2);
-        //allScintilatorsCanv[i][j].event->SetMarkerSize(3);
-        //allScintilatorsCanv[i][j].event->Draw();
-      }
-    }
-
-    fCanvas2d->Modified();
-    fCanvas2d->Update();
-  }
-
-  void GeometryVisualizator::setAllStripsUnvisible2d()
-  {
-    assert(allScintilatorsCanv);
-    for(int i = 0; i < numberOfLayers; i++)
+    node = topNode->GetDaughter(i);
+    assert(node);
+    int fNumberOfStrips = node->GetNdaughters();
+    for (int j = 0; j < fNumberOfStrips; j++)
     {
-      for(int j = 0; j < numberOfScintilatorsInLayer[i]; j++)
-      {
-        allScintilatorsCanv[i][j].image->SetFillColor(1);
-      }
-    }
-    fCanvas2d->Modified();
-    fCanvas2d->Update();
-  }
-
-  void GeometryVisualizator::setVisibility2d(const std::map<int, std::vector<int> >& selection)
-  {
-    for (auto iter = selection.begin(); iter != selection.end(); ++iter) {
-      int layer = iter->first - 1; // table start form 0, layers from 1
-      const std::vector<int>& strips = iter->second;
-      for (auto stripIter = strips.begin(); stripIter != strips.end(); ++stripIter) {
-        int strip = *stripIter - 1; // scintilators start from 1
-        if (layer < numberOfLayers && layer >= 0 &&
-            strip < numberOfScintilatorsInLayer[layer] && strip >= 0) {
-          allScintilatorsCanv[layer][strip].image->SetFillColor(2);
-        }
-      }
-    }
-    fCanvas2d->Modified();
-    fCanvas2d->Update();
-  }
-
-  void GeometryVisualizator::drawStrips(const std::map<int, std::vector<int> >& selection)
-  {
-    if (fCanvas3d == 0) {
-      WARNING("Canvas not set");
-      return;
-    }
-    setVisibility(selection);
-    drawPads();
-  }
-
-
-  void GeometryVisualizator::drawPads()
-  {
-    if (fCanvas3d == 0) {
-      WARNING("Canvas not set");
-      return;
-    }
-    fCanvas3d->cd(0);
-    assert(fGeoManager);
-    Int_t irep;
-    fGeoManager->GetTopVolume()->Draw();
-    assert(gPad);
-    TView* view = gPad->GetView();
-    assert(view);
-    view->ZoomView(0, 1);
-    view->SetView(0, 0 , 0, irep);
-    
-    gPad->Modified();
-    gPad->Update();
-  }
-
-  void GeometryVisualizator::setVisibility(const std::map<int, std::vector<int> >& selection)
-  {
-    setAllStripsUnvisible();
-    setAllStripsUnvisible2d();
-    setVisibility2d(selection);
-    if (selection.empty()) return;
-    assert(fGeoManager);
-    TGeoNode *topNode = fGeoManager->GetTopNode();
-    assert(topNode);
-    TGeoNode* nodeLayer = 0; //making those shared ptr causing segfault
-    TGeoNode* nodeStrip = 0;
-    
-    std::map<int, std::vector<int> >::const_iterator iter;
-    int layer = -1;
-    int strip = -1;
-    std::string nodeName;
-    for (iter = selection.begin(); iter != selection.end(); ++iter) {
-      layer = iter->first;
-      const std::vector<int>& strips = iter->second;
-      std::vector<int>::const_iterator stripIter;
-      nodeName = getLayerNodeName(layer); 
-      nodeLayer = topNode->GetVolume()->FindNode(nodeName.c_str());
-      //if(!nodeLayer) //TODO remove, just for tests
-      //  return;
-      
-      assert(nodeLayer);
-      for (stripIter = strips.begin(); stripIter != strips.end(); ++stripIter) {
-        strip = *stripIter;
-        nodeName = getStripNodeName(strip);
-        nodeStrip = nodeLayer->GetVolume()->FindNode(nodeName.c_str());
-        //if(!nodeStrip) //TODO remove, just for tests
-        //  return;
-        assert(nodeStrip);
-        nodeStrip->SetVisibility(kTRUE);
-      }
+      TGeoNode *stripNode = node->GetDaughter(j);
+      stripNode->SetVisibility(kFALSE);
     }
   }
+}
 
-  void GeometryVisualizator::setAllStripsUnvisible()
+void GeometryVisualizator::drawDiagram(const DiagramDataMapVector &diagramData)
+{
+  if (fRootCanvasDiagrams == 0)
   {
-    assert(fGeoManager);
-    TGeoNode* topNode = fGeoManager->GetTopNode(); //making this shared ptr causing segfault
-    assert(topNode);
-    TGeoNode* node = 0;
-    node = topNode->GetVolume()->FindNode("layer_1_1");
-    assert(node);
-    node->SetVisibility(kTRUE);
-    node->GetVolume()->SetLineColor(kBlack);
-    TObjArray* array = node->GetNodes();
-    assert(array);
-    TIter it(array);
-    while ((node = (TGeoNode*)it.Next())) {
-      node->SetVisibility(kFALSE);
-      node->GetVolume()->SetLineWidth(5);
-    }
-
-    node = topNode->GetVolume()->FindNode("layer_2_1");
-    assert(node);
-    node->SetVisibility(kTRUE);
-    node->GetVolume()->SetLineColor(kBlack);
-    array = node->GetNodes();
-    assert(array);
-    it  = array->MakeIterator();
-    while ((node = (TGeoNode*)it.Next())) {
-      node->SetVisibility(kFALSE);
-      node->GetVolume()->SetLineWidth(5);
-    }
-
-    node = topNode->GetVolume()->FindNode("layer_3_1");
-    assert(node);
-    node->SetVisibility(kTRUE);
-    node->GetVolume()->SetLineColor(kBlack);
-    array = node->GetNodes();
-    assert(array);
-    it  = array->MakeIterator();
-    while ((node = (TGeoNode*)it.Next())) {
-      node->SetVisibility(kFALSE);
-      node->GetVolume()->SetLineWidth(5);
-    }
+    WARNING("Canvas not set");
+    return;
   }
-
-  bool GeometryVisualizator::isGeoManagerInitialized() const
+  if (fCanvasDiagrams == 0)
+    fCanvasDiagrams =
+        std::unique_ptr<TCanvas>(fRootCanvasDiagrams->GetCanvas());
+  int vectorSize = diagramData.size();
+  std::cout << "vector size: " << vectorSize << "\n";
+  fCanvasDiagrams->cd();
+  fCanvasDiagrams->DivideSquare(vectorSize);
+  for (int j = 0; j < vectorSize; j++)
   {
-    if (fGeoManager == 0) {
-      WARNING("GEOMETRY is not loaded.");
-      return false;
-    } else {
-      return true;
-    }
-  }
-
-  std::string GeometryVisualizator::getLayerNodeName(int layer) const
-  {
-    std::string name("layer_");
-    name.append(CommonTools::intToString(layer) + std::string("_1"));
-    return name;
-  }
-
-  std::string GeometryVisualizator::getStripNodeName(int strip) const
-  {
-    std::string name("XStrip_");
-    name.append(CommonTools::intToString(strip));
-    return name;
-  }
-
-  void GeometryVisualizator::drawDiagram(const std::map<int, std::pair<float, float>>& diagramData)
-  {
-    if (fRootCanvasDiagrams == 0) {
-      WARNING("Canvas not set");
-      return;
-    }
-    if(fCanvasDiagrams == 0)
-      fCanvasDiagrams = std::unique_ptr<TCanvas>(fRootCanvasDiagrams->GetCanvas());
-    int n = diagramData.size();
-    if(n == 0)
+    fCanvasDiagrams->cd(j + 1);
+    int n = diagramData[j].size();
+    if (n == 0)
       return;
     double x[n], y[n];
     int i = 0;
-    for (auto it = diagramData.begin(); it != diagramData.end(); it++) {
+    for (auto it = diagramData[j].begin(); it != diagramData[j].end(); it++)
+    {
       y[i] = static_cast<double>(it->first);
       // y[i] = static_cast<double>(it->second.first);
       x[i] = static_cast<double>(it->second.second);
-      //std::cout << "x: " << x[i] << " y: " << y[i] << "\n";
+      // std::cout << "x: " << x[i] << " y: " << y[i] << "\n";
       i++;
     }
     fCanvasDiagrams->cd();
@@ -321,7 +268,87 @@ void GeometryVisualizator::drawData()
     gr->GetXaxis()->SetTitle("Time");
     gr->GetYaxis()->SetTitle("Threshold Number");
     gr->Draw("ACP*");
-    fCanvasDiagrams->Update();
-    fCanvasDiagrams->Modified();
+    TLine *line =
+        new TLine(gr->GetXaxis()->GetXmin(), 1, gr->GetXaxis()->GetXmax(), 1);
+    line->SetLineColor(kRed);
+    line->Draw();
   }
+
+}
+
+void GeometryVisualizator::createGeometry(
+    const int numberOfLayers,
+    const std::vector<std::pair<int, double>> &layerStats)
+{
+  const double kXWorld = 500;
+  const double kYWorld = 500;
+  const double kZWorld = 500;
+
+  const double kLength = 70;
+  const double kLayerThickness = 0.9;
+  gSystem->Load("libGeom");
+
+  fGeoManager =
+      std::unique_ptr<TGeoManager>(new TGeoManager("mgr", "PET detector"));
+
+  TGeoMaterial *matVacuum = new TGeoMaterial("Vacuum", 0, 0, 0);
+  assert(matVacuum);
+  TGeoMedium *vacuum = new TGeoMedium("Vacuum", 1, matVacuum);
+  assert(vacuum);
+  TGeoMaterial *matAl = new TGeoMaterial("Al", 0, 0, 0);
+  assert(matAl);
+  TGeoMedium *medium = new TGeoMedium("Aluminium", 2, matAl);
+  assert(medium);
+
+  TGeoVolume *top =
+      fGeoManager->MakeBox("TOP", vacuum, kXWorld, kYWorld, kZWorld);
+  assert(top);
+  fGeoManager->SetTopVolume(top);
+
+  TGeoRotation *rotation = new TGeoRotation();
+  rotation->SetAngles(0., 0., 0.);
+
+  std::vector<TGeoTube *> layers;
+
+  for (int i = 0; i < numberOfLayers; i++)
+  {
+    TGeoTube *layer =
+        new TGeoTube(layerStats[i].second,
+                     layerStats[i].second + kLayerThickness, kLength / 2.);
+    assert(layer);
+    layers.push_back(layer);
+  }
+
+  TGeoVolume *vol = 0;
+
+  int volNr = 0;
+  int i = 0;
+  char nameOfLayer[100];
+  for (TGeoTube *layer : layers)
+  {
+    sprintf(nameOfLayer, "layer_%d", i + 1);
+    vol = new TGeoVolume(nameOfLayer, layer, medium);
+    assert(vol);
+    vol->SetVisibility(kTRUE);
+    vol->SetLineColor(kBlack);
+
+    vol->Divide("XStrip", 2, layerStats[i].first, 0, 0, 1);
+    TObjArray *array = vol->GetNodes();
+    assert(array);
+    TGeoNode *strip = 0;
+    TIter iter(array);
+    while ((strip = static_cast<TGeoNode *>(iter.Next())) != 0)
+    {
+      strip->GetVolume()->SetLineColor(kRed);
+      strip->SetVisibility(kTRUE);
+    }
+    volNr = top->GetNtotal() + 1;
+    top->AddNode(vol, volNr, rotation);
+    i++;
+  }
+  fGeoManager->GetMasterVolume()->SetVisContainers(kTRUE);
+  fGeoManager->CloseGeometry();
+  fGeoManager->SetVisLevel(4);
+}
+
 }

@@ -16,20 +16,25 @@
 #ifndef GEOMETRYVISUALIZATOR_H_
 #define GEOMETRYVISUALIZATOR_H_
 
-#include <TView.h>
-#include <TVirtualPad.h>
+#include "./CommonTools.h"
+#include <TAxis.h>
+#include <TBox.h>
 #include <TGeoManager.h>
 #include <TGeoNode.h>
+#include <TGeoTube.h>
 #include <TGeoVolume.h>
-#include <TMarker.h>
-#include <TBox.h>
 #include <TGraph.h>
-#include <TAxis.h>
+#include <TLine.h>
+#include <TMarker.h>
+#include <TMultiGraph.h>
+#include <TROOT.h>
+#include <TSystem.h>
+#include <TView.h>
+#include <TVirtualPad.h>
 #include <cassert>
 #include <map>
-#include <vector>
 #include <memory>
-#include "./CommonTools.h"
+#include <vector>
 
 #include "DataProcessor.h"
 
@@ -43,14 +48,17 @@ namespace jpet_event_display
   class GeometryVisualizator
   {
   public:
-    GeometryVisualizator();
+    GeometryVisualizator(const int numberOfLayers,
+                         const std::vector<std::pair<int, double>> &layerStats);
     ~GeometryVisualizator();
-    bool isGeoManagerInitialized() const;
-    void loadGeometry(const std::string& geomFile);
-    void drawData();
-    void drawOnlyGeometry();
     
-    inline std::unique_ptr<TRootEmbeddedCanvas>& getCanvas3d() { return fRootCanvas3d; }
+    void showGeometry();
+    void drawData();
+
+    inline std::unique_ptr<TRootEmbeddedCanvas> &getCanvas3d()
+    {
+      return fRootCanvas3d;
+    }
     inline std::unique_ptr<TRootEmbeddedCanvas>& getCanvas2d() { return fRootCanvas2d; }
     inline std::unique_ptr<TRootEmbeddedCanvas>& getCanvasDiagrams() { return fRootCanvasDiagrams; }
 
@@ -58,18 +66,19 @@ namespace jpet_event_display
 
 
 #ifndef __CINT__
+    void createGeometry(const int numberOfLayers,
+                        const std::vector<std::pair<int, double>>& layerStats);
 
+    void updateCanvas(std::unique_ptr<TCanvas> &canvas);
 
     void draw2dGeometry();
-    void drawStrips(const std::map<int, std::vector<int> >& selection);
+    void drawStrips(const ScintillatorsInLayers& selection);
     void drawPads();
     void setAllStripsUnvisible();
     void setAllStripsUnvisible2d();
-    void setVisibility(const std::map<int, std::vector<int> >& selection);
-    void setVisibility2d(const std::map<int, std::vector<int> >& selection);
-    std::string getLayerNodeName(int layer) const;
-    std::string getStripNodeName(int strip) const;
-    void drawDiagram(const std::map<int, std::pair<float, float>> &diagramData);
+    void setVisibility(const ScintillatorsInLayers& selection);
+    void setVisibility2d(const ScintillatorsInLayers& selection);
+    void drawDiagram(const DiagramDataMapVector& diagramData);
 
     enum ColorTable { kBlack = 1, kRed = 2, kBlue = 34, kGreen = 30 };
     std::unique_ptr<TGeoManager> fGeoManager;
