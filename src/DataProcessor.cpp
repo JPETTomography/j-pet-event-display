@@ -196,10 +196,12 @@ DiagramDataMap DataProcessor::getDataForDiagram(const JPetRawSignal &rawSignal)
 {
   DiagramDataMap data = rawSignal.getTimesVsThresholdValue(JPetSigCh::Leading);
   DiagramDataMap tmp = rawSignal.getTimesVsThresholdValue(JPetSigCh::Trailing);
+  int dataSize = data.size();
   for (auto it = tmp.begin(); it != tmp.end(); it++)
   {
-    data[it->first + data.size()] = it->second;
+    data[it->first + dataSize] = it->second;
   }
+
   return data;
 }
 
