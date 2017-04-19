@@ -31,6 +31,7 @@
 #include <TSystem.h>
 #include <TView.h>
 #include <TVirtualPad.h>
+#include <TPoint.h>
 #include <cassert>
 #include <map>
 #include <memory>
@@ -90,6 +91,10 @@ namespace jpet_event_display
     std::unique_ptr<TCanvas> fCanvas3d;
     std::unique_ptr<TCanvas> fCanvas2d;
     std::unique_ptr<TCanvas> fCanvasDiagrams;
+
+    int fScinLenghtWithoutScale = 0;
+
+    int fLastDiagramVectorSize = 0;
 #endif
 
     struct ScintillatorCanv {
