@@ -28,6 +28,7 @@ namespace jpet_event_display
 GeometryVisualizator::GeometryVisualizator(
     const int numberOfLayers, const int kLength,
     const std::vector<std::pair<int, double>> &layerStats)
+    : fScinLenghtWithoutScale(kLength)
 {
   createGeometry(numberOfLayers, kLength, layerStats);
 }
@@ -126,10 +127,6 @@ void GeometryVisualizator::draw2dGeometry()
                    startY - (j * scintilatorHeight));
       allScintilatorsCanv[i][j].image->SetFillColor(1);
       allScintilatorsCanv[i][j].image->Draw();
-      // allScintilatorsCanv[i][j].event = new TMarker(0.5, 0.5, 3);
-      // allScintilatorsCanv[i][j].event->SetMarkerColor(2);
-      // allScintilatorsCanv[i][j].event->SetMarkerSize(3);
-      // allScintilatorsCanv[i][j].event->Draw();
     }
   }
 
@@ -155,6 +152,7 @@ void GeometryVisualizator::setAllStripsUnvisible2d()
 void GeometryVisualizator::setVisibility2d(
     const ScintillatorsInLayers &selection)
 {
+  fCanvas2d->cd();
   for (auto iter = selection.begin(); iter != selection.end(); ++iter)
   {
     int layer = iter->first - 1; // table start form 0, layers from 1
@@ -167,6 +165,22 @@ void GeometryVisualizator::setVisibility2d(
           strip < numberOfScintilatorsInLayer[layer] && strip >= 0)
       {
         allScintilatorsCanv[layer][strip].image->SetFillColor(2);
+        double scaledScinLenght =
+            allScintilatorsCanv[layer][strip].image->GetX2() -
+            allScintilatorsCanv[layer][strip].image->GetX1();
+        double scale = scaledScinLenght / fScinLenghtWithoutScale;
+        double centerX = allScintilatorsCanv[layer][strip].image->GetX1() +
+                         ((allScintilatorsCanv[layer][strip].image->GetX2() -
+                           allScintilatorsCanv[layer][strip].image->GetX1()) / 2);
+        double centerY = allScintilatorsCanv[layer][strip].image->GetY1() +
+                         ((allScintilatorsCanv[layer][strip].image->GetY2() -
+                         allScintilatorsCanv[layer][strip].image->GetY1()) / 2);
+        std::cout << "marker center: " << centerX << "  " << centerY << "\n";
+        allScintilatorsCanv[layer][strip].event =
+            new TMarker(centerX, centerY, 3);
+        allScintilatorsCanv[layer][strip].event->SetMarkerColor(2);
+        allScintilatorsCanv[layer][strip].event->SetMarkerSize(3);
+        allScintilatorsCanv[layer][strip].event->Draw();
       }
     }
   }
@@ -246,7 +260,11 @@ void GeometryVisualizator::drawDiagram(const DiagramDataMapVector &diagramData)
   int vectorSize = diagramData.size();
   std::cout << "vector size: " << vectorSize << "\n";
   fCanvasDiagrams->cd();
-  fCanvasDiagrams->DivideSquare(vectorSize);
+  if(vectorSize != fLastDiagramVectorSize)
+  {
+    fCanvasDiagrams->Clear();
+    fCanvasDiagrams->DivideSquare(vectorSize);
+  }
   for (int j = 0; j < vectorSize; j++)
   {
     fCanvasDiagrams->cd(j + 1);
@@ -258,12 +276,11 @@ void GeometryVisualizator::drawDiagram(const DiagramDataMapVector &diagramData)
     for (auto it = diagramData[j].begin(); it != diagramData[j].end(); it++)
     {
       y[i] = static_cast<double>(it->first);
-      // y[i] = static_cast<double>(it->second.first);
+      //y[i] = static_cast<double>(it->second.first);
       x[i] = static_cast<double>(it->second.second);
       // std::cout << "x: " << x[i] << " y: " << y[i] << "\n";
       i++;
     }
-    fCanvasDiagrams->cd();
     TGraph *gr = new TGraph(n, x, y);
     gr->GetXaxis()->SetTitle("Time");
     gr->GetYaxis()->SetTitle("Threshold Number");
