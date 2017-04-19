@@ -194,15 +194,22 @@ DataProcessor::getActiveScintillators(const JPetEvent &event)
 
 DiagramDataMap DataProcessor::getDataForDiagram(const JPetRawSignal &rawSignal)
 {
-  DiagramDataMap data = rawSignal.getTimesVsThresholdValue(JPetSigCh::Leading);
-  DiagramDataMap tmp = rawSignal.getTimesVsThresholdValue(JPetSigCh::Trailing);
+  DiagramDataMap r;
+  auto data = rawSignal.getTimesVsThresholdValue(JPetSigCh::Leading);
+  for (auto it = data.begin(); it != data.end(); it++)
+  {
+    r.push_back(std::make_tuple(it->first, it->second.first,
+                                it->second.second, JPetSigCh::Leading));
+  }
+  auto tmp = rawSignal.getTimesVsThresholdValue(JPetSigCh::Trailing);
   int dataSize = data.size();
   for (auto it = tmp.begin(); it != tmp.end(); it++)
   {
-    data[it->first + dataSize] = it->second;
+    r.push_back(std::make_tuple(it->first, it->second.first,
+                                it->second.second, JPetSigCh::Trailing));
   }
 
-  return data;
+  return r;
 }
 
 DiagramDataMapVector DataProcessor::getDataForDiagram(const JPetHit &hitSignal)

@@ -275,20 +275,23 @@ void GeometryVisualizator::drawDiagram(const DiagramDataMapVector &diagramData)
     int i = 0;
     for (auto it = diagramData[j].begin(); it != diagramData[j].end(); it++)
     {
-      y[i] = static_cast<double>(it->first);
+      y[i] = static_cast<double>(std::get<0>(*it));
       //y[i] = static_cast<double>(it->second.first);
-      x[i] = static_cast<double>(it->second.second);
+      x[i] = static_cast<double>(std::get<2>(*it));
       // std::cout << "x: " << x[i] << " y: " << y[i] << "\n";
       i++;
     }
     TGraph *gr = new TGraph(n, x, y);
     gr->GetXaxis()->SetTitle("Time");
     gr->GetYaxis()->SetTitle("Threshold Number");
-    gr->Draw("ACP*");
-    TLine *line =
-        new TLine(gr->GetXaxis()->GetXmin(), 1, gr->GetXaxis()->GetXmax(), 1);
-    line->SetLineColor(kRed);
-    line->Draw();
+    gr->Draw("AP*");//ACP*
+    for (int k = 0; k < 4; k++)
+    {
+      TLine *line =
+          new TLine(gr->GetXaxis()->GetXmin(), k + 1, gr->GetXaxis()->GetXmax(), k + 1);
+      line->SetLineColor(kRed);
+      line->Draw();
+    }
   }
 
 }

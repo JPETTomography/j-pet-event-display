@@ -40,8 +40,11 @@ namespace jpet_event_display
 enum FileTypes { fNone, fTimeWindow, fRawSignal, fHit, fEvent };
 
 typedef std::map<size_t, std::vector<size_t> > ScintillatorsInLayers;
-typedef std::map<int, std::pair<float, float>> DiagramDataMap;
-typedef std::vector<std::map<int, std::pair<float, float>>> DiagramDataMapVector;
+typedef std::vector<std::tuple<int, float, float, JPetSigCh::EdgeType>>
+    DiagramDataMap;
+// typedef std::map<int, std::tuple<float, float, JPetSigCh::EdgeType>>
+//    DiagramDataMap; //threshold number, thresholdValue, time, EdgeType
+typedef std::vector<DiagramDataMap> DiagramDataMapVector;
 
 class ProcessedData 
 {
