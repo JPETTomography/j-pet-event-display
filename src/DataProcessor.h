@@ -100,6 +100,7 @@ public:
   bool nextEvent();
   bool lastEvent();
   bool nthEvent(long long n);
+  long long getNumberOfEvents() { return fNumberOfEventsInFile; }
 
 private:
   #ifndef __CINT__

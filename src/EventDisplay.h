@@ -16,6 +16,7 @@
 #ifndef EVENTDISPLAY_H
 #define EVENTDISPLAY_H
 
+
 #include <memory>
 #include <string>
 
@@ -40,8 +41,11 @@
 #include <RQ_OBJECT.h>
 
 #ifndef __CINT__
-#include "GeometryVisualizator.h"
 #include "DataProcessor.h"
+#include "GeometryVisualizator.h"
+
+#include <chrono>
+#include <thread>
 #endif
 
 namespace jpet_event_display
@@ -89,7 +93,8 @@ public:
   void doNext();
   void doReset();
   void showData();
-  
+  void startVirtualization();
+
 private:
   
 
@@ -118,6 +123,8 @@ private:
                                       Int_t padtop = 0, Int_t padbottom = 0);
 
   void AddMenuBar(TGCompositeFrame *parentFrame);
+
+  void startVirtualizationLoop(const int waitTimeInMs = 1000);
 
   ULong_t fFrameBackgroundColor = 0;
 

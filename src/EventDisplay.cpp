@@ -147,6 +147,7 @@ void EventDisplay::CreateOptionsFrame(TGGroupFrame* parentFrame)
   AddButton(frame1_3_1, "&Next >", "doNext()");
   AddButton(frame1_3_1, "&Reset >", "doReset()");
   AddButton(frame1_3_1, "Show Data", "showData()");
+  AddButton(frame1_3_1, "Start Virt", "startVirtualization()");
 
   TGCompositeFrame *frame1_3_2 =
     AddCompositeFrame(frame1_3, 1, 1, kHorizontalFrame, kLHintsExpandX| kLHintsTop, 5, 5, 5, 5);
@@ -288,6 +289,7 @@ void EventDisplay::handleMenu(Int_t id)
       assert(dataProcessor);
       dataProcessor->openFile(fFileInfo->fFilename);
       showData();
+      setMaxProgressBar(dataProcessor->getNumberOfEvents());
     }
     break;
     case E_Close:
@@ -338,4 +340,20 @@ void EventDisplay::setMaxProgressBar (Int_t maxEvent) {
   fProgBar->SetRange(0.0f,Float_t(maxEvent));
 }
 
+void EventDisplay::startVirtualization()
+{
+  std::thread t(&EventDisplay::startVirtualizationLoop, this, 1000);
+  t.join();
+}
+
+void EventDisplay::startVirtualizationLoop(const int waitTimeInMs)
+{
+  doReset();
+  long long maxEvent = dataProcessor->getNumberOfEvents();
+  while (fGUIControls->eventNo != maxEvent)
+  {
+    doNext();
+    std::this_thread::sleep_for(std::chrono::milliseconds(waitTimeInMs));
+  }
+}
 }
