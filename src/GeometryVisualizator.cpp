@@ -39,9 +39,11 @@ void GeometryVisualizator::drawData()
 {
   drawStrips(ProcessedData::getInstance().getActivedScintilators());
   drawDiagram(ProcessedData::getInstance().getDiagramData());
+  drawLineBetweenActivedScins(ProcessedData::getInstance().getHits());
 
   updateCanvas(fCanvas3d);
   updateCanvas(fCanvas2d);
+  updateCanvas(fCanvas2d2);
   updateCanvas(fCanvasDiagrams);
 }
 
@@ -56,11 +58,14 @@ void GeometryVisualizator::showGeometry()
 {
   assert(fRootCanvas3d);
   assert(fRootCanvas2d);
+  assert(fRootCanvas2d2);
   assert(fRootCanvasDiagrams);
   if (!fCanvas3d)
     fCanvas3d = std::unique_ptr<TCanvas>(fRootCanvas3d->GetCanvas());
   if(!fCanvas2d)
     fCanvas2d = std::unique_ptr<TCanvas>(fRootCanvas2d->GetCanvas());
+  if (!fCanvas2d2)
+    fCanvas2d2 = std::unique_ptr<TCanvas>(fRootCanvas2d2->GetCanvas());
   if(!fCanvasDiagrams)
     fCanvasDiagrams =
         std::unique_ptr<TCanvas>(fRootCanvasDiagrams->GetCanvas());
@@ -69,6 +74,7 @@ void GeometryVisualizator::showGeometry()
   setAllStripsUnvisible();
   //setAllStripsUnvisible2d();
 
+  draw2dGeometry2();
 
   fCanvas3d->cd();
   assert(fGeoManager);
@@ -224,6 +230,57 @@ void GeometryVisualizator::setVisibility(const ScintillatorsInLayers &selection)
       nodeStrip->SetVisibility(kTRUE);
     }
   }
+}
+
+void GeometryVisualizator::drawLineBetweenActivedScins(const HitPositions &pos)
+{
+  fCanvas3d->cd();
+  std::cout << "pos size: " << pos.size() << "\n";
+  TPolyLine3D *line = new TPolyLine3D();
+  line->SetLineWidth(2);
+  line->SetLineColor(kRed);
+  line->SetLineStyle(4);
+  TPolyMarker3D *pm3d1 = new TPolyMarker3D();
+  pm3d1->SetMarkerSize(2);
+  pm3d1->SetMarkerColor(kBlack);
+  pm3d1->SetMarkerStyle(2);
+  for (Int_t jc = 0; jc < pos.size(); jc++)
+  {
+    line->SetPoint(jc, pos[jc].Y(), pos[jc].X(), pos[jc].Z());
+    pm3d1->SetPoint(jc, pos[jc].Y(), pos[jc].X(), pos[jc].Z());
+  }
+  line->Draw();
+  pm3d1->Draw();
+}
+
+void GeometryVisualizator::draw2dGeometry2()
+{
+  fCanvas2d2->cd();
+  const double firstLayerRadius = 0.2956;
+  const double secondLayerRadius = 0.3252;
+  const double thirdLayerRadius = 0.4;
+  const double middle = 0.5;
+  TEllipse *thirdLayerCircle =
+      new TEllipse(middle, middle, thirdLayerRadius, thirdLayerRadius);
+  thirdLayerCircle->Draw();
+  TEllipse *secondLayerCircle =
+      new TEllipse(middle, middle, secondLayerRadius, secondLayerRadius);
+  secondLayerCircle->Draw();
+  TEllipse *firstLayerCircle =
+      new TEllipse(middle, middle, firstLayerRadius, firstLayerRadius);
+  firstLayerCircle->Draw();
+
+  TEllipse *testScin =
+      new TEllipse(middle, middle, firstLayerRadius, firstLayerRadius, 0, 360/48);
+  testScin->Draw();
+
+  TGaxis *axisX = new TGaxis(0.1, 0.5, 0.9, 0.5, -57.5, 57.5, 50510, "");
+  axisX->SetName("axisX");
+  axisX->Draw();
+
+  TGaxis *axisY = new TGaxis(0.5, 0.1, 0.5, 0.9, -57.5, 57.5, 50510, "");
+  axisY->SetName("axisY");
+  axisY->Draw();
 }
 
 void GeometryVisualizator::setAllStripsUnvisible()

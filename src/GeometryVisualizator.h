@@ -32,6 +32,9 @@
 #include <TView.h>
 #include <TVirtualPad.h>
 #include <TPoint.h>
+#include <TPolyMarker3D.h>
+#include <TEllipse.h>
+#include <TGaxis.h>
 #include <cassert>
 #include <map>
 #include <memory>
@@ -56,11 +59,9 @@ namespace jpet_event_display
     void showGeometry();
     void drawData();
 
-    inline std::unique_ptr<TRootEmbeddedCanvas> &getCanvas3d()
-    {
-      return fRootCanvas3d;
-    }
+    inline std::unique_ptr<TRootEmbeddedCanvas>& getCanvas3d() { return fRootCanvas3d; }
     inline std::unique_ptr<TRootEmbeddedCanvas>& getCanvas2d() { return fRootCanvas2d; }
+    inline std::unique_ptr<TRootEmbeddedCanvas>& getCanvas2d2() { return fRootCanvas2d2; }
     inline std::unique_ptr<TRootEmbeddedCanvas>& getCanvasDiagrams() { return fRootCanvasDiagrams; }
 
   private: 
@@ -79,17 +80,30 @@ namespace jpet_event_display
     void setAllStripsUnvisible2d();
     void setVisibility(const ScintillatorsInLayers& selection);
     void setVisibility2d(const ScintillatorsInLayers& selection);
-    void drawDiagram(const DiagramDataMapVector& diagramData);
 
-    enum ColorTable { kBlack = 1, kRed = 2, kBlue = 34, kGreen = 30 };
+    void drawLineBetweenActivedScins(const HitPositions &pos);
+
+    void drawDiagram(const DiagramDataMapVector &diagramData);
+
+    void draw2dGeometry2();
+
+    enum ColorTable
+    {
+      kBlack = 1,
+      kRed = 2,
+      kBlue = 34,
+      kGreen = 30
+    };
     std::unique_ptr<TGeoManager> fGeoManager;
     int numberOfLayers = 0;
     int* numberOfScintilatorsInLayer; 
     std::unique_ptr<TRootEmbeddedCanvas> fRootCanvas3d;
     std::unique_ptr<TRootEmbeddedCanvas> fRootCanvas2d;
+    std::unique_ptr<TRootEmbeddedCanvas> fRootCanvas2d2;
     std::unique_ptr<TRootEmbeddedCanvas> fRootCanvasDiagrams;
     std::unique_ptr<TCanvas> fCanvas3d;
     std::unique_ptr<TCanvas> fCanvas2d;
+    std::unique_ptr<TCanvas> fCanvas2d2;
     std::unique_ptr<TCanvas> fCanvasDiagrams;
 
     int fScinLenghtWithoutScale = 0;
