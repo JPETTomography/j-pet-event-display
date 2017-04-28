@@ -19,6 +19,8 @@
 #include "./CommonTools.h"
 #include <TAxis.h>
 #include <TBox.h>
+#include <TEllipse.h>
+#include <TGaxis.h>
 #include <TGeoManager.h>
 #include <TGeoNode.h>
 #include <TGeoTube.h>
@@ -27,14 +29,14 @@
 #include <TLine.h>
 #include <TMarker.h>
 #include <TMultiGraph.h>
+#include <TPoint.h>
+#include <TPolyLine.h>
+#include <TPolyMarker.h>
+#include <TPolyMarker3D.h>
 #include <TROOT.h>
 #include <TSystem.h>
 #include <TView.h>
 #include <TVirtualPad.h>
-#include <TPoint.h>
-#include <TPolyMarker3D.h>
-#include <TEllipse.h>
-#include <TGaxis.h>
 #include <cassert>
 #include <map>
 #include <memory>
@@ -42,82 +44,91 @@
 
 #include "DataProcessor.h"
 
-
 #include <TRootEmbeddedCanvas.h>
 
 class TCanvas;
 
 namespace jpet_event_display
 {
-  class GeometryVisualizator
+class GeometryVisualizator
+{
+public:
+  GeometryVisualizator(const int numberOfLayers, const int kLength,
+                       const std::vector<std::pair<int, double>> &layerStats);
+  ~GeometryVisualizator();
+
+  void showGeometry();
+  void drawData();
+
+  inline std::unique_ptr<TRootEmbeddedCanvas> &getCanvas3d()
   {
-  public:
-    GeometryVisualizator(const int numberOfLayers, const int kLength,
-                         const std::vector<std::pair<int, double>> &layerStats);
-    ~GeometryVisualizator();
-    
-    void showGeometry();
-    void drawData();
+    return fRootCanvas3d;
+  }
+  inline std::unique_ptr<TRootEmbeddedCanvas> &getCanvas2d()
+  {
+    return fRootCanvas2d;
+  }
+  inline std::unique_ptr<TRootEmbeddedCanvas> &getCanvas2d2()
+  {
+    return fRootCanvas2d2;
+  }
+  inline std::unique_ptr<TRootEmbeddedCanvas> &getCanvasDiagrams()
+  {
+    return fRootCanvasDiagrams;
+  }
 
-    inline std::unique_ptr<TRootEmbeddedCanvas>& getCanvas3d() { return fRootCanvas3d; }
-    inline std::unique_ptr<TRootEmbeddedCanvas>& getCanvas2d() { return fRootCanvas2d; }
-    inline std::unique_ptr<TRootEmbeddedCanvas>& getCanvas2d2() { return fRootCanvas2d2; }
-    inline std::unique_ptr<TRootEmbeddedCanvas>& getCanvasDiagrams() { return fRootCanvasDiagrams; }
-
-  private: 
-
-
+private:
 #ifndef __CINT__
-    void createGeometry(const int numberOfLayers, const int kLength,
-                        const std::vector<std::pair<int, double>> &layerStats);
+  void createGeometry(const int numberOfLayers, const int kLength,
+                      const std::vector<std::pair<int, double>> &layerStats);
 
-    void updateCanvas(std::unique_ptr<TCanvas> &canvas);
+  void updateCanvas(std::unique_ptr<TCanvas> &canvas);
 
-    void draw2dGeometry();
-    void drawStrips(const ScintillatorsInLayers& selection);
-    void drawPads();
-    void setAllStripsUnvisible();
-    void setAllStripsUnvisible2d();
-    void setVisibility(const ScintillatorsInLayers& selection);
-    void setVisibility2d(const ScintillatorsInLayers& selection);
+  void draw2dGeometry();
+  void drawStrips(const ScintillatorsInLayers &selection);
+  void drawPads();
+  void setAllStripsUnvisible();
+  void setAllStripsUnvisible2d();
+  void setVisibility(const ScintillatorsInLayers &selection);
+  void setVisibility2d(const ScintillatorsInLayers &selection);
 
-    void drawLineBetweenActivedScins(const HitPositions &pos);
+  void drawLineBetweenActivedScins(const HitPositions &pos);
+  void drawMarkers(const HitPositions &pos);
+  void drawDiagram(const DiagramDataMapVector &diagramData);
 
-    void drawDiagram(const DiagramDataMapVector &diagramData);
+  void draw2dGeometry2();
 
-    void draw2dGeometry2();
+  enum ColorTable
+  {
+    kBlack = 1,
+    kRed = 2,
+    kBlue = 34,
+    kGreen = 30
+  };
+  std::unique_ptr<TGeoManager> fGeoManager;
+  int numberOfLayers = 0;
+  int *numberOfScintilatorsInLayer;
+  std::unique_ptr<TRootEmbeddedCanvas> fRootCanvas3d;
+  std::unique_ptr<TRootEmbeddedCanvas> fRootCanvas2d;
+  std::unique_ptr<TRootEmbeddedCanvas> fRootCanvas2d2;
+  std::unique_ptr<TRootEmbeddedCanvas> fRootCanvasDiagrams;
+  std::unique_ptr<TCanvas> fCanvas3d;
+  std::unique_ptr<TCanvas> fCanvas2d;
+  std::unique_ptr<TCanvas> fCanvas2d2;
+  std::unique_ptr<TCanvas> fCanvasDiagrams;
 
-    enum ColorTable
-    {
-      kBlack = 1,
-      kRed = 2,
-      kBlue = 34,
-      kGreen = 30
-    };
-    std::unique_ptr<TGeoManager> fGeoManager;
-    int numberOfLayers = 0;
-    int* numberOfScintilatorsInLayer; 
-    std::unique_ptr<TRootEmbeddedCanvas> fRootCanvas3d;
-    std::unique_ptr<TRootEmbeddedCanvas> fRootCanvas2d;
-    std::unique_ptr<TRootEmbeddedCanvas> fRootCanvas2d2;
-    std::unique_ptr<TRootEmbeddedCanvas> fRootCanvasDiagrams;
-    std::unique_ptr<TCanvas> fCanvas3d;
-    std::unique_ptr<TCanvas> fCanvas2d;
-    std::unique_ptr<TCanvas> fCanvas2d2;
-    std::unique_ptr<TCanvas> fCanvasDiagrams;
+  int fScinLenghtWithoutScale = 0;
 
-    int fScinLenghtWithoutScale = 0;
-
-    int fLastDiagramVectorSize = 0;
+  int fLastDiagramVectorSize = 0;
 #endif
 
-    struct ScintillatorCanv {
-      TBox* image;
-      TMarker* event;
-    } fScintCanv;
-    ScintillatorCanv fScintCanv2;
-    ScintillatorCanv** allScintilatorsCanv;
-  };
-
+  struct ScintillatorCanv
+  {
+    TBox *image;
+    TMarker *event;
+  } fScintCanv;
+  ScintillatorCanv fScintCanv2;
+  ScintillatorCanv **allScintilatorsCanv;
+};
 }
-#endif  // GEOMETRYVISUALIZATOR_H_
+#endif // GEOMETRYVISUALIZATOR_H_

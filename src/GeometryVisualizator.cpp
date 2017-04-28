@@ -40,14 +40,14 @@ void GeometryVisualizator::drawData()
   drawStrips(ProcessedData::getInstance().getActivedScintilators());
   drawDiagram(ProcessedData::getInstance().getDiagramData());
   drawLineBetweenActivedScins(ProcessedData::getInstance().getHits());
-
+  drawMarkers(ProcessedData::getInstance().getHits());
   updateCanvas(fCanvas3d);
   updateCanvas(fCanvas2d);
   updateCanvas(fCanvas2d2);
   updateCanvas(fCanvasDiagrams);
 }
 
-void GeometryVisualizator::updateCanvas(std::unique_ptr<TCanvas>& canvas)
+void GeometryVisualizator::updateCanvas(std::unique_ptr<TCanvas> &canvas)
 {
   canvas->Draw();
   canvas->Update();
@@ -62,17 +62,17 @@ void GeometryVisualizator::showGeometry()
   assert(fRootCanvasDiagrams);
   if (!fCanvas3d)
     fCanvas3d = std::unique_ptr<TCanvas>(fRootCanvas3d->GetCanvas());
-  if(!fCanvas2d)
+  if (!fCanvas2d)
     fCanvas2d = std::unique_ptr<TCanvas>(fRootCanvas2d->GetCanvas());
   if (!fCanvas2d2)
     fCanvas2d2 = std::unique_ptr<TCanvas>(fRootCanvas2d2->GetCanvas());
-  if(!fCanvasDiagrams)
+  if (!fCanvasDiagrams)
     fCanvasDiagrams =
         std::unique_ptr<TCanvas>(fRootCanvasDiagrams->GetCanvas());
 
   draw2dGeometry();
   setAllStripsUnvisible();
-  //setAllStripsUnvisible2d();
+  // setAllStripsUnvisible2d();
 
   draw2dGeometry2();
 
@@ -85,7 +85,7 @@ void GeometryVisualizator::showGeometry()
   assert(view);
   view->ZoomView(gPad, 1.75);
   view->SetView(0, 90, 0, irep);
-  if(irep == -1)
+  if (irep == -1)
     WARNING("Error in min-max scope setting view to 3d canvas");
 
   gPad->Modified();
@@ -101,7 +101,7 @@ void GeometryVisualizator::draw2dGeometry()
   const int leftMargin = 20;
   const int rightMargin = 20;
   const int canvasScale = 900;
-  //int startX = canvasScale - leftMargin;
+  // int startX = canvasScale - leftMargin;
   int startY = canvasScale - topMargin;
   int canvasWidth = canvasScale - leftMargin - rightMargin;
   int canvasHeight = canvasScale - topMargin - bottomMargin;
@@ -177,10 +177,12 @@ void GeometryVisualizator::setVisibility2d(
         double scale = scaledScinLenght / fScinLenghtWithoutScale;
         double centerX = allScintilatorsCanv[layer][strip].image->GetX1() +
                          ((allScintilatorsCanv[layer][strip].image->GetX2() -
-                           allScintilatorsCanv[layer][strip].image->GetX1()) / 2);
+                           allScintilatorsCanv[layer][strip].image->GetX1()) /
+                          2);
         double centerY = allScintilatorsCanv[layer][strip].image->GetY1() +
                          ((allScintilatorsCanv[layer][strip].image->GetY2() -
-                         allScintilatorsCanv[layer][strip].image->GetY1()) / 2);
+                           allScintilatorsCanv[layer][strip].image->GetY1()) /
+                          2);
         std::cout << "marker center: " << centerX << "  " << centerY << "\n";
         allScintilatorsCanv[layer][strip].event =
             new TMarker(centerX, centerY, 3);
@@ -203,7 +205,6 @@ void GeometryVisualizator::drawStrips(const ScintillatorsInLayers &selection)
   setVisibility(selection);
   setVisibility2d(selection);
 }
-
 
 void GeometryVisualizator::setVisibility(const ScintillatorsInLayers &selection)
 {
@@ -232,6 +233,26 @@ void GeometryVisualizator::setVisibility(const ScintillatorsInLayers &selection)
   }
 }
 
+void GeometryVisualizator::drawMarkers(const HitPositions &pos)
+{
+  fCanvas2d2->cd();
+  TPolyLine *line = new TPolyLine();
+  line->SetLineWidth(2);
+  line->SetLineColor(kRed);
+  line->SetLineStyle(4);
+  TPolyMarker *pm = new TPolyMarker();
+  pm->SetMarkerSize(2);
+  pm->SetMarkerColor(kBlack);
+  pm->SetMarkerStyle(2);
+  for (Int_t jc = 0; jc < pos.size(); jc++)
+  {
+    line->SetPoint(jc, pos[jc].Y(), pos[jc].X());
+    pm->SetPoint(jc, pos[jc].Y(), pos[jc].X());
+  }
+  line->Draw();
+  pm->Draw();
+}
+
 void GeometryVisualizator::drawLineBetweenActivedScins(const HitPositions &pos)
 {
   fCanvas3d->cd();
@@ -255,30 +276,21 @@ void GeometryVisualizator::drawLineBetweenActivedScins(const HitPositions &pos)
 
 void GeometryVisualizator::draw2dGeometry2()
 {
+  const double canvasRange = 100;
   fCanvas2d2->cd();
-  const double firstLayerRadius = 0.2956;
-  const double secondLayerRadius = 0.3252;
-  const double thirdLayerRadius = 0.4;
-  const double middle = 0.5;
-  TEllipse *thirdLayerCircle =
-      new TEllipse(middle, middle, thirdLayerRadius, thirdLayerRadius);
+  fCanvas2d2->Range(-canvasRange, -canvasRange, canvasRange, canvasRange);
+  TEllipse *thirdLayerCircle = new TEllipse(0, 0, 57.5, 57.5);
   thirdLayerCircle->Draw();
-  TEllipse *secondLayerCircle =
-      new TEllipse(middle, middle, secondLayerRadius, secondLayerRadius);
+  TEllipse *secondLayerCircle = new TEllipse(0, 0, 46.75, 46.75);
   secondLayerCircle->Draw();
-  TEllipse *firstLayerCircle =
-      new TEllipse(middle, middle, firstLayerRadius, firstLayerRadius);
+  TEllipse *firstLayerCircle = new TEllipse(0, 0, 42.5, 42.5);
   firstLayerCircle->Draw();
 
-  TEllipse *testScin =
-      new TEllipse(middle, middle, firstLayerRadius, firstLayerRadius, 0, 360/48);
-  testScin->Draw();
-
-  TGaxis *axisX = new TGaxis(0.1, 0.5, 0.9, 0.5, -57.5, 57.5, 50510, "");
+  TGaxis *axisX = new TGaxis(-57.5, 0, 57.5, 0, -57.5, 57.5, 50510, "");
   axisX->SetName("axisX");
   axisX->Draw();
 
-  TGaxis *axisY = new TGaxis(0.5, 0.1, 0.5, 0.9, -57.5, 57.5, 50510, "");
+  TGaxis *axisY = new TGaxis(0, -57.5, 0, 57.5, -57.5, 57.5, 50510, "");
   axisY->SetName("axisY");
   axisY->Draw();
 }
@@ -287,7 +299,7 @@ void GeometryVisualizator::setAllStripsUnvisible()
 {
   assert(fGeoManager);
   TGeoNodeMatrix *topNode =
-      static_cast < TGeoNodeMatrix * >(fGeoManager->GetTopNode());
+      static_cast<TGeoNodeMatrix *>(fGeoManager->GetTopNode());
   assert(topNode);
   int fNumberOfLayers = topNode->GetNdaughters();
   TGeoNode *node = 0;
@@ -317,7 +329,7 @@ void GeometryVisualizator::drawDiagram(const DiagramDataMapVector &diagramData)
   int vectorSize = diagramData.size();
   std::cout << "vector size: " << vectorSize << "\n";
   fCanvasDiagrams->cd();
-  if(vectorSize != fLastDiagramVectorSize)
+  if (vectorSize != fLastDiagramVectorSize)
   {
     fCanvasDiagrams->Clear();
     fCanvasDiagrams->DivideSquare(vectorSize);
@@ -333,7 +345,7 @@ void GeometryVisualizator::drawDiagram(const DiagramDataMapVector &diagramData)
     for (auto it = diagramData[j].begin(); it != diagramData[j].end(); it++)
     {
       y[i] = static_cast<double>(std::get<0>(*it));
-      //y[i] = static_cast<double>(it->second.first);
+      // y[i] = static_cast<double>(it->second.first);
       x[i] = static_cast<double>(std::get<2>(*it));
       // std::cout << "x: " << x[i] << " y: " << y[i] << "\n";
       i++;
@@ -341,16 +353,15 @@ void GeometryVisualizator::drawDiagram(const DiagramDataMapVector &diagramData)
     TGraph *gr = new TGraph(n, x, y);
     gr->GetXaxis()->SetTitle("Time");
     gr->GetYaxis()->SetTitle("Threshold Number");
-    gr->Draw("AP*");//ACP*
+    gr->Draw("AP*"); // ACP*
     for (int k = 0; k < 4; k++)
     {
-      TLine *line =
-          new TLine(gr->GetXaxis()->GetXmin(), k + 1, gr->GetXaxis()->GetXmax(), k + 1);
+      TLine *line = new TLine(gr->GetXaxis()->GetXmin(), k + 1,
+                              gr->GetXaxis()->GetXmax(), k + 1);
       line->SetLineColor(kRed);
       line->Draw();
     }
   }
-
 }
 
 void GeometryVisualizator::createGeometry(
@@ -388,9 +399,8 @@ void GeometryVisualizator::createGeometry(
 
   for (int i = 0; i < numberOfLayers; i++)
   {
-    TGeoTube *layer =
-        new TGeoTube(layerStats[i].second,
-                     layerStats[i].second + kLayerThickness, kLength);
+    TGeoTube *layer = new TGeoTube(
+        layerStats[i].second, layerStats[i].second + kLayerThickness, kLength);
     assert(layer);
     layers.push_back(layer);
   }
@@ -426,5 +436,4 @@ void GeometryVisualizator::createGeometry(
   fGeoManager->CloseGeometry();
   fGeoManager->SetVisLevel(4);
 }
-
 }
