@@ -20,30 +20,25 @@ namespace jpet_event_display
 
 void DataProcessor::getDataForCurrentEvent()
 {
-  DiagramDataMapVector tmpV;
-  switch(ProcessedData::getInstance().getCurrentFileType())
+  ProcessedData::getInstance().clearData();
+  switch (ProcessedData::getInstance().getCurrentFileType())
   {
     case FileTypes::fTimeWindow:
-      ProcessedData::getInstance().setActivedScins(
-          getActiveScintillators(getCurrentEvent<JPetTimeWindow>()));
+      getActiveScintillators(getCurrentEvent<JPetTimeWindow>());
       break;
     case FileTypes::fRawSignal:
-      ProcessedData::getInstance().setActivedScins(
-          getActiveScintillators(getCurrentEvent<JPetRawSignal>()));
-      tmpV.push_back(getDataForDiagram(getCurrentEvent<JPetRawSignal>()));
-      ProcessedData::getInstance().setDiagram(tmpV);
+      getActiveScintillators(getCurrentEvent<JPetRawSignal>());
+      getDataForDiagram(getCurrentEvent<JPetRawSignal>());
       break;
     case FileTypes::fHit:
-      ProcessedData::getInstance().setActivedScins(
-          getActiveScintillators(getCurrentEvent<JPetHit>()));
-      ProcessedData::getInstance().setDiagram(
-          getDataForDiagram(getCurrentEvent<JPetHit>()));
+      getActiveScintillators(getCurrentEvent<JPetHit>());
+      getDataForDiagram(getCurrentEvent<JPetHit>());
+      getHitsPosition(getCurrentEvent<JPetHit>());
       break;
     case FileTypes::fEvent:
-      ProcessedData::getInstance().setActivedScins(
-          getActiveScintillators(getCurrentEvent<JPetEvent>()));
-      ProcessedData::getInstance().setDiagram(
-          getDataForDiagram(getCurrentEvent<JPetEvent>()));
+      getActiveScintillators(getCurrentEvent<JPetEvent>());
+      getDataForDiagram(getCurrentEvent<JPetEvent>());
+      getHitsPosition(getCurrentEvent<JPetEvent>());
       break;
     default:
       break;
@@ -56,7 +51,7 @@ const T& DataProcessor::getCurrentEvent()
   return dynamic_cast<T &>(fReader.getCurrentEvent());
 }
 
-ScintillatorsInLayers DataProcessor::getActiveScintillators(const JPetTimeWindow& tWindow)
+void DataProcessor::getActiveScintillators(const JPetTimeWindow& tWindow)
 {
   auto sigChannels = tWindow.getSigChVect();
   ScintillatorsInLayers selection;
@@ -83,11 +78,11 @@ ScintillatorsInLayers DataProcessor::getActiveScintillators(const JPetTimeWindow
       selection[pos.layer] = {pos.slot};
     }
   }
-  return selection;
+
+  ProcessedData::getInstance().setActivedScins(selection);
 }
 
-ScintillatorsInLayers
-DataProcessor::getActiveScintillators(const JPetRawSignal &rawSignal)
+void DataProcessor::getActiveScintillators(const JPetRawSignal &rawSignal)
 {
   auto leadingSigCh = rawSignal.getPoints(JPetSigCh::Leading);
   auto trailingSigCh = rawSignal.getPoints(JPetSigCh::Trailing);
@@ -140,10 +135,10 @@ DataProcessor::getActiveScintillators(const JPetRawSignal &rawSignal)
     }
   }
 
-  return selection;
+  ProcessedData::getInstance().setActivedScins(selection);
 }
 
-ScintillatorsInLayers DataProcessor::getActiveScintillators(const JPetHit &hitSignal)
+void DataProcessor::getActiveScintillators(const JPetHit &hitSignal)
 {
 
   std::cout << "x: " << hitSignal.getPosX() << " y: " << hitSignal.getPosY()
@@ -159,11 +154,11 @@ ScintillatorsInLayers DataProcessor::getActiveScintillators(const JPetHit &hitSi
   ScintillatorsInLayers selection;
   StripPos pos = fMapper->getStripPos(hitSignal.getBarrelSlot());
   selection[pos.layer] = {pos.slot};
-  return selection;
+
+  ProcessedData::getInstance().setActivedScins(selection);
 }
 
-ScintillatorsInLayers
-DataProcessor::getActiveScintillators(const JPetEvent &event)
+void DataProcessor::getActiveScintillators(const JPetEvent &event)
 {
   ScintillatorsInLayers selection;
   for(JPetHit hit : event.getHits())
@@ -189,10 +184,10 @@ DataProcessor::getActiveScintillators(const JPetEvent &event)
     }
   }
 
-  return selection;
+  ProcessedData::getInstance().setActivedScins(selection);
 }
 
-DiagramDataMap DataProcessor::getDataForDiagram(const JPetRawSignal &rawSignal)
+DiagramDataMap DataProcessor::getDataForDiagram(const JPetRawSignal &rawSignal, bool)
 {
   DiagramDataMap r;
   auto data = rawSignal.getTimesVsThresholdValue(JPetSigCh::Leading);
@@ -202,45 +197,63 @@ DiagramDataMap DataProcessor::getDataForDiagram(const JPetRawSignal &rawSignal)
                                 it->second.second, JPetSigCh::Leading));
   }
   auto tmp = rawSignal.getTimesVsThresholdValue(JPetSigCh::Trailing);
-  int dataSize = data.size();
   for (auto it = tmp.begin(); it != tmp.end(); it++)
   {
     r.push_back(std::make_tuple(it->first, it->second.first,
                                 it->second.second, JPetSigCh::Trailing));
   }
-
   return r;
 }
 
-DiagramDataMapVector DataProcessor::getDataForDiagram(const JPetHit &hitSignal)
+void DataProcessor::getDataForDiagram(const JPetRawSignal &rawSignal)
 {
-  DiagramDataMap signalA =
-      getDataForDiagram(hitSignal.getSignalA().getRecoSignal().getRawSignal());
-  DiagramDataMap signalB =
-      getDataForDiagram(hitSignal.getSignalB().getRecoSignal().getRawSignal());
-  DiagramDataMapVector result;
-  result.push_back(signalA);
-  result.push_back(signalB);
-  return result;
+  DiagramDataMapVector rv;
+  rv.push_back(getDataForDiagram(rawSignal, true));
+  ProcessedData::getInstance().setDiagram(rv);
 }
 
-DiagramDataMapVector DataProcessor::getDataForDiagram(const JPetEvent &event)
+void DataProcessor::getDataForDiagram(const JPetHit &hitSignal)
 {
-  DiagramDataMapVector result;
+  DiagramDataMapVector rv;
+  rv.push_back(getDataForDiagram(
+      hitSignal.getSignalA().getRecoSignal().getRawSignal(), true));
+  rv.push_back(getDataForDiagram(
+      hitSignal.getSignalB().getRecoSignal().getRawSignal(), true));
+  ProcessedData::getInstance().setDiagram(rv);
+}
+
+void DataProcessor::getDataForDiagram(const JPetEvent &event)
+{
+  DiagramDataMapVector rv;
   for(JPetHit hit : event.getHits())
   {
-    DiagramDataMap signalA =
-        getDataForDiagram(hit.getSignalA().getRecoSignal().getRawSignal());
-    DiagramDataMap signalB =
-        getDataForDiagram(hit.getSignalB().getRecoSignal().getRawSignal());
-
-    result.push_back(signalA);
-    result.push_back(signalB);
+    rv.push_back(getDataForDiagram(
+        hit.getSignalA().getRecoSignal().getRawSignal(), true));
+    rv.push_back(getDataForDiagram(
+        hit.getSignalB().getRecoSignal().getRawSignal(), true));
   }
-  return result;
+  ProcessedData::getInstance().setDiagram(rv);
 }
 
-bool DataProcessor::openFile(const char *filename) {
+void DataProcessor::getHitsPosition(const JPetHit &hitSignal)
+{
+  HitPositions hits;
+  hits.push_back(hitSignal.getPos());
+  ProcessedData::getInstance().setHits(hits);
+}
+
+void DataProcessor::getHitsPosition(const JPetEvent &event)
+{
+  HitPositions hits;
+  for (JPetHit hit : event.getHits())
+  {
+    hits.push_back(hit.getPos());
+  }
+  ProcessedData::getInstance().setHits(hits);
+}
+
+bool DataProcessor::openFile(const char *filename)
+{
   static std::map<std::string, int> compareMap;
   if (compareMap.empty())
   {

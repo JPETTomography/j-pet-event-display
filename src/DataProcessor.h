@@ -34,17 +34,19 @@
 #endif
 
 #include <TNamed.h>
+#include <TVector3.h>
 
 namespace jpet_event_display
 {
 enum FileTypes { fNone, fTimeWindow, fRawSignal, fHit, fEvent };
 
-typedef std::map<size_t, std::vector<size_t> > ScintillatorsInLayers;
+typedef std::map<size_t, std::vector<size_t>> ScintillatorsInLayers; //layer, scinID, hitPos
 typedef std::vector<std::tuple<int, float, float, JPetSigCh::EdgeType>>
     DiagramDataMap;
 // typedef std::map<int, std::tuple<float, float, JPetSigCh::EdgeType>>
 //    DiagramDataMap; //threshold number, thresholdValue, time, EdgeType
 typedef std::vector<DiagramDataMap> DiagramDataMapVector;
+typedef std::vector<TVector3> HitPositions; //rename
 
 class ProcessedData 
 {
@@ -58,9 +60,21 @@ public:
     return fSingleton; 
   }
 
+  void clearData() {
+    fActivedScins.clear();
+    fDiagram.clear();
+    fHits.clear();
+  }
+
   void setActivedScins(ScintillatorsInLayers scins) { fActivedScins = scins; }
   void setDiagram(DiagramDataMapVector diagram) { fDiagram = diagram; }
   void setCurrentFileType(FileTypes type) { fCurrentFileType = type; }
+  void setHits(HitPositions hits) { fHits = hits; }
+
+  inline FileTypes getCurrentFileType() { return fCurrentFileType; }
+  inline ScintillatorsInLayers& getActivedScintilators() { return fActivedScins; }
+  inline DiagramDataMapVector& getDiagramData() { return fDiagram; }
+  inline HitPositions& getHits() { return fHits; }
 
   const std::string getActivedScintilatorsString()
   {
@@ -78,16 +92,13 @@ public:
     return oss.str();
   }
 
-  inline FileTypes getCurrentFileType() { return fCurrentFileType; }
-  inline ScintillatorsInLayers getActivedScintilators() { return fActivedScins; }
-  inline DiagramDataMapVector getDiagramData() { return fDiagram; }
 private:
   ProcessedData() { }
 
   ScintillatorsInLayers fActivedScins;
   DiagramDataMapVector fDiagram;
+  HitPositions fHits; //rename
   FileTypes fCurrentFileType = FileTypes::fNone;
-
 };
 
 class DataProcessor {
@@ -107,13 +118,19 @@ private:
   DataProcessor(const DataProcessor&) = delete;
   DataProcessor& operator=(const DataProcessor&) = delete;
 
-  ScintillatorsInLayers getActiveScintillators(const JPetTimeWindow& tWindow);
-  ScintillatorsInLayers getActiveScintillators(const JPetRawSignal& rawSignal);
-  ScintillatorsInLayers getActiveScintillators(const JPetHit &hitSignal);
-  ScintillatorsInLayers getActiveScintillators(const JPetEvent &event);
-  DiagramDataMap getDataForDiagram(const JPetRawSignal &rawSignal);
-  DiagramDataMapVector getDataForDiagram(const JPetHit &hitSignal);
-  DiagramDataMapVector getDataForDiagram(const JPetEvent &event);
+  void getActiveScintillators(const JPetTimeWindow &tWindow);
+  void getActiveScintillators(const JPetRawSignal &rawSignal);
+  void getActiveScintillators(const JPetHit &hitSignal);
+  void getActiveScintillators(const JPetEvent &event);
+
+  DiagramDataMap getDataForDiagram(const JPetRawSignal &rawSignal, bool);
+  // void getDataForDiagram(const JPetTimeWindow &tWindow);
+  void getDataForDiagram(const JPetRawSignal &rawSignal);
+  void getDataForDiagram(const JPetHit &hitSignal);
+  void getDataForDiagram(const JPetEvent &event);
+
+  void getHitsPosition(const JPetHit &hitSignal);
+  void getHitsPosition(const JPetEvent &event);
 
   template <typename T> const T &getCurrentEvent();
 
