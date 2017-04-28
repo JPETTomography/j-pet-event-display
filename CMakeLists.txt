@@ -39,7 +39,7 @@ add_subdirectory(src)
 add_subdirectory(tests)
 #add_subdirectory(geometry)
 
-add_definitions(-std=c++11 -Wall -Wunused-parameter -Wextra)
+add_definitions(-std=c++11 -Wall -Wunused-parameter -Wextra -pthread)
 
 
 include_directories(${INCLUDE_PARENT})
