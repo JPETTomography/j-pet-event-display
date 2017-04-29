@@ -41,9 +41,11 @@ void GeometryVisualizator::drawData()
   drawDiagram(ProcessedData::getInstance().getDiagramData());
   drawLineBetweenActivedScins(ProcessedData::getInstance().getHits());
   drawMarkers(ProcessedData::getInstance().getHits());
+  //std::cout << "state: " << fSaveMarkersAndLinesBetweenEvents << "\n";
+
   updateCanvas(fCanvas3d);
   updateCanvas(fCanvas2d);
-  updateCanvas(fCanvas2d2);
+  updateCanvas(fCanvasTopView);
   updateCanvas(fCanvasDiagrams);
 }
 
@@ -58,14 +60,14 @@ void GeometryVisualizator::showGeometry()
 {
   assert(fRootCanvas3d);
   assert(fRootCanvas2d);
-  assert(fRootCanvas2d2);
+  assert(fRootCanvasTopView);
   assert(fRootCanvasDiagrams);
   if (!fCanvas3d)
     fCanvas3d = std::unique_ptr<TCanvas>(fRootCanvas3d->GetCanvas());
   if (!fCanvas2d)
     fCanvas2d = std::unique_ptr<TCanvas>(fRootCanvas2d->GetCanvas());
-  if (!fCanvas2d2)
-    fCanvas2d2 = std::unique_ptr<TCanvas>(fRootCanvas2d2->GetCanvas());
+  if (!fCanvasTopView)
+    fCanvasTopView = std::unique_ptr<TCanvas>(fRootCanvasTopView->GetCanvas());
   if (!fCanvasDiagrams)
     fCanvasDiagrams =
         std::unique_ptr<TCanvas>(fRootCanvasDiagrams->GetCanvas());
@@ -183,7 +185,7 @@ void GeometryVisualizator::setVisibility2d(
                          ((allScintilatorsCanv[layer][strip].image->GetY2() -
                            allScintilatorsCanv[layer][strip].image->GetY1()) /
                           2);
-        std::cout << "marker center: " << centerX << "  " << centerY << "\n";
+        //std::cout << "marker center: " << centerX << "  " << centerY << "\n";
         allScintilatorsCanv[layer][strip].event =
             new TMarker(centerX, centerY, 3);
         allScintilatorsCanv[layer][strip].event->SetMarkerColor(2);
@@ -235,50 +237,85 @@ void GeometryVisualizator::setVisibility(const ScintillatorsInLayers &selection)
 
 void GeometryVisualizator::drawMarkers(const HitPositions &pos)
 {
-  fCanvas2d2->cd();
-  TPolyLine *line = new TPolyLine();
-  line->SetLineWidth(2);
-  line->SetLineColor(kRed);
-  line->SetLineStyle(4);
-  TPolyMarker *pm = new TPolyMarker();
-  pm->SetMarkerSize(2);
-  pm->SetMarkerColor(kBlack);
-  pm->SetMarkerStyle(2);
+  fCanvasTopView->cd();
+  int vectorLineSize = fLineOnTopView.size();
+  int vectorMarkerSize = fMarkerOnTopView.size();
+  if(!fSaveMarkersAndLinesBetweenEvents)
+  {
+    for(TPolyLine * line : fLineOnTopView)
+    {
+      fCanvasTopView->GetListOfPrimitives()->Remove(line);
+      delete line;
+    }
+    fLineOnTopView.clear();
+    for(TPolyMarker * marker : fMarkerOnTopView)
+    {
+      fCanvasTopView->GetListOfPrimitives()->Remove(marker);
+      delete marker;
+    }
+    fMarkerOnTopView.clear();
+  }
+  fLineOnTopView.push_back(new TPolyLine());
+  fMarkerOnTopView.push_back(new TPolyMarker());
   for (Int_t jc = 0; jc < pos.size(); jc++)
   {
-    line->SetPoint(jc, pos[jc].Y(), pos[jc].X());
-    pm->SetPoint(jc, pos[jc].Y(), pos[jc].X());
+    fLineOnTopView.back()->SetLineWidth(2);
+    fLineOnTopView.back()->SetLineColor(kRed);
+    fLineOnTopView.back()->SetLineStyle(4);
+    fLineOnTopView.back()->SetNextPoint(pos[jc].Y(), pos[jc].X());
+
+    fMarkerOnTopView.back()->SetMarkerSize(2);
+    fMarkerOnTopView.back()->SetMarkerColor(kBlack);
+    fMarkerOnTopView.back()->SetMarkerStyle(2);
+    fMarkerOnTopView.back()->SetNextPoint(pos[jc].Y(), pos[jc].X());
   }
-  line->Draw();
-  pm->Draw();
+  fLineOnTopView.back()->Draw();
+  fMarkerOnTopView.back()->Draw();
 }
 
 void GeometryVisualizator::drawLineBetweenActivedScins(const HitPositions &pos)
 {
   fCanvas3d->cd();
-  std::cout << "pos size: " << pos.size() << "\n";
-  TPolyLine3D *line = new TPolyLine3D();
-  line->SetLineWidth(2);
-  line->SetLineColor(kRed);
-  line->SetLineStyle(4);
-  TPolyMarker3D *pm3d1 = new TPolyMarker3D();
-  pm3d1->SetMarkerSize(2);
-  pm3d1->SetMarkerColor(kBlack);
-  pm3d1->SetMarkerStyle(2);
+  int vectorLineSize = fLineOn3dView.size();
+  int vectorMarkerSize = fMarkerOn3dView.size();
+  if(!fSaveMarkersAndLinesBetweenEvents)
+  {
+    for(TPolyLine3D * line : fLineOn3dView)
+    {
+      fCanvas3d->GetListOfPrimitives()->Remove(line);
+      delete line;
+    }
+    fLineOn3dView.clear();
+    for(TPolyMarker3D * marker : fMarkerOn3dView)
+    {
+      fCanvas3d->GetListOfPrimitives()->Remove(marker);
+      delete marker;
+    }
+    fMarkerOn3dView.clear();
+  }
+  fLineOn3dView.push_back(new TPolyLine3D());
+  fMarkerOn3dView.push_back(new TPolyMarker3D());
   for (Int_t jc = 0; jc < pos.size(); jc++)
   {
-    line->SetPoint(jc, pos[jc].Y(), pos[jc].X(), pos[jc].Z());
-    pm3d1->SetPoint(jc, pos[jc].Y(), pos[jc].X(), pos[jc].Z());
+    fLineOn3dView.back()->SetLineWidth(2);
+    fLineOn3dView.back()->SetLineColor(kRed);
+    fLineOn3dView.back()->SetLineStyle(4);
+    fLineOn3dView.back()->SetNextPoint(pos[jc].Y(), pos[jc].X(), pos[jc].Z());
+
+    fMarkerOn3dView.back()->SetMarkerSize(2);
+    fMarkerOn3dView.back()->SetMarkerColor(kBlack);
+    fMarkerOn3dView.back()->SetMarkerStyle(2);
+    fMarkerOn3dView.back()->SetNextPoint(pos[jc].Y(), pos[jc].X(), pos[jc].Z());
   }
-  line->Draw();
-  pm3d1->Draw();
+  fLineOn3dView.back()->Draw();
+  fMarkerOn3dView.back()->Draw();
 }
 
 void GeometryVisualizator::draw2dGeometry2()
 {
   const double canvasRange = 100;
-  fCanvas2d2->cd();
-  fCanvas2d2->Range(-canvasRange, -canvasRange, canvasRange, canvasRange);
+  fCanvasTopView->cd();
+  fCanvasTopView->Range(-canvasRange, -canvasRange, canvasRange, canvasRange);
   TEllipse *thirdLayerCircle = new TEllipse(0, 0, 57.5, 57.5);
   thirdLayerCircle->Draw();
   TEllipse *secondLayerCircle = new TEllipse(0, 0, 46.75, 46.75);
@@ -327,7 +364,7 @@ void GeometryVisualizator::drawDiagram(const DiagramDataMapVector &diagramData)
     fCanvasDiagrams =
         std::unique_ptr<TCanvas>(fRootCanvasDiagrams->GetCanvas());
   int vectorSize = diagramData.size();
-  std::cout << "vector size: " << vectorSize << "\n";
+  //std::cout << "vector size: " << vectorSize << "\n";
   fCanvasDiagrams->cd();
   if (vectorSize != fLastDiagramVectorSize)
   {

@@ -31,12 +31,14 @@
 #include <TMultiGraph.h>
 #include <TPoint.h>
 #include <TPolyLine.h>
+#include <TPolyLine3D.h>
 #include <TPolyMarker.h>
 #include <TPolyMarker3D.h>
 #include <TROOT.h>
 #include <TSystem.h>
 #include <TView.h>
 #include <TVirtualPad.h>
+#include <TObject.h>
 #include <cassert>
 #include <map>
 #include <memory>
@@ -68,13 +70,18 @@ public:
   {
     return fRootCanvas2d;
   }
-  inline std::unique_ptr<TRootEmbeddedCanvas> &getCanvas2d2()
+  inline std::unique_ptr<TRootEmbeddedCanvas> &getCanvasTopView()
   {
-    return fRootCanvas2d2;
+    return fRootCanvasTopView;
   }
   inline std::unique_ptr<TRootEmbeddedCanvas> &getCanvasDiagrams()
   {
     return fRootCanvasDiagrams;
+  }
+
+  inline void changeMarkersState()
+  {
+    fSaveMarkersAndLinesBetweenEvents = !fSaveMarkersAndLinesBetweenEvents;
   }
 
 private:
@@ -110,16 +117,24 @@ private:
   int *numberOfScintilatorsInLayer;
   std::unique_ptr<TRootEmbeddedCanvas> fRootCanvas3d;
   std::unique_ptr<TRootEmbeddedCanvas> fRootCanvas2d;
-  std::unique_ptr<TRootEmbeddedCanvas> fRootCanvas2d2;
+  std::unique_ptr<TRootEmbeddedCanvas> fRootCanvasTopView;
   std::unique_ptr<TRootEmbeddedCanvas> fRootCanvasDiagrams;
   std::unique_ptr<TCanvas> fCanvas3d;
   std::unique_ptr<TCanvas> fCanvas2d;
-  std::unique_ptr<TCanvas> fCanvas2d2;
+  std::unique_ptr<TCanvas> fCanvasTopView;
   std::unique_ptr<TCanvas> fCanvasDiagrams;
 
   int fScinLenghtWithoutScale = 0;
 
   int fLastDiagramVectorSize = 0;
+
+  bool fSaveMarkersAndLinesBetweenEvents = false;
+
+  std::vector<TPolyLine3D *> fLineOn3dView;
+  std::vector<TPolyMarker3D *>fMarkerOn3dView;
+
+  std::vector<TPolyLine *>fLineOnTopView;
+  std::vector<TPolyMarker *>fMarkerOnTopView;
 #endif
 
   struct ScintillatorCanv
