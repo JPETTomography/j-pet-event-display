@@ -86,7 +86,7 @@ void EventDisplay::run()
   globalFrame->Resize(globalFrame->GetDefaultSize());
   baseFrame->Resize(baseFrame->GetDefaultSize());
 
-  fMainWindow->SetWindowName("Single Strip Event Display ver 0.1");
+  fMainWindow->SetWindowName("Event Display ver 0.2");
   fMainWindow->MapSubwindows();
   fMainWindow->Resize(fMainWindow->GetDefaultSize());
   fMainWindow->MapWindow();
