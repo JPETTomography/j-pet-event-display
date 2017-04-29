@@ -141,15 +141,15 @@ void DataProcessor::getActiveScintillators(const JPetRawSignal &rawSignal)
 void DataProcessor::getActiveScintillators(const JPetHit &hitSignal)
 {
 
-  std::cout << "x: " << hitSignal.getPosX() << " y: " << hitSignal.getPosY()
-            << " z: " << hitSignal.getPosZ()
-            << " energy: " << hitSignal.getEnergy()
-            << " qualityOfEnergy: " << hitSignal.getQualityOfEnergy()
-            << " time: " << hitSignal.getTime()
-            << " timeDiff: " << hitSignal.getTimeDiff()
-            << " qualityOfTime: " << hitSignal.getQualityOfTime()
-            << " qualityOfTimeDiff: " << hitSignal.getQualityOfTimeDiff()
-            << "\n";
+  //std::cout << "x: " << hitSignal.getPosX() << " y: " << hitSignal.getPosY()
+  //          << " z: " << hitSignal.getPosZ()
+  //          << " energy: " << hitSignal.getEnergy()
+  //          << " qualityOfEnergy: " << hitSignal.getQualityOfEnergy()
+  //          << " time: " << hitSignal.getTime()
+  //          << " timeDiff: " << hitSignal.getTimeDiff()
+  //          << " qualityOfTime: " << hitSignal.getQualityOfTime()
+  //          << " qualityOfTimeDiff: " << hitSignal.getQualityOfTimeDiff()
+  //          << "\n";
 
   ScintillatorsInLayers selection;
   StripPos pos = fMapper->getStripPos(hitSignal.getBarrelSlot());
@@ -163,13 +163,13 @@ void DataProcessor::getActiveScintillators(const JPetEvent &event)
   ScintillatorsInLayers selection;
   for(JPetHit hit : event.getHits())
   {
-    std::cout << "x: " << hit.getPosX() << " y: " << hit.getPosY()
-              << " z: " << hit.getPosZ() << " energy: " << hit.getEnergy()
-              << " qualityOfEnergy: " << hit.getQualityOfEnergy()
-              << " time: " << hit.getTime()
-              << " timeDiff: " << hit.getTimeDiff()
-              << " qualityOfTime: " << hit.getQualityOfTime()
-              << " qualityOfTimeDiff: " << hit.getQualityOfTimeDiff() << "\n";
+    //std::cout << "x: " << hit.getPosX() << " y: " << hit.getPosY()
+    //          << " z: " << hit.getPosZ() << " energy: " << hit.getEnergy()
+    //          << " qualityOfEnergy: " << hit.getQualityOfEnergy()
+    //          << " time: " << hit.getTime()
+    //          << " timeDiff: " << hit.getTimeDiff()
+    //          << " qualityOfTime: " << hit.getQualityOfTime()
+    //          << " qualityOfTimeDiff: " << hit.getQualityOfTimeDiff() << "\n";
 
     StripPos pos = fMapper->getStripPos(hit.getBarrelSlot());
     if (selection.find(pos.layer) != selection.end())
