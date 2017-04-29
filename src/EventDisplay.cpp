@@ -101,8 +101,8 @@ void EventDisplay::CreateDisplayFrame(TGGroupFrame *parentFrame)
          "3dViewCanvas");
   AddTab(fDisplayTabView, visualizator->getCanvas2d(), "2d view",
          "2dViewCanvas");
-  AddTab(fDisplayTabView, visualizator->getCanvas2d2(), "2d view 2",
-         "2dViewCanvas2");
+  AddTab(fDisplayTabView, visualizator->getCanvasTopView(), "top view",
+         "canvasTopView");
   AddTab(fDisplayTabView, visualizator->getCanvasDiagrams(), "Diagram view",
          "diagramCanvas");
 
@@ -125,6 +125,15 @@ void EventDisplay::CreateOptionsFrame(TGGroupFrame *parentFrame)
 
   // AddButton(frame1_1_2, "Read Geometry", "handleMenu(=0)");
   AddButton(frame1_1_2, "Read Data", "handleMenu(=1)");
+
+  TGCheckButton *markersCheck =
+      new TGCheckButton(frame1_1, "Save markers and lines between events", 1);
+  frame1_1->AddFrame(
+      markersCheck,
+      new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, 5, 5, 3, 4));
+  markersCheck->ChangeBackground(fFrameBackgroundColor);
+  markersCheck->Connect("Clicked()", "jpet_event_display::EventDisplay", this,
+                       "checkBoxMarkersSignalFunction()");
 
   TGCompositeFrame *frame1_2 =
       AddCompositeFrame(parentFrame, 1, 1, kVerticalFrame,
@@ -381,18 +390,23 @@ void EventDisplay::setMaxProgressBar(Int_t maxEvent)
 
 void EventDisplay::startVirtualization()
 {
-  std::thread t(&EventDisplay::startVirtualizationLoop, this, 1);
-  t.join();
+  startVirtualizationLoop(10);
+  //std::thread t(&EventDisplay::startVirtualizationLoop, this, 1);
+  //t.join();
 }
 
 void EventDisplay::startVirtualizationLoop(const int waitTimeInMs)
 {
-  doReset();
   long long maxEvent = dataProcessor->getNumberOfEvents();
-  while (fGUIControls->eventNo != maxEvent)
+  for(int i = 0; i < 100 && fGUIControls->eventNo < maxEvent; i++)
   {
     doNext();
     std::this_thread::sleep_for(std::chrono::milliseconds(waitTimeInMs));
   }
+}
+
+void EventDisplay::checkBoxMarkersSignalFunction()
+{
+  visualizator->changeMarkersState();
 }
 }

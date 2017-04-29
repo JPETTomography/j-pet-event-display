@@ -16,27 +16,27 @@
 #ifndef EVENTDISPLAY_H
 #define EVENTDISPLAY_H
 
-
 #include <memory>
 #include <string>
 
 #include <TRint.h>
 
-#include <TGLabel.h>
-#include <TGNumberEntry.h>
-#include <TGMenu.h>
-#include <TGToolBar.h>
-#include <TGFileDialog.h>
-#include <TGStatusBar.h>
-#include <TGProgressBar.h>
+#include <TGButton.h>
 #include <TGButtonGroup.h>
+#include <TGFileDialog.h>
+#include <TGLabel.h>
+#include <TGMenu.h>
+#include <TGNumberEntry.h>
+#include <TGProgressBar.h>
+#include <TGStatusBar.h>
 #include <TGTab.h>
+#include <TGToolBar.h>
 
-#include <TGraph.h>
 #include <TBox.h>
+#include <TCanvas.h>
+#include <TGraph.h>
 #include <TMarker.h>
 #include <TRootEmbeddedCanvas.h>
-#include <TCanvas.h>
 
 #include <RQ_OBJECT.h>
 
@@ -58,10 +58,11 @@ struct GUIControlls
   Int_t rootEntries;
 };
 
-enum EMessageTypes {
- M_FILE_OPEN,
- M_FILE_SAVE,
- M_FILE_EXIT
+enum EMessageTypes
+{
+  M_FILE_OPEN,
+  M_FILE_SAVE,
+  M_FILE_EXIT
 };
 
 class EventDisplay
@@ -74,9 +75,15 @@ public:
 #ifndef __CINT__
   void run();
   void drawSelectedStrips();
-  void setMaxProgressBar (Int_t maxEvent);
-  inline void updateProgressBar () {fProgBar->SetPosition(Float_t(fGUIControls->eventNo));}
-  inline void updateProgressBar (Int_t num) {fProgBar->SetPosition(Float_t(num));}
+  void setMaxProgressBar(Int_t maxEvent);
+  inline void updateProgressBar()
+  {
+    fProgBar->SetPosition(Float_t(fGUIControls->eventNo));
+  }
+  inline void updateProgressBar(Int_t num)
+  {
+    fProgBar->SetPosition(Float_t(num));
+  }
 
   enum HandleMenuAction
   {
@@ -86,24 +93,23 @@ public:
   };
 #endif
 
-  //signals
+  // signals
   void CloseWindow();
-  void handleMenu (Int_t id);
+  void handleMenu(Int_t id);
   void updateGUIControlls();
   void doNext();
   void doReset();
   void showData();
   void startVirtualization();
+  void checkBoxMarkersSignalFunction();
 
 private:
-  
-
 #ifndef __CINT__
   EventDisplay(const EventDisplay &) = delete;
   EventDisplay &operator=(const EventDisplay &) = delete;
 
   void CreateDisplayFrame(TGGroupFrame *parentFrame);
-  void CreateOptionsFrame(TGGroupFrame* parentFrame);
+  void CreateOptionsFrame(TGGroupFrame *parentFrame);
 
   void AddTab(std::unique_ptr<TGTab> &pTabViews,
               std::unique_ptr<TRootEmbeddedCanvas> &saveCanvasPtr,
@@ -115,12 +121,12 @@ private:
   TGGroupFrame *AddGroupFrame(TGCompositeFrame *parentFrame,
                               const char *frameName, Int_t width, Int_t height);
 
-  TGCompositeFrame *AddCompositeFrame(TGCompositeFrame *parentFrame,
-                                      Int_t width, Int_t height,
-                                      Int_t options = kHorizontalFrame, 
-                                      ULong_t hints = kLHintsExpandX | kLHintsExpandY,
-                                      Int_t padleft = 0, Int_t padright = 0,
-                                      Int_t padtop = 0, Int_t padbottom = 0);
+  TGCompositeFrame *
+  AddCompositeFrame(TGCompositeFrame *parentFrame, Int_t width, Int_t height,
+                    Int_t options = kHorizontalFrame,
+                    ULong_t hints = kLHintsExpandX | kLHintsExpandY,
+                    Int_t padleft = 0, Int_t padright = 0, Int_t padtop = 0,
+                    Int_t padbottom = 0);
 
   void AddMenuBar(TGCompositeFrame *parentFrame);
 
@@ -128,16 +134,19 @@ private:
 
   ULong_t fFrameBackgroundColor = 0;
 
-  std::unique_ptr<DataProcessor> dataProcessor = std::unique_ptr<DataProcessor>(new DataProcessor());
+  std::unique_ptr<DataProcessor> dataProcessor =
+      std::unique_ptr<DataProcessor>(new DataProcessor());
   std::unique_ptr<GeometryVisualizator> visualizator =
-      std::unique_ptr<GeometryVisualizator>(
-          new GeometryVisualizator(3, 5, std::vector<std::pair<int, double>>(
-                                          {std::pair<int, double>(48, 42.5),
-                                           std::pair<int, double>(48, 46.75),
-                                           std::pair<int, double>(96, 57.5)})));
+      std::unique_ptr<GeometryVisualizator>(new GeometryVisualizator(
+          3, 5, std::vector<std::pair<int, double>>(
+                    {std::pair<int, double>(48, 42.5),
+                     std::pair<int, double>(48, 46.75),
+                     std::pair<int, double>(96, 57.5)})));
 
-  std::unique_ptr<TRint> fApplication = std::unique_ptr<TRint>(new TRint("EventDisplay Gui", 0, 0));
-  std::unique_ptr<GUIControlls> fGUIControls = std::unique_ptr<GUIControlls>(new GUIControlls);
+  std::unique_ptr<TRint> fApplication =
+      std::unique_ptr<TRint>(new TRint("EventDisplay Gui", 0, 0));
+  std::unique_ptr<GUIControlls> fGUIControls =
+      std::unique_ptr<GUIControlls>(new GUIControlls);
   std::unique_ptr<TGTab> fDisplayTabView;
   std::unique_ptr<TGMainFrame> fMainWindow;
   std::unique_ptr<TGNumberEntry> fNumberEntryStep;
@@ -145,9 +154,9 @@ private:
   std::unique_ptr<TGHProgressBar> fProgBar;
   std::unique_ptr<TGLabel> fInputInfo;
 
-  std::unique_ptr<TGFileInfo> fFileInfo = std::unique_ptr<TGFileInfo>(new TGFileInfo);
+  std::unique_ptr<TGFileInfo> fFileInfo =
+      std::unique_ptr<TGFileInfo>(new TGFileInfo);
 #endif
-  
 };
 }
 #endif /*  !EVENTDISPLAY_H */
