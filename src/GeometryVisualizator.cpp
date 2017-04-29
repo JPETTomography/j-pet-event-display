@@ -173,10 +173,10 @@ void GeometryVisualizator::setVisibility2d(
           strip < numberOfScintilatorsInLayer[layer] && strip >= 0)
       {
         allScintilatorsCanv[layer][strip].image->SetFillColor(2);
-        double scaledScinLenght =
-            allScintilatorsCanv[layer][strip].image->GetX2() -
-            allScintilatorsCanv[layer][strip].image->GetX1();
-        double scale = scaledScinLenght / fScinLenghtWithoutScale;
+        //double scaledScinLenght =
+        //    allScintilatorsCanv[layer][strip].image->GetX2() -
+        //    allScintilatorsCanv[layer][strip].image->GetX1();
+        //double scale = scaledScinLenght / fScinLenghtWithoutScale;
         double centerX = allScintilatorsCanv[layer][strip].image->GetX1() +
                          ((allScintilatorsCanv[layer][strip].image->GetX2() -
                            allScintilatorsCanv[layer][strip].image->GetX1()) /
@@ -238,8 +238,6 @@ void GeometryVisualizator::setVisibility(const ScintillatorsInLayers &selection)
 void GeometryVisualizator::drawMarkers(const HitPositions &pos)
 {
   fCanvasTopView->cd();
-  int vectorLineSize = fLineOnTopView.size();
-  int vectorMarkerSize = fMarkerOnTopView.size();
   if(!fSaveMarkersAndLinesBetweenEvents)
   {
     for(TPolyLine * line : fLineOnTopView)
@@ -257,17 +255,17 @@ void GeometryVisualizator::drawMarkers(const HitPositions &pos)
   }
   fLineOnTopView.push_back(new TPolyLine());
   fMarkerOnTopView.push_back(new TPolyMarker());
-  for (Int_t jc = 0; jc < pos.size(); jc++)
+  for (unsigned int i = 0; i < pos.size(); i++)
   {
     fLineOnTopView.back()->SetLineWidth(2);
     fLineOnTopView.back()->SetLineColor(kRed);
     fLineOnTopView.back()->SetLineStyle(4);
-    fLineOnTopView.back()->SetNextPoint(pos[jc].Y(), pos[jc].X());
+    fLineOnTopView.back()->SetNextPoint(pos[i].Y(), pos[i].X());
 
     fMarkerOnTopView.back()->SetMarkerSize(2);
     fMarkerOnTopView.back()->SetMarkerColor(kBlack);
     fMarkerOnTopView.back()->SetMarkerStyle(2);
-    fMarkerOnTopView.back()->SetNextPoint(pos[jc].Y(), pos[jc].X());
+    fMarkerOnTopView.back()->SetNextPoint(pos[i].Y(), pos[i].X());
   }
   fLineOnTopView.back()->Draw();
   fMarkerOnTopView.back()->Draw();
@@ -276,8 +274,6 @@ void GeometryVisualizator::drawMarkers(const HitPositions &pos)
 void GeometryVisualizator::drawLineBetweenActivedScins(const HitPositions &pos)
 {
   fCanvas3d->cd();
-  int vectorLineSize = fLineOn3dView.size();
-  int vectorMarkerSize = fMarkerOn3dView.size();
   if(!fSaveMarkersAndLinesBetweenEvents)
   {
     for(TPolyLine3D * line : fLineOn3dView)
@@ -295,17 +291,17 @@ void GeometryVisualizator::drawLineBetweenActivedScins(const HitPositions &pos)
   }
   fLineOn3dView.push_back(new TPolyLine3D());
   fMarkerOn3dView.push_back(new TPolyMarker3D());
-  for (Int_t jc = 0; jc < pos.size(); jc++)
+  for (unsigned int i = 0; i < pos.size(); i++)
   {
     fLineOn3dView.back()->SetLineWidth(2);
     fLineOn3dView.back()->SetLineColor(kRed);
     fLineOn3dView.back()->SetLineStyle(4);
-    fLineOn3dView.back()->SetNextPoint(pos[jc].Y(), pos[jc].X(), pos[jc].Z());
+    fLineOn3dView.back()->SetNextPoint(pos[i].Y(), pos[i].X(), pos[i].Z());
 
     fMarkerOn3dView.back()->SetMarkerSize(2);
     fMarkerOn3dView.back()->SetMarkerColor(kBlack);
     fMarkerOn3dView.back()->SetMarkerStyle(2);
-    fMarkerOn3dView.back()->SetNextPoint(pos[jc].Y(), pos[jc].X(), pos[jc].Z());
+    fMarkerOn3dView.back()->SetNextPoint(pos[i].Y(), pos[i].X(), pos[i].Z());
   }
   fLineOn3dView.back()->Draw();
   fMarkerOn3dView.back()->Draw();
