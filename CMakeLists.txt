@@ -48,21 +48,7 @@ link_directories(${LIBRARY_PARENT})
 
 add_executable(EventDisplay.exe ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp)
 target_link_libraries(EventDisplay.exe eventDisplay JPetFramework ${Boost_LIBRARIES} ${ROOT_LIBRARIES})
-#add_executable(createGeometryPET.exe ${CMAKE_CURRENT_SOURCE_DIR}/geometry/createGeometryPET.cpp)
-#target_link_libraries(createGeometryPET.exe  geometryGenerator ${Boost_LIBRARIES} ${ROOT_LIBRARIES})
 
-#add_custom_command(
-#  OUTPUT JPET_geom.root
-#  COMMAND createGeometryPET.exe
-#  DEPENDS 
-#  COMMENT "Create geometry for visualizator"
-#  VERBATIM
-#)
-#
-#add_custom_target(
-#  CreateGeometry ALL
-#  DEPENDS JPET_geom.root
-#)
 set(DOWNLOAD_DATA ${CMAKE_CURRENT_SOURCE_DIR}/download_data.sh ${CMAKE_CURRENT_BINARY_DIR})
 if(NOT DOWNLOAD_DATA_HAPPENED)
   execute_process(COMMAND ${DOWNLOAD_DATA})

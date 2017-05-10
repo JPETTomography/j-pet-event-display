@@ -27,7 +27,7 @@ namespace jpet_event_display
 
 GeometryVisualizator::GeometryVisualizator(
     const int numberOfLayers, const int kLength,
-    const std::vector<std::pair<int, double>> &layerStats)
+    const std::vector< std::pair< int, double > > &layerStats)
     : fScinLenghtWithoutScale(kLength)
 {
   createGeometry(numberOfLayers, kLength, layerStats);
@@ -41,7 +41,6 @@ void GeometryVisualizator::drawData()
   drawDiagram(ProcessedData::getInstance().getDiagramData());
   drawLineBetweenActivedScins(ProcessedData::getInstance().getHits());
   drawMarkers(ProcessedData::getInstance().getHits());
-  //std::cout << "state: " << fSaveMarkersAndLinesBetweenEvents << "\n";
 
   updateCanvas(fCanvas3d);
   updateCanvas(fCanvas2d);
@@ -49,7 +48,7 @@ void GeometryVisualizator::drawData()
   updateCanvas(fCanvasDiagrams);
 }
 
-void GeometryVisualizator::updateCanvas(std::unique_ptr<TCanvas> &canvas)
+void GeometryVisualizator::updateCanvas(std::unique_ptr< TCanvas > &canvas)
 {
   canvas->Draw();
   canvas->Update();
@@ -63,14 +62,15 @@ void GeometryVisualizator::showGeometry()
   assert(fRootCanvasTopView);
   assert(fRootCanvasDiagrams);
   if (!fCanvas3d)
-    fCanvas3d = std::unique_ptr<TCanvas>(fRootCanvas3d->GetCanvas());
+    fCanvas3d = std::unique_ptr< TCanvas >(fRootCanvas3d->GetCanvas());
   if (!fCanvas2d)
-    fCanvas2d = std::unique_ptr<TCanvas>(fRootCanvas2d->GetCanvas());
+    fCanvas2d = std::unique_ptr< TCanvas >(fRootCanvas2d->GetCanvas());
   if (!fCanvasTopView)
-    fCanvasTopView = std::unique_ptr<TCanvas>(fRootCanvasTopView->GetCanvas());
+    fCanvasTopView =
+        std::unique_ptr< TCanvas >(fRootCanvasTopView->GetCanvas());
   if (!fCanvasDiagrams)
     fCanvasDiagrams =
-        std::unique_ptr<TCanvas>(fRootCanvasDiagrams->GetCanvas());
+        std::unique_ptr< TCanvas >(fRootCanvasDiagrams->GetCanvas());
 
   draw2dGeometry();
   setAllStripsUnvisible();
@@ -164,7 +164,7 @@ void GeometryVisualizator::setVisibility2d(
   for (auto iter = selection.begin(); iter != selection.end(); ++iter)
   {
     int layer = iter->first - 1; // table start form 0, layers from 1
-    const std::vector<size_t> &strips = iter->second;
+    const std::vector< size_t > &strips = iter->second;
     for (auto stripIter = strips.begin(); stripIter != strips.end();
          ++stripIter)
     {
@@ -173,10 +173,10 @@ void GeometryVisualizator::setVisibility2d(
           strip < numberOfScintilatorsInLayer[layer] && strip >= 0)
       {
         allScintilatorsCanv[layer][strip].image->SetFillColor(2);
-        //double scaledScinLenght =
+        // double scaledScinLenght =
         //    allScintilatorsCanv[layer][strip].image->GetX2() -
         //    allScintilatorsCanv[layer][strip].image->GetX1();
-        //double scale = scaledScinLenght / fScinLenghtWithoutScale;
+        // double scale = scaledScinLenght / fScinLenghtWithoutScale;
         double centerX = allScintilatorsCanv[layer][strip].image->GetX1() +
                          ((allScintilatorsCanv[layer][strip].image->GetX2() -
                            allScintilatorsCanv[layer][strip].image->GetX1()) /
@@ -185,7 +185,6 @@ void GeometryVisualizator::setVisibility2d(
                          ((allScintilatorsCanv[layer][strip].image->GetY2() -
                            allScintilatorsCanv[layer][strip].image->GetY1()) /
                           2);
-        //std::cout << "marker center: " << centerX << "  " << centerY << "\n";
         allScintilatorsCanv[layer][strip].event =
             new TMarker(centerX, centerY, 3);
         allScintilatorsCanv[layer][strip].event->SetMarkerColor(2);
@@ -220,7 +219,7 @@ void GeometryVisualizator::setVisibility(const ScintillatorsInLayers &selection)
   for (auto iter = selection.begin(); iter != selection.end(); ++iter)
   {
     layer = iter->first;
-    const std::vector<size_t> &strips = iter->second;
+    const std::vector< size_t > &strips = iter->second;
     nodeLayer = topNode->GetDaughter(layer - 1);
     assert(nodeLayer);
 
@@ -238,15 +237,15 @@ void GeometryVisualizator::setVisibility(const ScintillatorsInLayers &selection)
 void GeometryVisualizator::drawMarkers(const HitPositions &pos)
 {
   fCanvasTopView->cd();
-  if(!fSaveMarkersAndLinesBetweenEvents)
+  if (!fSaveMarkersAndLinesBetweenEvents)
   {
-    for(TPolyLine * line : fLineOnTopView)
+    for (TPolyLine *line : fLineOnTopView)
     {
       fCanvasTopView->GetListOfPrimitives()->Remove(line);
       delete line;
     }
     fLineOnTopView.clear();
-    for(TPolyMarker * marker : fMarkerOnTopView)
+    for (TPolyMarker *marker : fMarkerOnTopView)
     {
       fCanvasTopView->GetListOfPrimitives()->Remove(marker);
       delete marker;
@@ -274,15 +273,15 @@ void GeometryVisualizator::drawMarkers(const HitPositions &pos)
 void GeometryVisualizator::drawLineBetweenActivedScins(const HitPositions &pos)
 {
   fCanvas3d->cd();
-  if(!fSaveMarkersAndLinesBetweenEvents)
+  if (!fSaveMarkersAndLinesBetweenEvents)
   {
-    for(TPolyLine3D * line : fLineOn3dView)
+    for (TPolyLine3D *line : fLineOn3dView)
     {
       fCanvas3d->GetListOfPrimitives()->Remove(line);
       delete line;
     }
     fLineOn3dView.clear();
-    for(TPolyMarker3D * marker : fMarkerOn3dView)
+    for (TPolyMarker3D *marker : fMarkerOn3dView)
     {
       fCanvas3d->GetListOfPrimitives()->Remove(marker);
       delete marker;
@@ -332,7 +331,7 @@ void GeometryVisualizator::setAllStripsUnvisible()
 {
   assert(fGeoManager);
   TGeoNodeMatrix *topNode =
-      static_cast<TGeoNodeMatrix *>(fGeoManager->GetTopNode());
+      static_cast< TGeoNodeMatrix * >(fGeoManager->GetTopNode());
   assert(topNode);
   int fNumberOfLayers = topNode->GetNdaughters();
   TGeoNode *node = 0;
@@ -358,9 +357,8 @@ void GeometryVisualizator::drawDiagram(const DiagramDataMapVector &diagramData)
   }
   if (fCanvasDiagrams == 0)
     fCanvasDiagrams =
-        std::unique_ptr<TCanvas>(fRootCanvasDiagrams->GetCanvas());
+        std::unique_ptr< TCanvas >(fRootCanvasDiagrams->GetCanvas());
   int vectorSize = diagramData.size();
-  //std::cout << "vector size: " << vectorSize << "\n";
   fCanvasDiagrams->cd();
   if (vectorSize != fLastDiagramVectorSize)
   {
@@ -377,16 +375,14 @@ void GeometryVisualizator::drawDiagram(const DiagramDataMapVector &diagramData)
     int i = 0;
     for (auto it = diagramData[j].begin(); it != diagramData[j].end(); it++)
     {
-      y[i] = static_cast<double>(std::get<0>(*it));
-      // y[i] = static_cast<double>(it->second.first);
-      x[i] = static_cast<double>(std::get<2>(*it));
-      // std::cout << "x: " << x[i] << " y: " << y[i] << "\n";
+      y[i] = static_cast< double >(std::get< 0 >(*it));
+      x[i] = static_cast< double >(std::get< 2 >(*it));
       i++;
     }
     TGraph *gr = new TGraph(n, x, y);
     gr->GetXaxis()->SetTitle("Time");
     gr->GetYaxis()->SetTitle("Threshold Number");
-    gr->Draw("AP*"); // ACP*
+    gr->Draw("AP*");
     for (int k = 0; k < 4; k++)
     {
       TLine *line = new TLine(gr->GetXaxis()->GetXmin(), k + 1,
@@ -399,7 +395,7 @@ void GeometryVisualizator::drawDiagram(const DiagramDataMapVector &diagramData)
 
 void GeometryVisualizator::createGeometry(
     const int numberOfLayers, const int kLength,
-    const std::vector<std::pair<int, double>> &layerStats)
+    const std::vector< std::pair< int, double > > &layerStats)
 {
   const double kXWorld = kLength + 100;
   const double kYWorld = kLength + 100;
@@ -409,7 +405,7 @@ void GeometryVisualizator::createGeometry(
   gSystem->Load("libGeom");
 
   fGeoManager =
-      std::unique_ptr<TGeoManager>(new TGeoManager("mgr", "PET detector"));
+      std::unique_ptr< TGeoManager >(new TGeoManager("mgr", "PET detector"));
 
   TGeoMaterial *matVacuum = new TGeoMaterial("Vacuum", 0, 0, 0);
   assert(matVacuum);
@@ -428,7 +424,7 @@ void GeometryVisualizator::createGeometry(
   TGeoRotation *rotation = new TGeoRotation();
   rotation->SetAngles(0., 0., 0.);
 
-  std::vector<TGeoTube *> layers;
+  std::vector< TGeoTube * > layers;
 
   for (int i = 0; i < numberOfLayers; i++)
   {
@@ -456,7 +452,7 @@ void GeometryVisualizator::createGeometry(
     assert(array);
     TGeoNode *strip = 0;
     TIter iter(array);
-    while ((strip = static_cast<TGeoNode *>(iter.Next())) != 0)
+    while ((strip = static_cast< TGeoNode * >(iter.Next())) != 0)
     {
       strip->GetVolume()->SetLineColor(kRed);
       strip->SetVisibility(kTRUE);

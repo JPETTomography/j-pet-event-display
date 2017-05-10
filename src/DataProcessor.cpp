@@ -18,63 +18,83 @@
 namespace jpet_event_display
 {
 
+DataProcessor::DataProcessor()
+{
+  std::cout
+      << "Generating GeomMapping, please wait, application will start soon... "
+      << "\n";
+  JPetParamManager fparamManagerInstance(
+      new JPetParamGetterAscii("large_barrel.json"));
+  fparamManagerInstance.fillParameterBank(43);
+  auto bank = fparamManagerInstance.getParamBank();
+  dynamic_cast< JPetParamBank * >(fReader.getObjectFromFile(
+      "ParamBank")); // just read param bank, no need to save it to variable
+  fMapper = std::unique_ptr< JPetGeomMapping >(new JPetGeomMapping(bank));
+}
+
 void DataProcessor::getDataForCurrentEvent()
 {
   ProcessedData::getInstance().clearData();
   switch (ProcessedData::getInstance().getCurrentFileType())
   {
-    case FileTypes::fTimeWindow:
-      getActiveScintillators(getCurrentEvent<JPetTimeWindow>());
-      break;
-    case FileTypes::fRawSignal:
-      getActiveScintillators(getCurrentEvent<JPetRawSignal>());
-      getDataForDiagram(getCurrentEvent<JPetRawSignal>());
-      break;
-    case FileTypes::fHit:
-      getActiveScintillators(getCurrentEvent<JPetHit>());
-      getDataForDiagram(getCurrentEvent<JPetHit>());
-      getHitsPosition(getCurrentEvent<JPetHit>());
-      break;
-    case FileTypes::fEvent:
-      getActiveScintillators(getCurrentEvent<JPetEvent>());
-      getDataForDiagram(getCurrentEvent<JPetEvent>());
-      getHitsPosition(getCurrentEvent<JPetEvent>());
-      break;
-    default:
-      break;
+  case FileTypes::fTimeWindow:
+    getActiveScintillators(getCurrentEvent< JPetTimeWindow >());
+    break;
+  case FileTypes::fRawSignal:
+    getActiveScintillators(getCurrentEvent< JPetRawSignal >());
+    getDataForDiagram(getCurrentEvent< JPetRawSignal >());
+    break;
+  case FileTypes::fHit:
+    getActiveScintillators(getCurrentEvent< JPetHit >());
+    getDataForDiagram(getCurrentEvent< JPetHit >());
+    getHitsPosition(getCurrentEvent< JPetHit >());
+    break;
+  case FileTypes::fEvent:
+    getActiveScintillators(getCurrentEvent< JPetEvent >());
+    getDataForDiagram(getCurrentEvent< JPetEvent >());
+    getHitsPosition(getCurrentEvent< JPetEvent >());
+    break;
+  default:
+    break;
   }
 }
 
-template<typename T>
-const T& DataProcessor::getCurrentEvent()
+template < typename T > const T &DataProcessor::getCurrentEvent()
 {
-  return dynamic_cast<T &>(fReader.getCurrentEvent());
+  return dynamic_cast< T & >(fReader.getCurrentEvent());
 }
 
-void DataProcessor::getActiveScintillators(const JPetTimeWindow& tWindow)
+void DataProcessor::getActiveScintillators(const JPetTimeWindow &tWindow)
 {
   auto sigChannels = tWindow.getSigChVect();
   ScintillatorsInLayers selection;
-  for (const auto & channel : sigChannels) {
+  for (const auto &channel : sigChannels)
+  {
     auto PM = channel.getPM();
-    if(PM.isNullObject()) {
+    if (PM.isNullObject())
+    {
       continue;
     }
     auto scin = PM.getScin();
-    if(scin.isNullObject()) {
+    if (scin.isNullObject())
+    {
       continue;
     }
     auto barrel = scin.getBarrelSlot();
-    if (barrel.isNullObject()) {
+    if (barrel.isNullObject())
+    {
       continue;
     }
     StripPos pos = fMapper->getStripPos(barrel);
 
-    if (selection.find(pos.layer) != selection.end()) {
+    if (selection.find(pos.layer) != selection.end())
+    {
       if (std::find(selection[pos.layer].begin(), selection[pos.layer].end(),
                     pos.slot) == selection[pos.layer].end())
         selection[pos.layer].push_back(pos.slot);
-    } else {
+    }
+    else
+    {
       selection[pos.layer] = {pos.slot};
     }
   }
@@ -87,50 +107,64 @@ void DataProcessor::getActiveScintillators(const JPetRawSignal &rawSignal)
   auto leadingSigCh = rawSignal.getPoints(JPetSigCh::Leading);
   auto trailingSigCh = rawSignal.getPoints(JPetSigCh::Trailing);
   ScintillatorsInLayers selection;
-  for (const auto &channel : leadingSigCh) {
+  for (const auto &channel : leadingSigCh)
+  {
     auto PM = channel.getPM();
-    if (PM.isNullObject()) {
+    if (PM.isNullObject())
+    {
       continue;
     }
     auto scin = PM.getScin();
-    if (scin.isNullObject()) {
+    if (scin.isNullObject())
+    {
       continue;
     }
     auto barrel = scin.getBarrelSlot();
-    if (barrel.isNullObject()) {
+    if (barrel.isNullObject())
+    {
       continue;
     }
     StripPos pos = fMapper->getStripPos(barrel);
 
-    if (selection.find(pos.layer) != selection.end()) {
+    if (selection.find(pos.layer) != selection.end())
+    {
       if (std::find(selection[pos.layer].begin(), selection[pos.layer].end(),
                     pos.slot) == selection[pos.layer].end())
         selection[pos.layer].push_back(pos.slot);
-    } else {
+    }
+    else
+    {
       selection[pos.layer] = {pos.slot};
     }
   }
 
-  for (const auto &channel : trailingSigCh) {
+  for (const auto &channel : trailingSigCh)
+  {
     auto PM = channel.getPM();
-    if (PM.isNullObject()) {
+    if (PM.isNullObject())
+    {
       continue;
     }
     auto scin = PM.getScin();
-    if (scin.isNullObject()) {
+    if (scin.isNullObject())
+    {
       continue;
     }
     auto barrel = scin.getBarrelSlot();
-    if (barrel.isNullObject()) {
+    if (barrel.isNullObject())
+    {
       continue;
     }
     StripPos pos = fMapper->getStripPos(barrel);
 
-    if (selection.find(pos.layer) != selection.end()) {
+    if (selection.find(pos.layer) != selection.end())
+    {
       if (std::find(selection[pos.layer].begin(), selection[pos.layer].end(),
                     pos.slot) == selection[pos.layer].end())
         selection[pos.layer].push_back(pos.slot);
-    } else {
+    }
+    else
+    {
       selection[pos.layer] = {pos.slot};
     }
   }
@@ -140,17 +174,6 @@ void DataProcessor::getActiveScintillators(const JPetRawSignal &rawSignal)
 
 void DataProcessor::getActiveScintillators(const JPetHit &hitSignal)
 {
-
-  //std::cout << "x: " << hitSignal.getPosX() << " y: " << hitSignal.getPosY()
-  //          << " z: " << hitSignal.getPosZ()
-  //          << " energy: " << hitSignal.getEnergy()
-  //          << " qualityOfEnergy: " << hitSignal.getQualityOfEnergy()
-  //          << " time: " << hitSignal.getTime()
-  //          << " timeDiff: " << hitSignal.getTimeDiff()
-  //          << " qualityOfTime: " << hitSignal.getQualityOfTime()
-  //          << " qualityOfTimeDiff: " << hitSignal.getQualityOfTimeDiff()
-  //          << "\n";
-
   ScintillatorsInLayers selection;
   StripPos pos = fMapper->getStripPos(hitSignal.getBarrelSlot());
   selection[pos.layer] = {pos.slot};
@@ -161,16 +184,8 @@ void DataProcessor::getActiveScintillators(const JPetHit &hitSignal)
 void DataProcessor::getActiveScintillators(const JPetEvent &event)
 {
   ScintillatorsInLayers selection;
-  for(JPetHit hit : event.getHits())
+  for (JPetHit hit : event.getHits())
   {
-    //std::cout << "x: " << hit.getPosX() << " y: " << hit.getPosY()
-    //          << " z: " << hit.getPosZ() << " energy: " << hit.getEnergy()
-    //          << " qualityOfEnergy: " << hit.getQualityOfEnergy()
-    //          << " time: " << hit.getTime()
-    //          << " timeDiff: " << hit.getTimeDiff()
-    //          << " qualityOfTime: " << hit.getQualityOfTime()
-    //          << " qualityOfTimeDiff: " << hit.getQualityOfTimeDiff() << "\n";
-
     StripPos pos = fMapper->getStripPos(hit.getBarrelSlot());
     if (selection.find(pos.layer) != selection.end())
     {
@@ -187,20 +202,21 @@ void DataProcessor::getActiveScintillators(const JPetEvent &event)
   ProcessedData::getInstance().setActivedScins(selection);
 }
 
-DiagramDataMap DataProcessor::getDataForDiagram(const JPetRawSignal &rawSignal, bool)
+DiagramDataMap DataProcessor::getDataForDiagram(const JPetRawSignal &rawSignal,
+                                                bool)
 {
   DiagramDataMap r;
   auto data = rawSignal.getTimesVsThresholdValue(JPetSigCh::Leading);
   for (auto it = data.begin(); it != data.end(); it++)
   {
-    r.push_back(std::make_tuple(it->first, it->second.first,
-                                it->second.second, JPetSigCh::Leading));
+    r.push_back(std::make_tuple(it->first, it->second.first, it->second.second,
+                                JPetSigCh::Leading));
   }
   auto tmp = rawSignal.getTimesVsThresholdValue(JPetSigCh::Trailing);
   for (auto it = tmp.begin(); it != tmp.end(); it++)
   {
-    r.push_back(std::make_tuple(it->first, it->second.first,
-                                it->second.second, JPetSigCh::Trailing));
+    r.push_back(std::make_tuple(it->first, it->second.first, it->second.second,
+                                JPetSigCh::Trailing));
   }
   return r;
 }
@@ -225,7 +241,7 @@ void DataProcessor::getDataForDiagram(const JPetHit &hitSignal)
 void DataProcessor::getDataForDiagram(const JPetEvent &event)
 {
   DiagramDataMapVector rv;
-  for(JPetHit hit : event.getHits())
+  for (JPetHit hit : event.getHits())
   {
     rv.push_back(getDataForDiagram(
         hit.getSignalA().getRecoSignal().getRawSignal(), true));
@@ -254,7 +270,7 @@ void DataProcessor::getHitsPosition(const JPetEvent &event)
 
 bool DataProcessor::openFile(const char *filename)
 {
-  static std::map<std::string, int> compareMap;
+  static std::map< std::string, int > compareMap;
   if (compareMap.empty())
   {
     compareMap["JPetTimeWindow"] = FileTypes::fTimeWindow;
@@ -264,43 +280,25 @@ bool DataProcessor::openFile(const char *filename)
   }
   bool r = fReader.openFileAndLoadData(filename);
   fNumberOfEventsInFile = fReader.getNbOfAllEvents();
-  if(r)
+  if (r)
   {
-    TTree *fTree = dynamic_cast<TTree *>(fReader.getObjectFromFile("tree"));
+    TTree *fTree = dynamic_cast< TTree * >(fReader.getObjectFromFile("tree"));
     TObjArray *arr = fTree->GetListOfBranches();
-    TBranch *fBranch = dynamic_cast<TBranch*>(arr->At(0));
+    TBranch *fBranch = dynamic_cast< TBranch * >(arr->At(0));
     const char *branchName = fBranch->GetClassName();
-    ProcessedData::getInstance().setCurrentFileType(static_cast<FileTypes>(compareMap[branchName]));
-    // set mapper
-    JPetParamManager fparamManagerInstance(new JPetParamGetterAscii("large_barrel.json"));
-    fparamManagerInstance.fillParameterBank(43);
-    auto bank = fparamManagerInstance.getParamBank();
-    //const JPetParamBank *bank2 =
-    dynamic_cast<JPetParamBank *>(fReader.getObjectFromFile("ParamBank")); // just read param bank, no need to save it to variable
-    fMapper = std::unique_ptr<JPetGeomMapping>(new JPetGeomMapping(bank));
+    ProcessedData::getInstance().setCurrentFileType(
+        static_cast< FileTypes >(compareMap[branchName]));
   }
   return r;
 }
 
-void DataProcessor::closeFile()
-{
-  fReader.closeFile();
-}
+void DataProcessor::closeFile() { fReader.closeFile(); }
 
-bool DataProcessor::nextEvent()
-{
-  return fReader.nextEvent();
-}
+bool DataProcessor::nextEvent() { return fReader.nextEvent(); }
 
-bool DataProcessor::firstEvent()
-{
-  return fReader.firstEvent();
-}
+bool DataProcessor::firstEvent() { return fReader.firstEvent(); }
 
-bool DataProcessor::lastEvent()
-{
-  return fReader.lastEvent();
-}
+bool DataProcessor::lastEvent() { return fReader.lastEvent(); }
 
 bool DataProcessor::nthEvent(long long n)
 {
