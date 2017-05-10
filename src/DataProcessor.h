@@ -16,21 +16,21 @@
 #define DATAPROCESSOR_H
 
 #include <map>
+#include <memory>
 #include <sstream>
 #include <string>
 #include <vector>
-#include <memory>
 #ifndef __CINT__
 #include <JPetGeomMapping/JPetGeomMapping.h>
 #include <JPetGeomMappingInterface/JPetGeomMappingInterface.h>
+#include <JPetHit/JPetHit.h>
+#include <JPetParamBank/JPetParamBank.h>
 #include <JPetParamGetterAscii/JPetParamGetterAscii.h>
 #include <JPetParamManager/JPetParamManager.h>
-#include <JPetParamBank/JPetParamBank.h>
 #include <JPetRawSignal/JPetRawSignal.h>
 #include <JPetReader/JPetReader.h>
 #include <JPetTimeWindow/JPetTimeWindow.h>
 #include <JPetTreeHeader/JPetTreeHeader.h>
-#include <JPetHit/JPetHit.h>
 #endif
 
 #include <TNamed.h>
@@ -38,29 +38,39 @@
 
 namespace jpet_event_display
 {
-enum FileTypes { fNone, fTimeWindow, fRawSignal, fHit, fEvent };
+enum FileTypes
+{
+  fNone,
+  fTimeWindow,
+  fRawSignal,
+  fHit,
+  fEvent
+};
 
-typedef std::map<size_t, std::vector<size_t>> ScintillatorsInLayers; //layer, scinID, hitPos
-typedef std::vector<std::tuple<int, float, float, JPetSigCh::EdgeType>>
+typedef std::map< size_t, std::vector< size_t > >
+    ScintillatorsInLayers; // layer, scinID, hitPos
+typedef std::vector< std::tuple< int, float, float, JPetSigCh::EdgeType > >
     DiagramDataMap;
 // typedef std::map<int, std::tuple<float, float, JPetSigCh::EdgeType>>
 //    DiagramDataMap; //threshold number, thresholdValue, time, EdgeType
-typedef std::vector<DiagramDataMap> DiagramDataMapVector;
-typedef std::vector<TVector3> HitPositions; //rename
+typedef std::vector< DiagramDataMap > DiagramDataMapVector;
+typedef std::vector< TVector3 > HitPositions; // rename
 
-class ProcessedData 
+class ProcessedData
 {
 public:
-  ProcessedData(const ProcessedData&) = delete;
-  ProcessedData& operator=(const ProcessedData&) = delete;
-  ~ProcessedData() { }
+  ProcessedData(const ProcessedData &) = delete;
+  ProcessedData &operator=(const ProcessedData &) = delete;
+  ~ProcessedData() {}
 
-  static inline ProcessedData & getInstance() {
+  static inline ProcessedData &getInstance()
+  {
     static ProcessedData fSingleton;
-    return fSingleton; 
+    return fSingleton;
   }
 
-  void clearData() {
+  void clearData()
+  {
     fActivedScins.clear();
     fDiagram.clear();
     fHits.clear();
@@ -72,9 +82,12 @@ public:
   void setHits(HitPositions hits) { fHits = hits; }
 
   inline FileTypes getCurrentFileType() { return fCurrentFileType; }
-  inline ScintillatorsInLayers& getActivedScintilators() { return fActivedScins; }
-  inline DiagramDataMapVector& getDiagramData() { return fDiagram; }
-  inline HitPositions& getHits() { return fHits; }
+  inline ScintillatorsInLayers &getActivedScintilators()
+  {
+    return fActivedScins;
+  }
+  inline DiagramDataMapVector &getDiagramData() { return fDiagram; }
+  inline HitPositions &getHits() { return fHits; }
 
   const std::string getActivedScintilatorsString()
   {
@@ -82,7 +95,7 @@ public:
     for (auto iter = fActivedScins.begin(); iter != fActivedScins.end(); ++iter)
     {
       int layer = iter->first;
-      const std::vector<size_t> &strips = iter->second;
+      const std::vector< size_t > &strips = iter->second;
       for (auto stripIter = strips.begin(); stripIter != strips.end();
            ++stripIter)
       {
@@ -93,19 +106,20 @@ public:
   }
 
 private:
-  ProcessedData() { }
+  ProcessedData() {}
 
   ScintillatorsInLayers fActivedScins;
   DiagramDataMapVector fDiagram;
-  HitPositions fHits; //rename
+  HitPositions fHits; // rename
   FileTypes fCurrentFileType = FileTypes::fNone;
 };
 
-class DataProcessor {
+class DataProcessor
+{
 public:
-  DataProcessor() {}
+  DataProcessor();
   void getDataForCurrentEvent();
-  bool openFile(const char* filename);
+  bool openFile(const char *filename);
   void closeFile();
   bool firstEvent();
   bool nextEvent();
@@ -114,9 +128,9 @@ public:
   long long getNumberOfEvents() { return fNumberOfEventsInFile; }
 
 private:
-  #ifndef __CINT__
-  DataProcessor(const DataProcessor&) = delete;
-  DataProcessor& operator=(const DataProcessor&) = delete;
+#ifndef __CINT__
+  DataProcessor(const DataProcessor &) = delete;
+  DataProcessor &operator=(const DataProcessor &) = delete;
 
   void getActiveScintillators(const JPetTimeWindow &tWindow);
   void getActiveScintillators(const JPetRawSignal &rawSignal);
@@ -132,15 +146,14 @@ private:
   void getHitsPosition(const JPetHit &hitSignal);
   void getHitsPosition(const JPetEvent &event);
 
-  template <typename T> const T &getCurrentEvent();
+  template < typename T > const T &getCurrentEvent();
 
   long long fNumberOfEventsInFile = 0;
 
   JPetReader fReader;
-  std::unique_ptr<JPetGeomMapping> fMapper;
-  #endif
+  std::unique_ptr< JPetGeomMapping > fMapper;
+#endif
 };
-
 }
 
 #endif /*  !DATAPROCESSOR_H */
