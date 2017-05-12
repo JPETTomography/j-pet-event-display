@@ -27,8 +27,6 @@ DataProcessor::DataProcessor()
       new JPetParamGetterAscii("large_barrel.json"));
   fparamManagerInstance.fillParameterBank(43);
   auto bank = fparamManagerInstance.getParamBank();
-  dynamic_cast< JPetParamBank * >(fReader.getObjectFromFile(
-      "ParamBank")); // just read param bank, no need to save it to variable
   fMapper = std::unique_ptr< JPetGeomMapping >(new JPetGeomMapping(bank));
 }
 
@@ -279,6 +277,8 @@ bool DataProcessor::openFile(const char *filename)
     compareMap["JPetEvent"] = FileTypes::fEvent;
   }
   bool r = fReader.openFileAndLoadData(filename);
+  dynamic_cast< JPetParamBank * >(fReader.getObjectFromFile(
+      "ParamBank")); // just read param bank, no need to save it to variable
   fNumberOfEventsInFile = fReader.getNbOfAllEvents();
   if (r)
   {
