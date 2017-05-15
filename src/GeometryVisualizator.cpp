@@ -110,31 +110,30 @@ void GeometryVisualizator::draw2dGeometry()
   fCanvas2d->cd();
   fCanvas2d->Range(0, 0, canvasScale, canvasScale);
   TGeoVolume *topVolume = fGeoManager->GetTopVolume();
-  numberOfLayers = topVolume->GetNdaughters();
+  unsigned int numberOfLayers = topVolume->GetNdaughters();
   if (numberOfLayers == 0)
     return;
-  numberOfScintilatorsInLayer = new int[numberOfLayers];
+  fUnRolledViewScintillators.resize(numberOfLayers);
   double layerWidth =
       (canvasWidth - (marginBetweenLayers * numberOfLayers)) / numberOfLayers;
-  allScintilatorsCanv = new ScintillatorCanv *[numberOfLayers];
-  for (int i = 0; i < numberOfLayers; i++)
+  for (unsigned int i = 0; i < numberOfLayers; i++)
   {
     TGeoNode *node = topVolume->GetNode(i);
-    numberOfScintilatorsInLayer[i] = node->GetNdaughters();
-    if (numberOfScintilatorsInLayer[i] == 0)
+    unsigned int numberOfScintillatorsInCurrentLayer = node->GetNdaughters();
+    if (numberOfScintillatorsInCurrentLayer == 0)
       return;
-    double scintilatorHeight = canvasHeight / numberOfScintilatorsInLayer[i];
-    allScintilatorsCanv[i] =
-        new ScintillatorCanv[numberOfScintilatorsInLayer[i]];
-    for (int j = 0; j < numberOfScintilatorsInLayer[i]; j++)
+    double scintilatorHeight =
+        canvasHeight / numberOfScintillatorsInCurrentLayer;
+    fUnRolledViewScintillators[i].resize(numberOfScintillatorsInCurrentLayer);
+    for (unsigned int j = 0; j < numberOfScintillatorsInCurrentLayer; j++)
     {
-      allScintilatorsCanv[i][j].image =
+      fUnRolledViewScintillators[i][j] =
           new TBox(leftMargin + (layerWidth * i),
                    startY - ((j + 1) * scintilatorHeight) + marginBetweenScin,
                    leftMargin + (layerWidth * (i + 1)) - marginBetweenLayers,
                    startY - (j * scintilatorHeight));
-      allScintilatorsCanv[i][j].image->SetFillColor(1);
-      allScintilatorsCanv[i][j].image->Draw();
+      fUnRolledViewScintillators[i][j]->SetFillColor(1);
+      fUnRolledViewScintillators[i][j]->Draw();
     }
   }
 
@@ -144,15 +143,13 @@ void GeometryVisualizator::draw2dGeometry()
 
 void GeometryVisualizator::setAllStripsUnvisible2d()
 {
-  assert(allScintilatorsCanv);
-  for (int i = 0; i < numberOfLayers; i++)
+  for (unsigned int i = 0; i < fUnRolledViewScintillators.size(); i++)
   {
-    for (int j = 0; j < numberOfScintilatorsInLayer[i]; j++)
+    for (unsigned int j = 0; j < fUnRolledViewScintillators[i].size(); j++)
     {
-      allScintilatorsCanv[i][j].image->SetFillColor(1);
+      fUnRolledViewScintillators[i][j]->SetFillColor(1);
     }
   }
-  assert(fCanvas2d);
   fCanvas2d->Modified();
   fCanvas2d->Update();
 }
@@ -161,35 +158,44 @@ void GeometryVisualizator::setVisibility2d(
     const ScintillatorsInLayers &selection)
 {
   fCanvas2d->cd();
+  if (!fSaveMarkersAndLinesBetweenEvents)
+  {
+    for (TMarker *marker : fUnRolledViewMarker)
+    {
+      fCanvas2d->GetListOfPrimitives()->Remove(marker);
+      delete marker;
+    }
+    fUnRolledViewMarker.clear();
+  }
   for (auto iter = selection.begin(); iter != selection.end(); ++iter)
   {
-    int layer = iter->first - 1; // table start form 0, layers from 1
+    unsigned int layer = iter->first - 1; // table start form 0, layers from 1
     const std::vector< size_t > &strips = iter->second;
     for (auto stripIter = strips.begin(); stripIter != strips.end();
          ++stripIter)
     {
-      int strip = *stripIter - 1;
-      if (layer < numberOfLayers && layer >= 0 &&
-          strip < numberOfScintilatorsInLayer[layer] && strip >= 0)
+      unsigned int strip = *stripIter - 1;
+      if (layer < fUnRolledViewScintillators.size() &&
+          strip < fUnRolledViewScintillators[layer].size())
       {
-        allScintilatorsCanv[layer][strip].image->SetFillColor(2);
+        fUnRolledViewScintillators[layer][strip]->SetFillColor(2);
         // double scaledScinLenght =
         //    allScintilatorsCanv[layer][strip].image->GetX2() -
         //    allScintilatorsCanv[layer][strip].image->GetX1();
         // double scale = scaledScinLenght / fScinLenghtWithoutScale;
-        double centerX = allScintilatorsCanv[layer][strip].image->GetX1() +
-                         ((allScintilatorsCanv[layer][strip].image->GetX2() -
-                           allScintilatorsCanv[layer][strip].image->GetX1()) /
+        double centerX = fUnRolledViewScintillators[layer][strip]->GetX1() +
+                         ((fUnRolledViewScintillators[layer][strip]->GetX2() -
+                           fUnRolledViewScintillators[layer][strip]->GetX1()) /
                           2);
-        double centerY = allScintilatorsCanv[layer][strip].image->GetY1() +
-                         ((allScintilatorsCanv[layer][strip].image->GetY2() -
-                           allScintilatorsCanv[layer][strip].image->GetY1()) /
+        double centerY = fUnRolledViewScintillators[layer][strip]->GetY1() +
+                         ((fUnRolledViewScintillators[layer][strip]->GetY2() -
+                           fUnRolledViewScintillators[layer][strip]->GetY1()) /
                           2);
-        allScintilatorsCanv[layer][strip].event =
-            new TMarker(centerX, centerY, 3);
-        allScintilatorsCanv[layer][strip].event->SetMarkerColor(2);
-        allScintilatorsCanv[layer][strip].event->SetMarkerSize(3);
-        allScintilatorsCanv[layer][strip].event->Draw();
+        TMarker *marker = new TMarker(centerX, centerY, 3);
+        marker->SetMarkerColor(2);
+        marker->SetMarkerSize(3);
+        marker->Draw();
+        fUnRolledViewMarker.push_back(marker);
       }
     }
   }
