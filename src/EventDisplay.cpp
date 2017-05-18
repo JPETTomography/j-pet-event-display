@@ -41,7 +41,7 @@ EventDisplay::~EventDisplay() { fMainWindow->Cleanup(); }
 void EventDisplay::run()
 {
   fMainWindow =
-      std::unique_ptr<TGMainFrame>(new TGMainFrame(gClient->GetRoot()));
+      std::unique_ptr< TGMainFrame >(new TGMainFrame(gClient->GetRoot()));
   fMainWindow->SetCleanup(kDeepCleanup);
   fMainWindow->Connect("CloseWindow()", "jpet_event_display::EventDisplay",
                        this, "CloseWindow()");
@@ -94,7 +94,7 @@ void EventDisplay::run()
 
 void EventDisplay::CreateDisplayFrame(TGGroupFrame *parentFrame)
 {
-  fDisplayTabView = std::unique_ptr<TGTab>(new TGTab(parentFrame, 1, 1));
+  fDisplayTabView = std::unique_ptr< TGTab >(new TGTab(parentFrame, 1, 1));
   fDisplayTabView->ChangeBackground(fFrameBackgroundColor);
 
   AddTab(fDisplayTabView, visualizator->getCanvas3d(), "3d view",
@@ -133,7 +133,7 @@ void EventDisplay::CreateOptionsFrame(TGGroupFrame *parentFrame)
       new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, 5, 5, 3, 4));
   markersCheck->ChangeBackground(fFrameBackgroundColor);
   markersCheck->Connect("Clicked()", "jpet_event_display::EventDisplay", this,
-                       "checkBoxMarkersSignalFunction()");
+                        "checkBoxMarkersSignalFunction()");
 
   TGCompositeFrame *frame1_2 =
       AddCompositeFrame(parentFrame, 1, 1, kVerticalFrame,
@@ -148,7 +148,7 @@ void EventDisplay::CreateOptionsFrame(TGGroupFrame *parentFrame)
   TGCompositeFrame *tabFrame1 = AddCompositeFrame(
       tf1, 1, 1, kVerticalFrame, kLHintsExpandX | kLHintsExpandY, 5, 5, 5, 5);
 
-  fInputInfo = std::unique_ptr<TGLabel>(new TGLabel(
+  fInputInfo = std::unique_ptr< TGLabel >(new TGLabel(
       tabFrame1, "No file read.", TGLabel::GetDefaultGC()(),
       TGLabel::GetDefaultFontStruct(), kChildFrame, fFrameBackgroundColor));
   fInputInfo->SetTextJustify(kTextTop | kTextLeft);
@@ -187,7 +187,7 @@ void EventDisplay::CreateOptionsFrame(TGGroupFrame *parentFrame)
 
   int fMaxEvents = 1000; // temporary
 
-  fNumberEntryStep = std::unique_ptr<TGNumberEntry>(
+  fNumberEntryStep = std::unique_ptr< TGNumberEntry >(
       new TGNumberEntry(frame1_3_2, 1, 5, -1, TGNumberFormat::kNESInteger,
                         TGNumberFormat::kNEAPositive,
                         TGNumberFormat::kNELLimitMinMax, 1, fMaxEvents));
@@ -204,7 +204,7 @@ void EventDisplay::CreateOptionsFrame(TGGroupFrame *parentFrame)
   frame1_3_2->AddFrame(labelEventNo,
                        new TGLayoutHints(kLHintsLeft | kLHintsTop, 2, 2, 2, 2));
 
-  fNumberEntryEventNo = std::unique_ptr<TGNumberEntry>(
+  fNumberEntryEventNo = std::unique_ptr< TGNumberEntry >(
       new TGNumberEntry(frame1_3_2, 1, 5, -1, TGNumberFormat::kNESInteger,
                         TGNumberFormat::kNEANonNegative,
                         TGNumberFormat::kNELLimitMinMax, 0, fMaxEvents));
@@ -214,7 +214,7 @@ void EventDisplay::CreateOptionsFrame(TGGroupFrame *parentFrame)
                                "jpet_event_display::EventDisplay", this,
                                "updateGUIControlls()");
 
-  fProgBar = std::unique_ptr<TGHProgressBar>(
+  fProgBar = std::unique_ptr< TGHProgressBar >(
       new TGHProgressBar(frame1_3, TGProgressBar::kFancy, 250));
   fProgBar->SetBarColor("lightblue");
   fProgBar->ShowPosition(kTRUE, kFALSE, "%.0f events");
@@ -223,14 +223,14 @@ void EventDisplay::CreateOptionsFrame(TGGroupFrame *parentFrame)
                      new TGLayoutHints(kLHintsCenterX, 5, 5, 3, 4));
 }
 
-void EventDisplay::AddTab(std::unique_ptr<TGTab> &pTabViews,
-                          std::unique_ptr<TRootEmbeddedCanvas> &saveCanvasPtr,
+void EventDisplay::AddTab(std::unique_ptr< TGTab > &pTabViews,
+                          std::unique_ptr< TRootEmbeddedCanvas > &saveCanvasPtr,
                           const char *tabName, const char *canvasName)
 {
   TGCompositeFrame *tabView = pTabViews->AddTab(tabName);
   tabView->ChangeBackground(fFrameBackgroundColor);
 
-  saveCanvasPtr = std::unique_ptr<TRootEmbeddedCanvas>(
+  saveCanvasPtr = std::unique_ptr< TRootEmbeddedCanvas >(
       new TRootEmbeddedCanvas(canvasName, tabView, 600, 600));
   tabView->AddFrame(
       saveCanvasPtr.get(),
@@ -376,8 +376,7 @@ void EventDisplay::showData()
   dataProcessor->nthEvent(fGUIControls->eventNo);
   drawSelectedStrips();
   updateProgressBar();
-  fInputInfo->ChangeText(
-      ProcessedData::getInstance().getActivedScintilatorsString().c_str());
+  fInputInfo->ChangeText(ProcessedData::getInstance().getInfo().c_str());
 }
 
 void EventDisplay::drawSelectedStrips() { visualizator->drawData(); }
@@ -391,14 +390,14 @@ void EventDisplay::setMaxProgressBar(Int_t maxEvent)
 void EventDisplay::startVirtualization()
 {
   startVirtualizationLoop(10);
-  //std::thread t(&EventDisplay::startVirtualizationLoop, this, 1);
-  //t.join();
+  // std::thread t(&EventDisplay::startVirtualizationLoop, this, 1);
+  // t.join();
 }
 
 void EventDisplay::startVirtualizationLoop(const int waitTimeInMs)
 {
   long long maxEvent = dataProcessor->getNumberOfEvents();
-  for(int i = 0; i < 100 && fGUIControls->eventNo < maxEvent; i++)
+  for (int i = 0; i < 100 && fGUIControls->eventNo < maxEvent; i++)
   {
     doNext();
     std::this_thread::sleep_for(std::chrono::milliseconds(waitTimeInMs));

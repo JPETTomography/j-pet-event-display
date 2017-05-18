@@ -111,8 +111,8 @@ private:
   void CreateDisplayFrame(TGGroupFrame *parentFrame);
   void CreateOptionsFrame(TGGroupFrame *parentFrame);
 
-  void AddTab(std::unique_ptr<TGTab> &pTabViews,
-              std::unique_ptr<TRootEmbeddedCanvas> &saveCanvasPtr,
+  void AddTab(std::unique_ptr< TGTab > &pTabViews,
+              std::unique_ptr< TRootEmbeddedCanvas > &saveCanvasPtr,
               const char *tabName, const char *canvasName);
 
   void AddButton(TGCompositeFrame *parentFrame, const char *buttonText,
@@ -134,28 +134,28 @@ private:
 
   ULong_t fFrameBackgroundColor = 0;
 
-  std::unique_ptr<DataProcessor> dataProcessor =
-      std::unique_ptr<DataProcessor>(new DataProcessor());
-  std::unique_ptr<GeometryVisualizator> visualizator =
-      std::unique_ptr<GeometryVisualizator>(new GeometryVisualizator(
-          3, 5, std::vector<std::pair<int, double>>(
-                    {std::pair<int, double>(48, 42.5),
-                     std::pair<int, double>(48, 46.75),
-                     std::pair<int, double>(96, 57.5)})));
+  std::unique_ptr< DataProcessor > dataProcessor =
+      std::unique_ptr< DataProcessor >(new DataProcessor());
+  std::unique_ptr< GeometryVisualizator > visualizator =
+      std::unique_ptr< GeometryVisualizator >(new GeometryVisualizator(
+          3, 50, std::vector< std::pair< int, double > >(
+                     {std::pair< int, double >(48, 42.5),
+                      std::pair< int, double >(48, 46.75),
+                      std::pair< int, double >(96, 57.5)})));
 
-  std::unique_ptr<TRint> fApplication =
-      std::unique_ptr<TRint>(new TRint("EventDisplay Gui", 0, 0));
-  std::unique_ptr<GUIControlls> fGUIControls =
-      std::unique_ptr<GUIControlls>(new GUIControlls);
-  std::unique_ptr<TGTab> fDisplayTabView;
-  std::unique_ptr<TGMainFrame> fMainWindow;
-  std::unique_ptr<TGNumberEntry> fNumberEntryStep;
-  std::unique_ptr<TGNumberEntry> fNumberEntryEventNo;
-  std::unique_ptr<TGHProgressBar> fProgBar;
-  std::unique_ptr<TGLabel> fInputInfo;
+  std::unique_ptr< TRint > fApplication =
+      std::unique_ptr< TRint >(new TRint("EventDisplay Gui", 0, 0));
+  std::unique_ptr< GUIControlls > fGUIControls =
+      std::unique_ptr< GUIControlls >(new GUIControlls);
+  std::unique_ptr< TGTab > fDisplayTabView;
+  std::unique_ptr< TGMainFrame > fMainWindow;
+  std::unique_ptr< TGNumberEntry > fNumberEntryStep;
+  std::unique_ptr< TGNumberEntry > fNumberEntryEventNo;
+  std::unique_ptr< TGHProgressBar > fProgBar;
+  std::unique_ptr< TGLabel > fInputInfo;
 
-  std::unique_ptr<TGFileInfo> fFileInfo =
-      std::unique_ptr<TGFileInfo>(new TGFileInfo);
+  std::unique_ptr< TGFileInfo > fFileInfo =
+      std::unique_ptr< TGFileInfo >(new TGFileInfo);
 #endif
 };
 }
