@@ -238,7 +238,7 @@ void GeometryVisualizator::setVisibility2d(
 
 void GeometryVisualizator::drawStrips(const ScintillatorsInLayers &selection)
 {
-  // setAllStripsUnvisible();
+  setAllStripsUnvisible();
   setAllStripsUnvisible2d();
   if (selection.empty())
     return;
@@ -268,7 +268,7 @@ void GeometryVisualizator::setVisibility(const ScintillatorsInLayers &selection)
       strip = *stripIter;
       nodeStrip = nodeLayer->GetDaughter(strip - 1);
       assert(nodeStrip);
-      nodeStrip->SetVisibility(kTRUE);
+      nodeStrip->GetVolume()->SetLineColor(kRed);
     }
   }
 }
@@ -386,7 +386,7 @@ void GeometryVisualizator::setAllStripsUnvisible()
     for (int j = 0; j < fNumberOfStrips; j++)
     {
       TGeoNode *stripNode = node->GetDaughter(j);
-      stripNode->SetVisibility(kFALSE);
+      stripNode->GetVolume()->SetLineColor(kBlack);
     }
   }
 }
@@ -564,7 +564,6 @@ void GeometryVisualizator::createGeometry(
     layers.push_back(layer);
   }
 
-  TGeoVolume *scin = gGeoManager->MakeTube("scin", medium, 0, 0.7, 50);
   TGeoVolume *vol = 0;
   char nameOfLayer[100];
   int i = 0;
@@ -581,6 +580,8 @@ void GeometryVisualizator::createGeometry(
     currentFi = startFi[i];
     for (int j = 0; j < layerStats[i].first; j++)
     {
+      TGeoVolume *scin = gGeoManager->MakeTube("scin", medium, 0, 0.7, 50);
+      scin->SetLineWidth(5);
       vol->AddNode(
           scin, j,
           new TGeoTranslation(
@@ -594,5 +595,6 @@ void GeometryVisualizator::createGeometry(
   }
   fGeoManager->CloseGeometry();
   fGeoManager->SetVisLevel(0);
+  fGeoManager->Export("tt.root");
 }
 }
