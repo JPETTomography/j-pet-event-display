@@ -37,10 +37,12 @@ void DataProcessor::getDataForCurrentEvent()
   {
   case FileTypes::fTimeWindow:
     getActiveScintillators(getCurrentEvent< JPetTimeWindow >());
+    ProcessedData::getInstance().addToInfo(currentActivedScintillatorsInfo());
     break;
   case FileTypes::fRawSignal:
     getActiveScintillators(getCurrentEvent< JPetRawSignal >());
     getDataForDiagram(getCurrentEvent< JPetRawSignal >());
+    ProcessedData::getInstance().addToInfo(currentActivedScintillatorsInfo());
     break;
   case FileTypes::fHit:
     getActiveScintillators(getCurrentEvent< JPetHit >());
@@ -60,6 +62,25 @@ void DataProcessor::getDataForCurrentEvent()
 template < typename T > const T &DataProcessor::getCurrentEvent()
 {
   return dynamic_cast< T & >(fReader.getCurrentEvent());
+}
+
+std::string DataProcessor::currentActivedScintillatorsInfo()
+{
+  std::ostringstream oss;
+  for (auto iter =
+           ProcessedData::getInstance().getActivedScintilators().begin();
+       iter != ProcessedData::getInstance().getActivedScintilators().end();
+       ++iter)
+  {
+    int layer = iter->first;
+    const std::vector< size_t > &strips = iter->second;
+    for (auto stripIter = strips.begin(); stripIter != strips.end();
+         ++stripIter)
+    {
+      oss << "layer: " << layer << " scin: " << *stripIter << "\n";
+    }
+  }
+  return oss.str();
 }
 
 void DataProcessor::getActiveScintillators(const JPetTimeWindow &tWindow)
@@ -204,17 +225,24 @@ DiagramDataMap DataProcessor::getDataForDiagram(const JPetRawSignal &rawSignal,
                                                 bool)
 {
   DiagramDataMap r;
+  StripPos pos = fMapper->getStripPos(
+      rawSignal.getPoints(JPetSigCh::Leading)[0].getPM().getBarrelSlot());
   auto data = rawSignal.getTimesVsThresholdValue(JPetSigCh::Leading);
   for (auto it = data.begin(); it != data.end(); it++)
   {
-    r.push_back(std::make_tuple(it->first, it->second.first, it->second.second,
-                                JPetSigCh::Leading));
+
+    r.push_back(std::make_tuple(
+        it->first, it->second.first, it->second.second, JPetSigCh::Leading,
+        rawSignal.getPoints(JPetSigCh::Leading)[0].getPM().getSide(), pos.layer,
+        pos.slot));
   }
   auto tmp = rawSignal.getTimesVsThresholdValue(JPetSigCh::Trailing);
   for (auto it = tmp.begin(); it != tmp.end(); it++)
   {
-    r.push_back(std::make_tuple(it->first, it->second.first, it->second.second,
-                                JPetSigCh::Trailing));
+    r.push_back(std::make_tuple(
+        it->first, it->second.first, it->second.second, JPetSigCh::Trailing,
+        rawSignal.getPoints(JPetSigCh::Trailing)[0].getPM().getSide(),
+        pos.layer, pos.slot));
   }
   return r;
 }
@@ -234,17 +262,49 @@ void DataProcessor::getDataForDiagram(const JPetHit &hitSignal)
   rv.push_back(getDataForDiagram(
       hitSignal.getSignalB().getRecoSignal().getRawSignal(), true));
   ProcessedData::getInstance().setDiagram(rv);
+
+  StripPos pos = fMapper->getStripPos(hitSignal.getSignalA()
+                                          .getRecoSignal()
+                                          .getRawSignal()
+                                          .getPoints(JPetSigCh::Leading)[0]
+                                          .getPM()
+                                          .getBarrelSlot());
+
+  std::ostringstream oss;
+  oss << "layer: " << pos.layer << " scin: " << pos.slot
+      << " x: " << hitSignal.getPosX() << " y: " << hitSignal.getPosY()
+      << " z: " << hitSignal.getPosZ() << "\n";
+  ProcessedData::getInstance().addToInfo(oss.str());
 }
 
 void DataProcessor::getDataForDiagram(const JPetEvent &event)
 {
   DiagramDataMapVector rv;
+  if (event.getHits().size() < 1)
+    return;
   for (JPetHit hit : event.getHits())
   {
     rv.push_back(getDataForDiagram(
         hit.getSignalA().getRecoSignal().getRawSignal(), true));
     rv.push_back(getDataForDiagram(
         hit.getSignalB().getRecoSignal().getRawSignal(), true));
+
+    StripPos pos = fMapper->getStripPos(hit.getSignalA()
+                                            .getRecoSignal()
+                                            .getRawSignal()
+                                            .getPoints(JPetSigCh::Leading)[0]
+                                            .getPM()
+                                            .getBarrelSlot());
+    double r =
+        sqrt(hit.getPosX() * hit.getPosX() + hit.getPosY() * hit.getPosY());
+    double fi = hit.getPosX() >= 0 ? asin(hit.getPosY() / r)
+                                   : -asin(hit.getPosY() / r) + M_PI;
+    std::ostringstream oss;
+    oss << "layer: " << pos.layer << " scin: " << pos.slot
+        << " x: " << hit.getPosX() << " y: " << hit.getPosY()
+        << " z: " << hit.getPosZ() << "\n"
+        << "r: " << r << " theta: " << (fi * 180.0) / M_PI << "\n";
+    ProcessedData::getInstance().addToInfo(oss.str());
   }
   ProcessedData::getInstance().setDiagram(rv);
 }

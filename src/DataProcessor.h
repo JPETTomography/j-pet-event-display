@@ -24,6 +24,7 @@
 #include <JPetGeomMapping/JPetGeomMapping.h>
 #include <JPetGeomMappingInterface/JPetGeomMappingInterface.h>
 #include <JPetHit/JPetHit.h>
+#include <JPetPM/JPetPM.h>
 #include <JPetParamBank/JPetParamBank.h>
 #include <JPetParamGetterAscii/JPetParamGetterAscii.h>
 #include <JPetParamManager/JPetParamManager.h>
@@ -49,10 +50,12 @@ enum FileTypes
 
 typedef std::map< size_t, std::vector< size_t > >
     ScintillatorsInLayers; // layer, scinID, hitPos
-typedef std::vector< std::tuple< int, float, float, JPetSigCh::EdgeType > >
-    DiagramDataMap;
+typedef std::vector< std::tuple< int, float, float, JPetSigCh::EdgeType,
+                                 JPetPM::Side, size_t, size_t > >
+    DiagramDataMap; // threshold number, thresholdValue, time, EdgeType, Side,
+                    // layer, scin
 // typedef std::map<int, std::tuple<float, float, JPetSigCh::EdgeType>>
-//    DiagramDataMap; //threshold number, thresholdValue, time, EdgeType
+//    DiagramDataMap;
 typedef std::vector< DiagramDataMap > DiagramDataMapVector;
 typedef std::vector< TVector3 > HitPositions; // rename
 
@@ -74,6 +77,7 @@ public:
     fActivedScins.clear();
     fDiagram.clear();
     fHits.clear();
+    fInfo.clear();
   }
 
   void setActivedScins(ScintillatorsInLayers scins) { fActivedScins = scins; }
@@ -89,25 +93,14 @@ public:
   inline DiagramDataMapVector &getDiagramData() { return fDiagram; }
   inline HitPositions &getHits() { return fHits; }
 
-  const std::string getActivedScintilatorsString()
-  {
-    std::ostringstream oss;
-    for (auto iter = fActivedScins.begin(); iter != fActivedScins.end(); ++iter)
-    {
-      int layer = iter->first;
-      const std::vector< size_t > &strips = iter->second;
-      for (auto stripIter = strips.begin(); stripIter != strips.end();
-           ++stripIter)
-      {
-        oss << "layer: " << layer << " scin: " << *stripIter << "\n";
-      }
-    }
-    return oss.str();
-  }
+  inline void addToInfo(const std::string &str) { fInfo += str; }
+
+  const std::string &getInfo() { return fInfo; }
 
 private:
   ProcessedData() {}
 
+  std::string fInfo;
   ScintillatorsInLayers fActivedScins;
   DiagramDataMapVector fDiagram;
   HitPositions fHits; // rename
@@ -136,6 +129,7 @@ private:
   void getActiveScintillators(const JPetRawSignal &rawSignal);
   void getActiveScintillators(const JPetHit &hitSignal);
   void getActiveScintillators(const JPetEvent &event);
+  std::string currentActivedScintillatorsInfo();
 
   DiagramDataMap getDataForDiagram(const JPetRawSignal &rawSignal, bool);
   // void getDataForDiagram(const JPetTimeWindow &tWindow);
