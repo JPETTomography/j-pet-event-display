@@ -100,10 +100,14 @@ private:
   void setAllStripsUnvisible2d();
   void setVisibility(const ScintillatorsInLayers &selection);
   void setVisibility2d(const ScintillatorsInLayers &selection);
+  void setMarker2d(const HitPositions &pos,
+                   const ScintillatorsInLayers &selection);
 
   void drawLineBetweenActivedScins(const HitPositions &pos);
   void drawMarkers(const HitPositions &pos);
   void drawDiagram(const DiagramDataMapVector &diagramData);
+  void reverseYAxis(TGraph *g);
+  double changeSignalNumber(int signalNumber);
 
   void draw2dGeometry2();
 

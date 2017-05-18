@@ -41,6 +41,8 @@ void GeometryVisualizator::drawData()
   drawDiagram(ProcessedData::getInstance().getDiagramData());
   drawLineBetweenActivedScins(ProcessedData::getInstance().getHits());
   drawMarkers(ProcessedData::getInstance().getHits());
+  setMarker2d(ProcessedData::getInstance().getHits(),
+              ProcessedData::getInstance().getActivedScintilators());
 
   updateCanvas(fCanvas3d);
   updateCanvas(fCanvas2d);
@@ -73,7 +75,7 @@ void GeometryVisualizator::showGeometry()
         std::unique_ptr< TCanvas >(fRootCanvasDiagrams->GetCanvas());
 
   draw2dGeometry();
-  setAllStripsUnvisible();
+  // setAllStripsUnvisible();
   // setAllStripsUnvisible2d();
 
   draw2dGeometry2();
@@ -154,10 +156,11 @@ void GeometryVisualizator::setAllStripsUnvisible2d()
   fCanvas2d->Update();
 }
 
-void GeometryVisualizator::setVisibility2d(
-    const ScintillatorsInLayers &selection)
+void GeometryVisualizator::setMarker2d(const HitPositions &pos,
+                                       const ScintillatorsInLayers &selection)
 {
   fCanvas2d->cd();
+
   if (!fSaveMarkersAndLinesBetweenEvents)
   {
     for (TMarker *marker : fUnRolledViewMarker)
@@ -167,6 +170,55 @@ void GeometryVisualizator::setVisibility2d(
     }
     fUnRolledViewMarker.clear();
   }
+
+  static const double centerOfScintillator = 25;
+  int i = 0;
+  for (auto iter = selection.begin(); iter != selection.end(); ++iter)
+  {
+    unsigned int layer = iter->first - 1; // table start form 0, layers from 1
+    const std::vector< size_t > &strips = iter->second;
+    for (auto stripIter = strips.begin(); stripIter != strips.end();
+         ++stripIter)
+    {
+      unsigned int strip = *stripIter - 1;
+      if (layer < fUnRolledViewScintillators.size() &&
+          strip < fUnRolledViewScintillators[layer].size())
+      {
+        double drawedScintillatorLength =
+            fUnRolledViewScintillators[layer][strip]->GetX2() -
+            fUnRolledViewScintillators[layer][strip]->GetX1();
+        double drawedScintillatorCenter = drawedScintillatorLength / 2;
+        double z = pos[i].Z() < centerOfScintillator &&
+                           pos[i].Z() > -centerOfScintillator
+                       ? pos[i].Z()
+                       : pos[i].Z() < centerOfScintillator
+                             ? -centerOfScintillator
+                             : centerOfScintillator;
+        double hittedXPos =
+            (drawedScintillatorCenter * z) / centerOfScintillator;
+        double centerX = fUnRolledViewScintillators[layer][strip]->GetX1() +
+                         ((fUnRolledViewScintillators[layer][strip]->GetX2() -
+                           fUnRolledViewScintillators[layer][strip]->GetX1()) /
+                          2);
+        double centerY = fUnRolledViewScintillators[layer][strip]->GetY1() +
+                         ((fUnRolledViewScintillators[layer][strip]->GetY2() -
+                           fUnRolledViewScintillators[layer][strip]->GetY1()) /
+                          2);
+        TMarker *marker = new TMarker(centerX + hittedXPos, centerY, 3);
+        marker->SetMarkerColor(2);
+        marker->SetMarkerSize(3);
+        marker->Draw();
+        fUnRolledViewMarker.push_back(marker);
+        i++;
+      }
+    }
+  }
+}
+
+void GeometryVisualizator::setVisibility2d(
+    const ScintillatorsInLayers &selection)
+{
+  fCanvas2d->cd();
   for (auto iter = selection.begin(); iter != selection.end(); ++iter)
   {
     unsigned int layer = iter->first - 1; // table start form 0, layers from 1
@@ -179,33 +231,14 @@ void GeometryVisualizator::setVisibility2d(
           strip < fUnRolledViewScintillators[layer].size())
       {
         fUnRolledViewScintillators[layer][strip]->SetFillColor(2);
-        // double scaledScinLenght =
-        //    allScintilatorsCanv[layer][strip].image->GetX2() -
-        //    allScintilatorsCanv[layer][strip].image->GetX1();
-        // double scale = scaledScinLenght / fScinLenghtWithoutScale;
-        double centerX = fUnRolledViewScintillators[layer][strip]->GetX1() +
-                         ((fUnRolledViewScintillators[layer][strip]->GetX2() -
-                           fUnRolledViewScintillators[layer][strip]->GetX1()) /
-                          2);
-        double centerY = fUnRolledViewScintillators[layer][strip]->GetY1() +
-                         ((fUnRolledViewScintillators[layer][strip]->GetY2() -
-                           fUnRolledViewScintillators[layer][strip]->GetY1()) /
-                          2);
-        TMarker *marker = new TMarker(centerX, centerY, 3);
-        marker->SetMarkerColor(2);
-        marker->SetMarkerSize(3);
-        marker->Draw();
-        fUnRolledViewMarker.push_back(marker);
       }
     }
   }
-  fCanvas2d->Modified();
-  fCanvas2d->Update();
 }
 
 void GeometryVisualizator::drawStrips(const ScintillatorsInLayers &selection)
 {
-  setAllStripsUnvisible();
+  // setAllStripsUnvisible();
   setAllStripsUnvisible2d();
   if (selection.empty())
     return;
@@ -265,12 +298,12 @@ void GeometryVisualizator::drawMarkers(const HitPositions &pos)
     fLineOnTopView.back()->SetLineWidth(2);
     fLineOnTopView.back()->SetLineColor(kRed);
     fLineOnTopView.back()->SetLineStyle(4);
-    fLineOnTopView.back()->SetNextPoint(pos[i].Y(), pos[i].X());
+    fLineOnTopView.back()->SetNextPoint(pos[i].X(), pos[i].Y());
 
     fMarkerOnTopView.back()->SetMarkerSize(2);
-    fMarkerOnTopView.back()->SetMarkerColor(kBlack);
+    fMarkerOnTopView.back()->SetMarkerColor(kGreen);
     fMarkerOnTopView.back()->SetMarkerStyle(2);
-    fMarkerOnTopView.back()->SetNextPoint(pos[i].Y(), pos[i].X());
+    fMarkerOnTopView.back()->SetNextPoint(pos[i].X(), pos[i].Y());
   }
   fLineOnTopView.back()->Draw();
   fMarkerOnTopView.back()->Draw();
@@ -298,15 +331,19 @@ void GeometryVisualizator::drawLineBetweenActivedScins(const HitPositions &pos)
   fMarkerOn3dView.push_back(new TPolyMarker3D());
   for (unsigned int i = 0; i < pos.size(); i++)
   {
+    double x = pos[i].X();
+    double y = pos[i].Y();
+    double z = pos[i].Z() < 25 && pos[i].Z() > -25 ? pos[i].Z()
+                                                   : pos[i].Z() < 25 ? -25 : 25;
     fLineOn3dView.back()->SetLineWidth(2);
     fLineOn3dView.back()->SetLineColor(kRed);
     fLineOn3dView.back()->SetLineStyle(4);
-    fLineOn3dView.back()->SetNextPoint(pos[i].Y(), pos[i].X(), pos[i].Z());
+    fLineOn3dView.back()->SetNextPoint(x, y, z);
 
     fMarkerOn3dView.back()->SetMarkerSize(2);
-    fMarkerOn3dView.back()->SetMarkerColor(kBlack);
+    fMarkerOn3dView.back()->SetMarkerColor(kGreen);
     fMarkerOn3dView.back()->SetMarkerStyle(2);
-    fMarkerOn3dView.back()->SetNextPoint(pos[i].Y(), pos[i].X(), pos[i].Z());
+    fMarkerOn3dView.back()->SetNextPoint(x, y, z);
   }
   fLineOn3dView.back()->Draw();
   fMarkerOn3dView.back()->Draw();
@@ -371,6 +408,7 @@ void GeometryVisualizator::drawDiagram(const DiagramDataMapVector &diagramData)
     fCanvasDiagrams->Clear();
     fCanvasDiagrams->DivideSquare(vectorSize);
   }
+
   for (int j = 0; j < vectorSize; j++)
   {
     fCanvasDiagrams->cd(j + 1);
@@ -379,16 +417,36 @@ void GeometryVisualizator::drawDiagram(const DiagramDataMapVector &diagramData)
       return;
     double x[n], y[n];
     int i = 0;
+    // double minValue = 9999999;
     for (auto it = diagramData[j].begin(); it != diagramData[j].end(); it++)
     {
-      y[i] = static_cast< double >(std::get< 0 >(*it));
+      y[i] = changeSignalNumber(std::get< 0 >(*it));
       x[i] = static_cast< double >(std::get< 2 >(*it));
+      // if (x[i] < minValue)
+      //  minValue = x[i];
       i++;
     }
+
     TGraph *gr = new TGraph(n, x, y);
+    std::string title = "layer ";
+    title.append(std::to_string(std::get< 5 >(*diagramData[j].begin())));
+    title.append(" slot ");
+    title.append(std::to_string(std::get< 6 >(*diagramData[j].begin())));
+    if (std::get< 4 >(*diagramData[j].begin()) == JPetPM::SideA)
+      title.append(" Side A");
+    else
+      title.append(" Side B");
+    gr->SetTitle(title.c_str());
     gr->GetXaxis()->SetTitle("Time");
+    // gr->GetXaxis()->SetLimits(minValue - 10, minValue + 20);
     gr->GetYaxis()->SetTitle("Threshold Number");
+    gr->GetYaxis()->SetRangeUser(0, 5);
     gr->Draw("AP*");
+
+    gr->GetYaxis()->SetLabelOffset(999);
+    gr->GetYaxis()->SetTickLength(0);
+    // reverseYAxis(gr);
+
     for (int k = 0; k < 4; k++)
     {
       TLine *line = new TLine(gr->GetXaxis()->GetXmin(), k + 1,
@@ -397,6 +455,35 @@ void GeometryVisualizator::drawDiagram(const DiagramDataMapVector &diagramData)
       line->Draw();
     }
   }
+}
+
+double
+GeometryVisualizator::changeSignalNumber(int signalNumber) // change this...
+{
+  // std::cout << "signalNumber: " << signalNumber << "\n";
+  if (signalNumber == 4)
+    return 1.;
+  if (signalNumber == 3)
+    return 2.;
+  if (signalNumber == 2)
+    return 3.;
+  if (signalNumber == 1)
+    return 4.;
+}
+
+void GeometryVisualizator::reverseYAxis(TGraph *g)
+{
+  // Remove the current axis
+  g->GetYaxis()->SetLabelOffset(999);
+  g->GetYaxis()->SetTickLength(0);
+
+  gPad->Update();
+  TGaxis *newaxis =
+      new TGaxis(gPad->GetUxmin(), gPad->GetUymax(), gPad->GetUxmin() - 0.001,
+                 gPad->GetUymin(), g->GetYaxis()->GetXmin(),
+                 g->GetYaxis()->GetXmax(), 510, "+");
+  newaxis->SetLabelOffset(-0.03);
+  newaxis->Draw();
 }
 
 void GeometryVisualizator::createGeometry(
@@ -440,11 +527,13 @@ void GeometryVisualizator::createGeometry(
     layers.push_back(layer);
   }
 
+  TGeoVolume *scin = gGeoManager->MakeTube("scin", medium, 0, 0.7, 50);
   TGeoVolume *vol = 0;
-
-  int volNr = 0;
-  int i = 0;
   char nameOfLayer[100];
+  int i = 0;
+  int volNr = 0;
+  double startFi[]{0, 3.75, 1.875};
+  double currentFi = 0;
   for (TGeoTube *layer : layers)
   {
     sprintf(nameOfLayer, "layer_%d", i + 1);
@@ -452,23 +541,21 @@ void GeometryVisualizator::createGeometry(
     assert(vol);
     vol->SetVisibility(kTRUE);
     vol->SetLineColor(kBlack);
-
-    vol->Divide("XStrip", 2, layerStats[i].first, 0, 0, 1);
-    TObjArray *array = vol->GetNodes();
-    assert(array);
-    TGeoNode *strip = 0;
-    TIter iter(array);
-    while ((strip = static_cast< TGeoNode * >(iter.Next())) != 0)
+    currentFi = startFi[i];
+    for (int j = 0; j < layerStats[i].first; j++)
     {
-      strip->GetVolume()->SetLineColor(kRed);
-      strip->SetVisibility(kTRUE);
+      vol->AddNode(
+          scin, j,
+          new TGeoTranslation(
+              layerStats[i].second * std::cos(currentFi * (M_PI / 180)),
+              layerStats[i].second * std::sin(currentFi * (M_PI / 180)), 0));
+      currentFi += 360. / layerStats[i].first;
     }
     volNr = top->GetNtotal() + 1;
     top->AddNode(vol, volNr, rotation);
     i++;
   }
-  fGeoManager->GetMasterVolume()->SetVisContainers(kTRUE);
   fGeoManager->CloseGeometry();
-  fGeoManager->SetVisLevel(4);
+  fGeoManager->SetVisLevel(0);
 }
 }
