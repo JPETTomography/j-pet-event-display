@@ -99,9 +99,9 @@ void EventDisplay::CreateDisplayFrame(TGGroupFrame *parentFrame)
 
   AddTab(fDisplayTabView, visualizator->getCanvas3d(), "3d view",
          "3dViewCanvas");
-  AddTab(fDisplayTabView, visualizator->getCanvas2d(), "2d view",
+  AddTab(fDisplayTabView, visualizator->getCanvas2d(), "Unrolled view",
          "2dViewCanvas");
-  AddTab(fDisplayTabView, visualizator->getCanvasTopView(), "top view",
+  AddTab(fDisplayTabView, visualizator->getCanvasTopView(), "Front view",
          "canvasTopView");
   AddTab(fDisplayTabView, visualizator->getCanvasDiagrams(), "Diagram view",
          "diagramCanvas");

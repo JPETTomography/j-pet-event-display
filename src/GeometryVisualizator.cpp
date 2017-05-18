@@ -419,9 +419,6 @@ void GeometryVisualizator::drawDiagram(const DiagramDataMapVector &diagramData)
     std::vector< float > leadingY;
     std::vector< float > trailingX;
     std::vector< float > trailingY;
-    // double x[n], y[n];
-    // int i = 0;
-    // double minValue = 9999999;
     double changePsToNs = 0.001;
     for (auto it = diagramData[j].begin(); it != diagramData[j].end(); it++)
     {
@@ -437,9 +434,6 @@ void GeometryVisualizator::drawDiagram(const DiagramDataMapVector &diagramData)
                             changePsToNs);
         trailingY.push_back(changeSignalNumber(std::get< 0 >(*it)));
       }
-      // if (x[i] < minValue)
-      //  minValue = x[i];
-      // i++;
     }
     TMultiGraph *mg = new TMultiGraph();
 
@@ -457,9 +451,6 @@ void GeometryVisualizator::drawDiagram(const DiagramDataMapVector &diagramData)
     {
       TGraph *gr =
           new TGraph(leadingX.size(), leadingX.data(), leadingY.data());
-      gr->GetXaxis()->SetTitle("Time");
-      // gr->GetXaxis()->SetLimits(minValue - 10, minValue + 20);
-      gr->GetYaxis()->SetTitle("Threshold Number");
       mg->Add(gr);
     }
 
@@ -467,21 +458,20 @@ void GeometryVisualizator::drawDiagram(const DiagramDataMapVector &diagramData)
     {
       TGraph *gr2 =
           new TGraph(trailingX.size(), trailingX.data(), trailingY.data());
-      gr2->GetXaxis()->SetTitle("Time");
-      gr2->GetYaxis()->SetTitle("Threshold Number");
       gr2->SetMarkerColor(kRed);
 
       mg->Add(gr2);
     }
 
     mg->Draw("AP*");
+    mg->GetYaxis()->SetLabelOffset(999);
+    mg->GetYaxis()->SetTickLength(0);
     mg->GetYaxis()->SetRangeUser(0, 5);
-
     mg->GetXaxis()->SetLimits(mg->GetXaxis()->GetXmin(),
                               mg->GetXaxis()->GetXmax());
     mg->GetXaxis()->SetNdivisions(504, kFALSE);
-    mg->GetYaxis()->SetLabelOffset(999);
-    mg->GetYaxis()->SetTickLength(0);
+    mg->GetXaxis()->SetTitle("Time");
+    mg->GetYaxis()->SetTitle("Threshold Number");
 
     for (int k = 0; k < 4; k++)
     {
