@@ -480,8 +480,8 @@ void GeometryVisualizator::drawDiagram(const DiagramDataMapVector &diagramData)
     mg->GetXaxis()->SetLimits(mg->GetXaxis()->GetXmin(),
                               mg->GetXaxis()->GetXmax());
     mg->GetXaxis()->SetNdivisions(504, kFALSE);
-    // mg->GetYaxis()->SetLabelOffset(999);
-    // mg->GetYaxis()->SetTickLength(0);
+    mg->GetYaxis()->SetLabelOffset(999);
+    mg->GetYaxis()->SetTickLength(0);
 
     for (int k = 0; k < 4; k++)
     {
