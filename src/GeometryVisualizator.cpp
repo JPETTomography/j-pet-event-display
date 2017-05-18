@@ -415,19 +415,34 @@ void GeometryVisualizator::drawDiagram(const DiagramDataMapVector &diagramData)
     int n = diagramData[j].size();
     if (n == 0)
       return;
-    double x[n], y[n];
-    int i = 0;
+    std::vector< float > leadingX;
+    std::vector< float > leadingY;
+    std::vector< float > trailingX;
+    std::vector< float > trailingY;
+    // double x[n], y[n];
+    // int i = 0;
     // double minValue = 9999999;
+    double changePsToNs = 0.001;
     for (auto it = diagramData[j].begin(); it != diagramData[j].end(); it++)
     {
-      y[i] = changeSignalNumber(std::get< 0 >(*it));
-      x[i] = static_cast< double >(std::get< 2 >(*it));
+      if (std::get< 3 >(*it) == JPetSigCh::Leading)
+      {
+        leadingX.push_back(static_cast< double >(std::get< 2 >(*it)) *
+                           changePsToNs);
+        leadingY.push_back(changeSignalNumber(std::get< 0 >(*it)));
+      }
+      else
+      {
+        trailingX.push_back(static_cast< double >(std::get< 2 >(*it)) *
+                            changePsToNs);
+        trailingY.push_back(changeSignalNumber(std::get< 0 >(*it)));
+      }
       // if (x[i] < minValue)
       //  minValue = x[i];
-      i++;
+      // i++;
     }
+    TMultiGraph *mg = new TMultiGraph();
 
-    TGraph *gr = new TGraph(n, x, y);
     std::string title = "layer ";
     title.append(std::to_string(std::get< 5 >(*diagramData[j].begin())));
     title.append(" slot ");
@@ -436,21 +451,42 @@ void GeometryVisualizator::drawDiagram(const DiagramDataMapVector &diagramData)
       title.append(" Side A");
     else
       title.append(" Side B");
-    gr->SetTitle(title.c_str());
-    gr->GetXaxis()->SetTitle("Time");
-    // gr->GetXaxis()->SetLimits(minValue - 10, minValue + 20);
-    gr->GetYaxis()->SetTitle("Threshold Number");
-    gr->GetYaxis()->SetRangeUser(0, 5);
-    gr->Draw("AP*");
+    mg->SetTitle(title.c_str());
 
-    gr->GetYaxis()->SetLabelOffset(999);
-    gr->GetYaxis()->SetTickLength(0);
-    // reverseYAxis(gr);
+    if (leadingX.size() > 0)
+    {
+      TGraph *gr =
+          new TGraph(leadingX.size(), leadingX.data(), leadingY.data());
+      gr->GetXaxis()->SetTitle("Time");
+      // gr->GetXaxis()->SetLimits(minValue - 10, minValue + 20);
+      gr->GetYaxis()->SetTitle("Threshold Number");
+      mg->Add(gr);
+    }
+
+    if (trailingX.size() > 0)
+    {
+      TGraph *gr2 =
+          new TGraph(trailingX.size(), trailingX.data(), trailingY.data());
+      gr2->GetXaxis()->SetTitle("Time");
+      gr2->GetYaxis()->SetTitle("Threshold Number");
+      gr2->SetMarkerColor(kRed);
+
+      mg->Add(gr2);
+    }
+
+    mg->Draw("AP*");
+    mg->GetYaxis()->SetRangeUser(0, 5);
+
+    mg->GetXaxis()->SetLimits(mg->GetXaxis()->GetXmin(),
+                              mg->GetXaxis()->GetXmax());
+    mg->GetXaxis()->SetNdivisions(504, kFALSE);
+    // mg->GetYaxis()->SetLabelOffset(999);
+    // mg->GetYaxis()->SetTickLength(0);
 
     for (int k = 0; k < 4; k++)
     {
-      TLine *line = new TLine(gr->GetXaxis()->GetXmin(), k + 1,
-                              gr->GetXaxis()->GetXmax(), k + 1);
+      TLine *line = new TLine(mg->GetXaxis()->GetXmin(), k + 1,
+                              mg->GetXaxis()->GetXmax(), k + 1);
       line->SetLineColor(kRed);
       line->Draw();
     }
@@ -469,6 +505,7 @@ GeometryVisualizator::changeSignalNumber(int signalNumber) // change this...
     return 3.;
   if (signalNumber == 1)
     return 4.;
+  return 0.;
 }
 
 void GeometryVisualizator::reverseYAxis(TGraph *g)
