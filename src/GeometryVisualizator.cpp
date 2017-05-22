@@ -351,7 +351,8 @@ void GeometryVisualizator::drawLineBetweenActivedScins(const HitPositions &pos)
 
 void GeometryVisualizator::draw2dGeometry2()
 {
-  const double canvasRange = 100;
+  const double canvasRange = 60;
+  const double axisPos = 59;
   fCanvasTopView->cd();
   fCanvasTopView->Range(-canvasRange, -canvasRange, canvasRange, canvasRange);
   TEllipse *thirdLayerCircle = new TEllipse(0, 0, 57.5, 57.5);
@@ -361,12 +362,16 @@ void GeometryVisualizator::draw2dGeometry2()
   TEllipse *firstLayerCircle = new TEllipse(0, 0, 42.5, 42.5);
   firstLayerCircle->Draw();
 
-  TGaxis *axisX = new TGaxis(-57.5, 0, 57.5, 0, -57.5, 57.5, 50510, "");
+  TGaxis *axisX =
+      new TGaxis(-57.5, axisPos, 57.5, axisPos, -57.5, 57.5, 50510, "");
   axisX->SetName("axisX");
+  axisX->SetLabelSize(0.02);
   axisX->Draw();
 
-  TGaxis *axisY = new TGaxis(0, -57.5, 0, 57.5, -57.5, 57.5, 50510, "");
+  TGaxis *axisY =
+      new TGaxis(axisPos, -57.5, axisPos, 57.5, -57.5, 57.5, 50510, "");
   axisY->SetName("axisY");
+  axisY->SetLabelSize(0.02);
   axisY->Draw();
 }
 
@@ -386,7 +391,7 @@ void GeometryVisualizator::setAllStripsUnvisible()
     for (int j = 0; j < fNumberOfStrips; j++)
     {
       TGeoNode *stripNode = node->GetDaughter(j);
-      stripNode->GetVolume()->SetLineColor(kBlack);
+      stripNode->GetVolume()->SetLineColor(layersColors[i]);
     }
   }
 }
@@ -419,18 +424,18 @@ void GeometryVisualizator::drawDiagram(const DiagramDataMapVector &diagramData)
     std::vector< float > leadingY;
     std::vector< float > trailingX;
     std::vector< float > trailingY;
-    double changePsToNs = 0.001;
+    const float changePsToNs = 0.001;
     for (auto it = diagramData[j].begin(); it != diagramData[j].end(); it++)
     {
       if (std::get< 3 >(*it) == JPetSigCh::Leading)
       {
-        leadingX.push_back(static_cast< double >(std::get< 2 >(*it)) *
+        leadingX.push_back(static_cast< float >(std::get< 2 >(*it)) *
                            changePsToNs);
         leadingY.push_back(changeSignalNumber(std::get< 0 >(*it)));
       }
       else
       {
-        trailingX.push_back(static_cast< double >(std::get< 2 >(*it)) *
+        trailingX.push_back(static_cast< float >(std::get< 2 >(*it)) *
                             changePsToNs);
         trailingY.push_back(changeSignalNumber(std::get< 0 >(*it)));
       }
@@ -467,10 +472,11 @@ void GeometryVisualizator::drawDiagram(const DiagramDataMapVector &diagramData)
     mg->GetYaxis()->SetLabelOffset(999);
     mg->GetYaxis()->SetTickLength(0);
     mg->GetYaxis()->SetRangeUser(0, 5);
-    mg->GetXaxis()->SetLimits(mg->GetXaxis()->GetXmin(),
-                              mg->GetXaxis()->GetXmax());
+    mg->GetXaxis()->SetLimits(0, 50);
+    // mg->GetXaxis()->SetLimits(mg->GetXaxis()->GetXmin() - 10 * 1000,
+    //                          mg->GetXaxis()->GetXmin() + 20 * 1000);
     mg->GetXaxis()->SetNdivisions(504, kFALSE);
-    mg->GetXaxis()->SetTitle("Time");
+    mg->GetXaxis()->SetTitle("Time (ns)");
     mg->GetYaxis()->SetTitle("Threshold Number");
 
     for (int k = 0; k < 4; k++)
@@ -483,8 +489,8 @@ void GeometryVisualizator::drawDiagram(const DiagramDataMapVector &diagramData)
   }
 }
 
-double
-GeometryVisualizator::changeSignalNumber(int signalNumber) // change this...
+float GeometryVisualizator::changeSignalNumber(
+    int signalNumber) // change this...
 {
   // std::cout << "signalNumber: " << signalNumber << "\n";
   if (signalNumber == 4)
@@ -566,12 +572,14 @@ void GeometryVisualizator::createGeometry(
     vol = new TGeoVolume(nameOfLayer, layer, medium);
     assert(vol);
     vol->SetVisibility(kTRUE);
-    vol->SetLineColor(kBlack);
     currentFi = startFi[i];
     for (int j = 0; j < layerStats[i].first; j++)
     {
       TGeoVolume *scin = gGeoManager->MakeTube("scin", medium, 0, 0.7, 50);
       scin->SetLineWidth(5);
+      // scin->SetLineColor(layersColors[i]);
+
+      scin->SetLineColorAlpha(layersColors[i], 0.3);
       vol->AddNode(
           scin, j,
           new TGeoTranslation(

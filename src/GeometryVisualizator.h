@@ -107,7 +107,7 @@ private:
   void drawMarkers(const HitPositions &pos);
   void drawDiagram(const DiagramDataMapVector &diagramData);
   void reverseYAxis(TGraph *g);
-  double changeSignalNumber(int signalNumber);
+  float changeSignalNumber(int signalNumber);
 
   void draw2dGeometry2();
 
@@ -116,7 +116,10 @@ private:
     kBlack = 1,
     kRed = 2,
     kBlue = 34,
-    kGreen = 30
+    kGreen = 30,
+    kGray1 = 921,
+    kGray2 = 922,
+    kGray3 = 923,
   };
   std::unique_ptr< TGeoManager > fGeoManager;
   std::unique_ptr< TRootEmbeddedCanvas > fRootCanvas3d;
@@ -142,6 +145,7 @@ private:
 
   std::vector< std::vector< TBox * > > fUnRolledViewScintillators;
   std::vector< TMarker * > fUnRolledViewMarker;
+  ColorTable layersColors[3]{kGray1, kGray2, kGray3};
 #endif
 
   /*struct ScintillatorCanv
