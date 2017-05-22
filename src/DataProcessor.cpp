@@ -237,7 +237,7 @@ DiagramDataMap DataProcessor::getDataForDiagram(const JPetRawSignal &rawSignal,
     if (diff[i] > 0)
       diff[i] = -diff[i];
     r.push_back(std::make_tuple(
-        it->first, it->second.first, startPos, JPetSigCh::Leading,
+        it->first, it->second.first, 0, JPetSigCh::Leading,
         rawSignal.getPoints(JPetSigCh::Leading)[0].getPM().getSide(), pos.layer,
         pos.slot));
     i++;
@@ -247,7 +247,7 @@ DiagramDataMap DataProcessor::getDataForDiagram(const JPetRawSignal &rawSignal,
   for (auto it = tmp.begin(); it != tmp.end(); it++)
   {
     r.push_back(std::make_tuple(
-        it->first, it->second.first, it->second.second - diff[i],
+        it->first, it->second.first, it->second.second - diff[i] - startPos,
         JPetSigCh::Trailing,
         rawSignal.getPoints(JPetSigCh::Trailing)[0].getPM().getSide(),
         pos.layer, pos.slot));
