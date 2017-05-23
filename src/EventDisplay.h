@@ -37,6 +37,7 @@
 #include <TGraph.h>
 #include <TMarker.h>
 #include <TRootEmbeddedCanvas.h>
+#include <TStyle.h>
 
 #include <RQ_OBJECT.h>
 

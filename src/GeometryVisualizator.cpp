@@ -83,7 +83,7 @@ void GeometryVisualizator::showGeometry()
   fCanvas3d->cd();
   assert(fGeoManager);
   Int_t irep;
-  fGeoManager->GetTopVolume()->Draw();
+  fGeoManager->GetTopVolume()->Draw("ogl");
   assert(gPad);
   TView *view = gPad->GetView();
   assert(view);
@@ -576,7 +576,7 @@ void GeometryVisualizator::createGeometry(
     for (int j = 0; j < layerStats[i].first; j++)
     {
       TGeoVolume *scin = gGeoManager->MakeTube("scin", medium, 0, 0.7, 50);
-      scin->SetLineWidth(5);
+      // scin->SetLineWidth(5);
       // scin->SetLineColor(layersColors[i]);
 
       scin->SetLineColorAlpha(layersColors[i], 0.3);
@@ -592,7 +592,7 @@ void GeometryVisualizator::createGeometry(
     i++;
   }
   fGeoManager->CloseGeometry();
-  fGeoManager->SetVisLevel(0);
-  fGeoManager->Export("tt.root");
+  fGeoManager->SetVisLevel(4);
+  // fGeoManager->Export("tt.root");
 }
 }

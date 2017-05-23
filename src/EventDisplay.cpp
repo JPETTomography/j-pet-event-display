@@ -229,7 +229,7 @@ void EventDisplay::AddTab(std::unique_ptr< TGTab > &pTabViews,
 {
   TGCompositeFrame *tabView = pTabViews->AddTab(tabName);
   tabView->ChangeBackground(fFrameBackgroundColor);
-
+  gStyle->SetCanvasPreferGL(kTRUE);
   saveCanvasPtr = std::unique_ptr< TRootEmbeddedCanvas >(
       new TRootEmbeddedCanvas(canvasName, tabView, 600, 600));
   tabView->AddFrame(
