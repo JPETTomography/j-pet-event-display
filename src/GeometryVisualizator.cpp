@@ -258,6 +258,12 @@ void GeometryVisualizator::setVisibility(const ScintillatorsInLayers &selection)
   for (auto iter = selection.begin(); iter != selection.end(); ++iter)
   {
     layer = iter->first;
+    if(layer == JPetGeomMapping::kBadLayerNumber)
+    {
+      std::cout << "/* Bad layer number in setVisibility, returning...*/" << "\n";
+      //Error("Bad layer number in setVisibility, returning...");
+      return;
+    }
     const std::vector< size_t > &strips = iter->second;
     nodeLayer = topNode->GetDaughter(layer - 1);
     assert(nodeLayer);
@@ -266,6 +272,12 @@ void GeometryVisualizator::setVisibility(const ScintillatorsInLayers &selection)
          ++stripIter)
     {
       strip = *stripIter;
+      if(strip == JPetGeomMapping::kBadSlotNumber)
+      {
+        std::cout << "/* Bad strip number in setVisibility, returning...*/" << "\n";
+        //Error("Bad strip number in setVisibility, returning...");
+        return;
+      }
       nodeStrip = nodeLayer->GetDaughter(strip - 1);
       assert(nodeStrip);
       nodeStrip->GetVolume()->SetLineColor(kRed);

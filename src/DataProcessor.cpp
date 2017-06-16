@@ -25,7 +25,7 @@ DataProcessor::DataProcessor()
       << "\n";
   JPetParamManager fparamManagerInstance(
       new JPetParamGetterAscii("large_barrel.json"));
-  fparamManagerInstance.fillParameterBank(43);
+  fparamManagerInstance.fillParameterBank(44);
   auto bank = fparamManagerInstance.getParamBank();
   fMapper = std::unique_ptr< JPetGeomMapping >(new JPetGeomMapping(bank));
 }
