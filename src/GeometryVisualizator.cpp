@@ -181,7 +181,7 @@ void GeometryVisualizator::setMarker2d(const HitPositions &pos,
     fUnRolledViewMarker.clear();
   }
 
-  static const double centerOfScintillator = 25;
+  static const double kCenterOfScintillator = 25; // TODO calculate lenght
   int i = 0;
   for (auto iter = selection.begin(); iter != selection.end(); ++iter)
   {
@@ -198,14 +198,14 @@ void GeometryVisualizator::setMarker2d(const HitPositions &pos,
             fUnRolledViewScintillators[layer][strip]->GetX2() -
             fUnRolledViewScintillators[layer][strip]->GetX1();
         double drawedScintillatorCenter = drawedScintillatorLength / 2;
-        double z = pos[i].Z() < centerOfScintillator &&
-                           pos[i].Z() > -centerOfScintillator
+        double z = pos[i].Z() < kCenterOfScintillator &&
+                           pos[i].Z() > -kCenterOfScintillator
                        ? pos[i].Z()
-                       : pos[i].Z() < centerOfScintillator
-                             ? -centerOfScintillator
-                             : centerOfScintillator;
+                       : pos[i].Z() < kCenterOfScintillator
+                             ? -kCenterOfScintillator
+                             : kCenterOfScintillator;
         double hittedXPos =
-            (drawedScintillatorCenter * z) / centerOfScintillator;
+            (drawedScintillatorCenter * z) / kCenterOfScintillator;
         double centerX = fUnRolledViewScintillators[layer][strip]->GetX1() +
                          ((fUnRolledViewScintillators[layer][strip]->GetX2() -
                            fUnRolledViewScintillators[layer][strip]->GetX1()) /
@@ -215,7 +215,7 @@ void GeometryVisualizator::setMarker2d(const HitPositions &pos,
                            fUnRolledViewScintillators[layer][strip]->GetY1()) /
                           2);
         TMarker *marker = new TMarker(centerX + hittedXPos, centerY, 3);
-        marker->SetMarkerColor(2);
+        marker->SetMarkerColor(kRed);
         marker->SetMarkerSize(3);
         marker->Draw();
         fUnRolledViewMarker.push_back(marker);
@@ -240,7 +240,7 @@ void GeometryVisualizator::setVisibility2d(
       if (layer < fUnRolledViewScintillators.size() &&
           strip < fUnRolledViewScintillators[layer].size())
       {
-        fUnRolledViewScintillators[layer][strip]->SetFillColor(2);
+        fUnRolledViewScintillators[layer][strip]->SetFillColor(kRed);
       }
     }
   }
@@ -272,7 +272,6 @@ void GeometryVisualizator::setVisibility(const ScintillatorsInLayers &selection)
     {
       std::cout << "/* Bad layer number in setVisibility, returning...*/"
                 << "\n";
-      // Error("Bad layer number in setVisibility, returning...");
       return;
     }
     const std::vector< size_t > &strips = iter->second;
@@ -287,7 +286,6 @@ void GeometryVisualizator::setVisibility(const ScintillatorsInLayers &selection)
       {
         std::cout << "/* Bad strip number in setVisibility, returning...*/"
                   << "\n";
-        // Error("Bad strip number in setVisibility, returning...");
         return;
       }
       nodeStrip = nodeLayer->GetDaughter(strip - 1);
@@ -353,12 +351,18 @@ void GeometryVisualizator::drawLineBetweenActivedScins(const HitPositions &pos)
   }
   fLineOn3dView.push_back(new TPolyLine3D());
   fMarkerOn3dView.push_back(new TPolyMarker3D());
+  static const double kScintillatorLenghtFromCenter =
+      25; // TODO calculate lenght
   for (unsigned int i = 0; i < pos.size(); i++)
   {
     double x = pos[i].X();
     double y = pos[i].Y();
-    double z = pos[i].Z() < 25 && pos[i].Z() > -25 ? pos[i].Z()
-                                                   : pos[i].Z() < 25 ? -25 : 25;
+    double z = pos[i].Z() < kScintillatorLenghtFromCenter &&
+                       pos[i].Z() > -kScintillatorLenghtFromCenter
+                   ? pos[i].Z()
+                   : pos[i].Z() < kScintillatorLenghtFromCenter
+                         ? -kScintillatorLenghtFromCenter
+                         : kScintillatorLenghtFromCenter;
     fLineOn3dView.back()->SetLineWidth(2);
     fLineOn3dView.back()->SetLineColor(kRed);
     fLineOn3dView.back()->SetLineStyle(4);
@@ -379,21 +383,29 @@ void GeometryVisualizator::draw2dGeometry2()
   const double axisPos = 59;
   fCanvasTopView->cd();
   fCanvasTopView->Range(-canvasRange, -canvasRange, canvasRange, canvasRange);
-  TEllipse *thirdLayerCircle = new TEllipse(0, 0, 57.5, 57.5);
+  const double thirdLayerRadius = 57.5;
+  const double secondLayerRadius = 46.75;
+  const double firstLayerRadius = 42.5;
+  TEllipse *thirdLayerCircle =
+      new TEllipse(0, 0, thirdLayerRadius, thirdLayerRadius);
   thirdLayerCircle->Draw();
-  TEllipse *secondLayerCircle = new TEllipse(0, 0, 46.75, 46.75);
+  TEllipse *secondLayerCircle =
+      new TEllipse(0, 0, secondLayerRadius, secondLayerRadius);
   secondLayerCircle->Draw();
-  TEllipse *firstLayerCircle = new TEllipse(0, 0, 42.5, 42.5);
+  TEllipse *firstLayerCircle =
+      new TEllipse(0, 0, firstLayerRadius, firstLayerRadius);
   firstLayerCircle->Draw();
 
   TGaxis *axisX =
-      new TGaxis(-57.5, axisPos, 57.5, axisPos, -57.5, 57.5, 50510, "");
+      new TGaxis(-thirdLayerRadius, axisPos, thirdLayerRadius, axisPos,
+                 -thirdLayerRadius, thirdLayerRadius, 50510, "");
   axisX->SetName("axisX");
   axisX->SetLabelSize(0.02);
   axisX->Draw();
 
   TGaxis *axisY =
-      new TGaxis(axisPos, -57.5, axisPos, 57.5, -57.5, 57.5, 50510, "");
+      new TGaxis(axisPos, -thirdLayerRadius, axisPos, thirdLayerRadius,
+                 -thirdLayerRadius, thirdLayerRadius, 50510, "");
   axisY->SetName("axisY");
   axisY->SetLabelSize(0.02);
   axisY->Draw();
