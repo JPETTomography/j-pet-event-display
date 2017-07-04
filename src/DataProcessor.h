@@ -54,10 +54,8 @@ typedef std::vector< std::tuple< int, float, float, JPetSigCh::EdgeType,
                                  JPetPM::Side, size_t, size_t > >
     DiagramDataMap; // threshold number, thresholdValue, time, EdgeType, Side,
                     // layer, scin
-// typedef std::map<int, std::tuple<float, float, JPetSigCh::EdgeType>>
-//    DiagramDataMap;
 typedef std::vector< DiagramDataMap > DiagramDataMapVector;
-typedef std::vector< TVector3 > HitPositions; // rename
+typedef std::vector< TVector3 > HitPositions;
 
 class ProcessedData
 {
@@ -85,7 +83,7 @@ public:
   void setCurrentFileType(FileTypes type) { fCurrentFileType = type; }
   void setHits(HitPositions hits) { fHits = hits; }
 
-  inline FileTypes getCurrentFileType() { return fCurrentFileType; }
+  inline FileTypes getCurrentFileType() const { return fCurrentFileType; }
   inline ScintillatorsInLayers &getActivedScintilators()
   {
     return fActivedScins;
@@ -103,7 +101,7 @@ private:
   std::string fInfo;
   ScintillatorsInLayers fActivedScins;
   DiagramDataMapVector fDiagram;
-  HitPositions fHits; // rename
+  HitPositions fHits;
   FileTypes fCurrentFileType = FileTypes::fNone;
 };
 
