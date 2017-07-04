@@ -75,9 +75,6 @@ void GeometryVisualizator::showGeometry()
         std::unique_ptr< TCanvas >(fRootCanvasDiagrams->GetCanvas());
 
   draw2dGeometry();
-  // setAllStripsUnvisible();
-  // setAllStripsUnvisible2d();
-
   draw2dGeometry2();
 
   fCanvas3d->cd();
@@ -88,7 +85,10 @@ void GeometryVisualizator::showGeometry()
   TView *view = gPad->GetView();
   assert(view);
   view->ZoomView(gPad, 1.75);
-  view->SetView(0, 90, 0, irep);
+  view->SetView(0, 90, 0,
+                irep); // if 3d view is rendered by ROOT 3d view(not openGL),
+  // set camera longitude to 0, latitude to 90 and psi to 0, return value is
+  // saved in irep
   if (irep == -1)
     WARNING("Error in min-max scope setting view to 3d canvas");
 
@@ -105,7 +105,6 @@ void GeometryVisualizator::draw2dGeometry()
   const int leftMargin = 20;
   const int rightMargin = 20;
   const int canvasScale = 900;
-  // int startX = canvasScale - leftMargin;
   int startY = canvasScale - topMargin;
   int canvasWidth = canvasScale - leftMargin - rightMargin;
   int canvasHeight = canvasScale - topMargin - bottomMargin;
@@ -129,6 +128,17 @@ void GeometryVisualizator::draw2dGeometry()
     fUnRolledViewScintillators[i].resize(numberOfScintillatorsInCurrentLayer);
     for (unsigned int j = 0; j < numberOfScintillatorsInCurrentLayer; j++)
     {
+      // calculating where TBox should be rendered, first layer starts from
+      // left,
+      // first scintillator start from top, bottom left corner is defined as:
+      // x1 = margin from left + (number of current layer * width of each layer)
+      // y1 = (canvasSize - margin from top) - (next scintillator * scintillator
+      // height) + margin between scintillators
+      // top right corner is defined as:
+      // x2 = margin from left + (next scintillator * scintillator height) -
+      // margin between layers
+      // y2 = (canvasSize - margin from top) - (current scintillator *
+      // scintillator height)
       fUnRolledViewScintillators[i][j] =
           new TBox(leftMargin + (layerWidth * i),
                    startY - ((j + 1) * scintilatorHeight) + marginBetweenScin,
@@ -253,15 +263,16 @@ void GeometryVisualizator::setVisibility(const ScintillatorsInLayers &selection)
   assert(topNode);
   TGeoNode *nodeLayer = 0;
   TGeoNode *nodeStrip = 0;
-  int layer = -1;
-  int strip = -1;
+  unsigned int layer = JPetGeomMapping::kBadLayerNumber;
+  unsigned int strip = JPetGeomMapping::kBadSlotNumber;
   for (auto iter = selection.begin(); iter != selection.end(); ++iter)
   {
     layer = iter->first;
-    if(layer == JPetGeomMapping::kBadLayerNumber)
+    if (layer == JPetGeomMapping::kBadLayerNumber)
     {
-      std::cout << "/* Bad layer number in setVisibility, returning...*/" << "\n";
-      //Error("Bad layer number in setVisibility, returning...");
+      std::cout << "/* Bad layer number in setVisibility, returning...*/"
+                << "\n";
+      // Error("Bad layer number in setVisibility, returning...");
       return;
     }
     const std::vector< size_t > &strips = iter->second;
@@ -272,10 +283,11 @@ void GeometryVisualizator::setVisibility(const ScintillatorsInLayers &selection)
          ++stripIter)
     {
       strip = *stripIter;
-      if(strip == JPetGeomMapping::kBadSlotNumber)
+      if (strip == JPetGeomMapping::kBadSlotNumber)
       {
-        std::cout << "/* Bad strip number in setVisibility, returning...*/" << "\n";
-        //Error("Bad strip number in setVisibility, returning...");
+        std::cout << "/* Bad strip number in setVisibility, returning...*/"
+                  << "\n";
+        // Error("Bad strip number in setVisibility, returning...");
         return;
       }
       nodeStrip = nodeLayer->GetDaughter(strip - 1);
