@@ -279,6 +279,7 @@ void DataProcessor::getDataForDiagram(const JPetEvent &event)
                                             .getPoints(JPetSigCh::Leading)[0]
                                             .getPM()
                                             .getBarrelSlot());
+    // calculate position in (r, fi) domain from (x,y)
     double r =
         sqrt(hit.getPosX() * hit.getPosX() + hit.getPosY() * hit.getPosY());
     double fi = hit.getPosX() >= 0 ? asin(hit.getPosY() / r)
@@ -295,19 +296,19 @@ void DataProcessor::getDataForDiagram(const JPetEvent &event)
 
 void DataProcessor::getHitsPosition(const JPetHit &hitSignal)
 {
-  HitPositions hits;
-  hits.push_back(hitSignal.getPos());
-  ProcessedData::getInstance().setHits(hits);
+  HitPositions hitsPos;
+  hitsPos.push_back(hitSignal.getPos());
+  ProcessedData::getInstance().setHits(hitsPos);
 }
 
 void DataProcessor::getHitsPosition(const JPetEvent &event)
 {
-  HitPositions hits;
+  HitPositions hitsPos;
   for (JPetHit hit : event.getHits())
   {
-    hits.push_back(hit.getPos());
+    hitsPos.push_back(hit.getPos());
   }
-  ProcessedData::getInstance().setHits(hits);
+  ProcessedData::getInstance().setHits(hitsPos);
 }
 
 bool DataProcessor::openFile(const char *filename)
@@ -320,11 +321,11 @@ bool DataProcessor::openFile(const char *filename)
     compareMap["JPetHit"] = FileTypes::fHit;
     compareMap["JPetEvent"] = FileTypes::fEvent;
   }
-  bool r = fReader.openFileAndLoadData(filename);
+  bool openFileResult = fReader.openFileAndLoadData(filename);
   dynamic_cast< JPetParamBank * >(fReader.getObjectFromFile(
       "ParamBank")); // just read param bank, no need to save it to variable
   fNumberOfEventsInFile = fReader.getNbOfAllEvents();
-  if (r)
+  if (openFileResult)
   {
     TTree *fTree = dynamic_cast< TTree * >(fReader.getObjectFromFile("tree"));
     TObjArray *arr = fTree->GetListOfBranches();
@@ -333,7 +334,7 @@ bool DataProcessor::openFile(const char *filename)
     ProcessedData::getInstance().setCurrentFileType(
         static_cast< FileTypes >(compareMap[branchName]));
   }
-  return r;
+  return openFileResult;
 }
 
 void DataProcessor::closeFile() { fReader.closeFile(); }
