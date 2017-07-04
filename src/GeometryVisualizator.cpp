@@ -529,21 +529,6 @@ float GeometryVisualizator::changeSignalNumber(int signalNumber)
                                                   // threshold is on top
 }
 
-void GeometryVisualizator::reverseYAxis(TGraph *g)
-{
-  // Remove the current axis
-  g->GetYaxis()->SetLabelOffset(999);
-  g->GetYaxis()->SetTickLength(0);
-
-  gPad->Update();
-  TGaxis *newaxis =
-      new TGaxis(gPad->GetUxmin(), gPad->GetUymax(), gPad->GetUxmin() - 0.001,
-                 gPad->GetUymin(), g->GetYaxis()->GetXmin(),
-                 g->GetYaxis()->GetXmax(), 510, "+");
-  newaxis->SetLabelOffset(-0.03);
-  newaxis->Draw();
-}
-
 void GeometryVisualizator::createGeometry(
     const int numberOfLayers, const int kLength,
     const std::vector< std::pair< int, double > > &layerStats)
