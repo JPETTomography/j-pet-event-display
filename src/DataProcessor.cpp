@@ -211,28 +211,22 @@ DiagramDataMap DataProcessor::getDataForDiagram(const JPetRawSignal &rawSignal,
   auto data = rawSignal.getTimesVsThresholdValue(JPetSigCh::Leading);
   float startPos = data.begin()->second.second;
   float diff[4];
-  int i = 0;
   for (auto it = data.begin(); it != data.end(); it++)
   {
-    diff[i] = startPos - it->second.second;
-    if (diff[i] > 0)
-      diff[i] = -diff[i];
+    diff[it->first] = it->second.second - startPos;
     r.push_back(std::make_tuple(
         it->first, it->second.first, 0, JPetSigCh::Leading,
         rawSignal.getPoints(JPetSigCh::Leading)[0].getPM().getSide(), pos.layer,
         pos.slot));
-    i++;
   }
-  i = 0;
   auto tmp = rawSignal.getTimesVsThresholdValue(JPetSigCh::Trailing);
   for (auto it = tmp.begin(); it != tmp.end(); it++)
   {
     r.push_back(std::make_tuple(
-        it->first, it->second.first, it->second.second - diff[i] - startPos,
-        JPetSigCh::Trailing,
+        it->first, it->second.first,
+        it->second.second - diff[it->first] - startPos, JPetSigCh::Trailing,
         rawSignal.getPoints(JPetSigCh::Trailing)[0].getPM().getSide(),
         pos.layer, pos.slot));
-    i++;
   }
   return r;
 }
