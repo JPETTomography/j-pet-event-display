@@ -57,7 +57,7 @@ class GeometryVisualizator
 {
 public:
   GeometryVisualizator(
-      const int numberOfLayers, const int kLength,
+      const int numberOfLayers, const int scintillatorLenght,
       const std::vector< std::pair< int, double > > &layerStats);
   ~GeometryVisualizator();
 
@@ -89,7 +89,7 @@ public:
 private:
 #ifndef __CINT__
   void
-  createGeometry(const int numberOfLayers, const int kLength,
+  createGeometry(const int numberOfLayers, const int scintillatorLenght,
                  const std::vector< std::pair< int, double > > &layerStats);
 
   void updateCanvas(std::unique_ptr< TCanvas > &canvas);
