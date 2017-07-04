@@ -13,11 +13,18 @@ The latest stable version can be downloaded from the github repository. You must
 
 git clone --recursive https://github.com/JPETTomography/j-pet-event-display.git
 
-Current status/know bugs
+Current status
 -----------------------
-Currently only 2 type of files works, TimeWindow and RawSignal. 
-There aren't many checks for data integration so user should always load geometry before loading data. 
-Also after loading data, there is some freez while JPetGeomMapping is mapping scintilators/layers. 
+Currently 4 types of objects can be visualized:
+-- JPetTimeWindow
+-- JPetRawSignal
+-- JPetHit
+-- JPetEvent 
+There are 4 types of views:
+-- 3d view(to enable external openGL 3d viewer root should be compiled with --enable-opengl flag)
+-- unrolled view showing actived scintillators and hit position on scintillators
+-- front view 2d view from front of tomograph
+-- diagram view showing time difference between leading and trailing edge on each threshold
 
 Documentation
 -------------
@@ -43,4 +50,4 @@ Bug Reporting & Contact
 -----------------------
 
 If you have any question or comment please write to: 
-wojciech.krzemien@ncbj.gov.pl
+wojciech.krzemien@ncbj.gov.pl or kamil.rakoczy@student.uj.edu.pl
