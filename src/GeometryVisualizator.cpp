@@ -460,19 +460,17 @@ void GeometryVisualizator::drawDiagram(const DiagramDataMapVector &diagramData)
     std::vector< float > leadingY;
     std::vector< float > trailingX;
     std::vector< float > trailingY;
-    const float changePsToNs = 0.001;
+    const float kPsToNs = 0.001;
     for (auto it = diagramData[j].begin(); it != diagramData[j].end(); it++)
     {
       if (std::get< 3 >(*it) == JPetSigCh::Leading)
       {
-        leadingX.push_back(static_cast< float >(std::get< 2 >(*it)) *
-                           changePsToNs);
+        leadingX.push_back(static_cast< float >(std::get< 2 >(*it)) * kPsToNs);
         leadingY.push_back(changeSignalNumber(std::get< 0 >(*it)));
       }
       else
       {
-        trailingX.push_back(static_cast< float >(std::get< 2 >(*it)) *
-                            changePsToNs);
+        trailingX.push_back(static_cast< float >(std::get< 2 >(*it)) * kPsToNs);
         trailingY.push_back(changeSignalNumber(std::get< 0 >(*it)));
       }
     }
@@ -509,13 +507,12 @@ void GeometryVisualizator::drawDiagram(const DiagramDataMapVector &diagramData)
     mg->GetYaxis()->SetTickLength(0);
     mg->GetYaxis()->SetRangeUser(0, 5);
     mg->GetXaxis()->SetLimits(0, 50);
-    // mg->GetXaxis()->SetLimits(mg->GetXaxis()->GetXmin() - 10 * 1000,
-    //                          mg->GetXaxis()->GetXmin() + 20 * 1000);
     mg->GetXaxis()->SetNdivisions(504, kFALSE);
     mg->GetXaxis()->SetTitle("Time (ns)");
     mg->GetYaxis()->SetTitle("Threshold Number");
 
-    for (int k = 0; k < 4; k++)
+    int kNumberOfThresholds = 4;
+    for (int k = 0; k < kNumberOfThresholds; k++)
     {
       TLine *line = new TLine(mg->GetXaxis()->GetXmin(), k + 1,
                               mg->GetXaxis()->GetXmax(), k + 1);
@@ -525,19 +522,11 @@ void GeometryVisualizator::drawDiagram(const DiagramDataMapVector &diagramData)
   }
 }
 
-float GeometryVisualizator::changeSignalNumber(
-    int signalNumber) // change this...
+float GeometryVisualizator::changeSignalNumber(int signalNumber)
 {
-  // std::cout << "signalNumber: " << signalNumber << "\n";
-  if (signalNumber == 4)
-    return 1.;
-  if (signalNumber == 3)
-    return 2.;
-  if (signalNumber == 2)
-    return 3.;
-  if (signalNumber == 1)
-    return 4.;
-  return 0.;
+  return static_cast< float >(-signalNumber + 5); // reversing threshold number
+                                                  // in graph 1->4 etc, so first
+                                                  // threshold is on top
 }
 
 void GeometryVisualizator::reverseYAxis(TGraph *g)
