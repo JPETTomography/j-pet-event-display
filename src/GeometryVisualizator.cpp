@@ -181,7 +181,7 @@ void GeometryVisualizator::setMarker2d(const HitPositions &pos,
     fUnRolledViewMarker.clear();
   }
 
-  static const double kCenterOfScintillator = 25; // TODO calculate lenght
+  static const double kCenterOfScintillator = fScinLenghtWithoutScale / 2;
   int i = 0;
   for (auto iter = selection.begin(); iter != selection.end(); ++iter)
   {
@@ -351,8 +351,7 @@ void GeometryVisualizator::drawLineBetweenActivedScins(const HitPositions &pos)
   }
   fLineOn3dView.push_back(new TPolyLine3D());
   fMarkerOn3dView.push_back(new TPolyMarker3D());
-  static const double kScintillatorLenghtFromCenter =
-      25; // TODO calculate lenght
+  static const double kScintillatorLenghtFromCenter = fScinLenghtWithoutScale;
   for (unsigned int i = 0; i < pos.size(); i++)
   {
     double x = pos[i].X();
