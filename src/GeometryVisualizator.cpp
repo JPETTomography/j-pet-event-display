@@ -28,9 +28,9 @@ namespace jpet_event_display
 GeometryVisualizator::GeometryVisualizator(
     const int numberOfLayers, const int scintillatorLenght,
     const std::vector< std::pair< int, double > > &layerStats)
-    : fScinLenghtWithoutScale(kLength)
+    : fScinLenghtWithoutScale(scintillatorLenght)
 {
-  createGeometry(numberOfLayers, kLength, layerStats);
+  createGeometry(numberOfLayers, scintillatorLenght, layerStats);
 }
 
 GeometryVisualizator::~GeometryVisualizator() {}
