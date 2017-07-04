@@ -529,13 +529,19 @@ float GeometryVisualizator::changeSignalNumber(int signalNumber)
                                                   // threshold is on top
 }
 
+/* Function creating 3d geometry of tomograph
+  numberOfLayers - number of layers in tomograph
+  scintillatorLenght - lenght of each scintillator
+  layerStats - vector of pair for each layer with number of scintillator in
+  layer and radius from center of that layer
+*/
 void GeometryVisualizator::createGeometry(
-    const int numberOfLayers, const int kLength,
+    const int numberOfLayers, const int scintillatorLenght,
     const std::vector< std::pair< int, double > > &layerStats)
 {
-  const double kXWorld = kLength + 100;
-  const double kYWorld = kLength + 100;
-  const double kZWorld = kLength + 100;
+  const double kXWorld = scintillatorLenght + 100;
+  const double kYWorld = scintillatorLenght + 100;
+  const double kZWorld = scintillatorLenght + 100;
 
   const double kLayerThickness = 0.9;
   gSystem->Load("libGeom");
@@ -564,8 +570,9 @@ void GeometryVisualizator::createGeometry(
 
   for (int i = 0; i < numberOfLayers; i++)
   {
-    TGeoTube *layer = new TGeoTube(
-        layerStats[i].second, layerStats[i].second + kLayerThickness, kLength);
+    TGeoTube *layer = new TGeoTube(layerStats[i].second,
+                                   layerStats[i].second + kLayerThickness,
+                                   scintillatorLenght);
     assert(layer);
     layers.push_back(layer);
   }
@@ -586,8 +593,6 @@ void GeometryVisualizator::createGeometry(
     for (int j = 0; j < layerStats[i].first; j++)
     {
       TGeoVolume *scin = gGeoManager->MakeTube("scin", medium, 0, 0.7, 50);
-      // scin->SetLineWidth(5);
-      // scin->SetLineColor(layersColors[i]);
 
       scin->SetLineColorAlpha(layersColors[i], 0.3);
       vol->AddNode(
@@ -603,6 +608,5 @@ void GeometryVisualizator::createGeometry(
   }
   fGeoManager->CloseGeometry();
   fGeoManager->SetVisLevel(4);
-  // fGeoManager->Export("tt.root");
 }
 }
