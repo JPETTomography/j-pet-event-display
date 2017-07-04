@@ -85,6 +85,21 @@ std::string DataProcessor::currentActivedScintillatorsInfo()
   return oss.str();
 }
 
+void DataProcessor::addToSelectionIfNotPresent(ScintillatorsInLayers &selection,
+                                               StripPos &pos)
+{
+  if (selection.find(pos.layer) != selection.end())
+  {
+    if (std::find(selection[pos.layer].begin(), selection[pos.layer].end(),
+                  pos.slot) == selection[pos.layer].end())
+      selection[pos.layer].push_back(pos.slot);
+  }
+  else
+  {
+    selection[pos.layer] = {pos.slot};
+  }
+}
+
 void DataProcessor::getActiveScintillators(const JPetTimeWindow &tWindow)
 {
   auto sigChannels = tWindow.getSigChVect();
@@ -108,16 +123,7 @@ void DataProcessor::getActiveScintillators(const JPetTimeWindow &tWindow)
     }
     StripPos pos = fMapper->getStripPos(barrel);
 
-    if (selection.find(pos.layer) != selection.end())
-    {
-      if (std::find(selection[pos.layer].begin(), selection[pos.layer].end(),
-                    pos.slot) == selection[pos.layer].end())
-        selection[pos.layer].push_back(pos.slot);
-    }
-    else
-    {
-      selection[pos.layer] = {pos.slot};
-    }
+    addToSelectionIfNotPresent(selection, pos);
   }
 
   ProcessedData::getInstance().setActivedScins(selection);
@@ -147,16 +153,7 @@ void DataProcessor::getActiveScintillators(const JPetRawSignal &rawSignal)
     }
     StripPos pos = fMapper->getStripPos(barrel);
 
-    if (selection.find(pos.layer) != selection.end())
-    {
-      if (std::find(selection[pos.layer].begin(), selection[pos.layer].end(),
-                    pos.slot) == selection[pos.layer].end())
-        selection[pos.layer].push_back(pos.slot);
-    }
-    else
-    {
-      selection[pos.layer] = {pos.slot};
-    }
+    addToSelectionIfNotPresent(selection, pos);
   }
 
   for (const auto &channel : trailingSigCh)
@@ -178,16 +175,7 @@ void DataProcessor::getActiveScintillators(const JPetRawSignal &rawSignal)
     }
     StripPos pos = fMapper->getStripPos(barrel);
 
-    if (selection.find(pos.layer) != selection.end())
-    {
-      if (std::find(selection[pos.layer].begin(), selection[pos.layer].end(),
-                    pos.slot) == selection[pos.layer].end())
-        selection[pos.layer].push_back(pos.slot);
-    }
-    else
-    {
-      selection[pos.layer] = {pos.slot};
-    }
+    addToSelectionIfNotPresent(selection, pos);
   }
 
   ProcessedData::getInstance().setActivedScins(selection);
@@ -208,16 +196,7 @@ void DataProcessor::getActiveScintillators(const JPetEvent &event)
   for (JPetHit hit : event.getHits())
   {
     StripPos pos = fMapper->getStripPos(hit.getBarrelSlot());
-    if (selection.find(pos.layer) != selection.end())
-    {
-      if (std::find(selection[pos.layer].begin(), selection[pos.layer].end(),
-                    pos.slot) == selection[pos.layer].end())
-        selection[pos.layer].push_back(pos.slot);
-    }
-    else
-    {
-      selection[pos.layer] = {pos.slot};
-    }
+    addToSelectionIfNotPresent(selection, pos);
   }
 
   ProcessedData::getInstance().setActivedScins(selection);

@@ -125,6 +125,9 @@ private:
   DataProcessor(const DataProcessor &) = delete;
   DataProcessor &operator=(const DataProcessor &) = delete;
 
+  void addToSelectionIfNotPresent(ScintillatorsInLayers &selection,
+                                  StripPos &pos);
+
   void getActiveScintillators(const JPetTimeWindow &tWindow);
   void getActiveScintillators(const JPetRawSignal &rawSignal);
   void getActiveScintillators(const JPetHit &hitSignal);
