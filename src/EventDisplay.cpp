@@ -86,7 +86,7 @@ void EventDisplay::run()
   globalFrame->Resize(globalFrame->GetDefaultSize());
   baseFrame->Resize(baseFrame->GetDefaultSize());
 
-  fMainWindow->SetWindowName("Event Display ver 0.2");
+  fMainWindow->SetWindowName("J-PET Event Display ver 0.2");
   fMainWindow->MapSubwindows();
   fMainWindow->Resize(fMainWindow->GetDefaultSize());
   fMainWindow->MapWindow();
