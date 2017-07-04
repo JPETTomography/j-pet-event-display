@@ -107,7 +107,6 @@ private:
   void drawLineBetweenActivedScins(const HitPositions &pos);
   void drawMarkers(const HitPositions &pos);
   void drawDiagram(const DiagramDataMapVector &diagramData);
-  void reverseYAxis(TGraph *g);
   float changeSignalNumber(int signalNumber);
 
   void draw2dGeometry2();
@@ -148,14 +147,6 @@ private:
   std::vector< TMarker * > fUnRolledViewMarker;
   ColorTable layersColors[3]{kGray1, kGray2, kGray3};
 #endif
-
-  /*struct ScintillatorCanv
-  {
-    TBox *image;
-    TMarker *event;
-  } fScintCanv;
-  ScintillatorCanv fScintCanv2;
-  ScintillatorCanv **allScintilatorsCanv;*/
 };
 }
 #endif // GEOMETRYVISUALIZATOR_H_
