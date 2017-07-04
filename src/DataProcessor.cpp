@@ -56,6 +56,7 @@ void DataProcessor::getDataForCurrentEvent()
     getHitsPosition(getCurrentEvent< JPetEvent >());
     break;
   default:
+    ProcessedData::getInstance().addToInfo("Not implemented object type");
     break;
   }
 }
@@ -349,11 +350,6 @@ bool DataProcessor::openFile(const char *filename)
   bool r = fReader.openFileAndLoadData(filename);
   dynamic_cast< JPetParamBank * >(fReader.getObjectFromFile(
       "ParamBank")); // just read param bank, no need to save it to variable
-  // JPetParamManager *manager = dynamic_cast< JPetParamManager *
-  // >(fReader.getObjectFromFile(
-  //    "ParamBank")); // just read param bank, no need to save it to variable
-  // fMapper = std::unique_ptr< JPetGeomMapping >(new
-  // JPetGeomMapping(manager->getParamBank()));
   fNumberOfEventsInFile = fReader.getNbOfAllEvents();
   if (r)
   {
