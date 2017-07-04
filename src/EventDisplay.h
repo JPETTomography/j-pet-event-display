@@ -136,7 +136,8 @@ private:
   ULong_t fFrameBackgroundColor = 0;
 
   std::unique_ptr< DataProcessor > dataProcessor =
-      std::unique_ptr< DataProcessor >(new DataProcessor());
+      std::unique_ptr< DataProcessor >(
+          new DataProcessor("large_barrel.json", 44));
   std::unique_ptr< GeometryVisualizator > visualizator =
       std::unique_ptr< GeometryVisualizator >(new GeometryVisualizator(
           3, 50, std::vector< std::pair< int, double > >(

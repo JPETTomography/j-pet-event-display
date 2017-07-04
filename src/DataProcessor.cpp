@@ -18,14 +18,15 @@
 namespace jpet_event_display
 {
 
-DataProcessor::DataProcessor()
+DataProcessor::DataProcessor(const std::string paramGetterAnsiiPath,
+                             const int runNumber)
 {
   std::cout
       << "Generating GeomMapping, please wait, application will start soon... "
       << "\n";
   JPetParamManager fparamManagerInstance(
-      new JPetParamGetterAscii("large_barrel.json"));
-  fparamManagerInstance.fillParameterBank(44);
+      new JPetParamGetterAscii(paramGetterAnsiiPath));
+  fparamManagerInstance.fillParameterBank(runNumber);
   auto bank = fparamManagerInstance.getParamBank();
   fMapper = std::unique_ptr< JPetGeomMapping >(new JPetGeomMapping(bank));
 }
@@ -348,6 +349,11 @@ bool DataProcessor::openFile(const char *filename)
   bool r = fReader.openFileAndLoadData(filename);
   dynamic_cast< JPetParamBank * >(fReader.getObjectFromFile(
       "ParamBank")); // just read param bank, no need to save it to variable
+  // JPetParamManager *manager = dynamic_cast< JPetParamManager *
+  // >(fReader.getObjectFromFile(
+  //    "ParamBank")); // just read param bank, no need to save it to variable
+  // fMapper = std::unique_ptr< JPetGeomMapping >(new
+  // JPetGeomMapping(manager->getParamBank()));
   fNumberOfEventsInFile = fReader.getNbOfAllEvents();
   if (r)
   {
