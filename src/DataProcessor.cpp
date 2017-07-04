@@ -205,7 +205,7 @@ void DataProcessor::getActiveScintillators(const JPetEvent &event)
 DiagramDataMap DataProcessor::getDataForDiagram(const JPetRawSignal &rawSignal,
                                                 bool)
 {
-  DiagramDataMap r;
+  DiagramDataMap diagramData;
   StripPos pos = fMapper->getStripPos(
       rawSignal.getPoints(JPetSigCh::Leading)[0].getPM().getBarrelSlot());
   auto data = rawSignal.getTimesVsThresholdValue(JPetSigCh::Leading);
@@ -214,7 +214,7 @@ DiagramDataMap DataProcessor::getDataForDiagram(const JPetRawSignal &rawSignal,
   for (auto it = data.begin(); it != data.end(); it++)
   {
     diff[it->first] = it->second.second - startPos;
-    r.push_back(std::make_tuple(
+    diagramData.push_back(std::make_tuple(
         it->first, it->second.first, 0, JPetSigCh::Leading,
         rawSignal.getPoints(JPetSigCh::Leading)[0].getPM().getSide(), pos.layer,
         pos.slot));
@@ -222,30 +222,30 @@ DiagramDataMap DataProcessor::getDataForDiagram(const JPetRawSignal &rawSignal,
   auto tmp = rawSignal.getTimesVsThresholdValue(JPetSigCh::Trailing);
   for (auto it = tmp.begin(); it != tmp.end(); it++)
   {
-    r.push_back(std::make_tuple(
+    diagramData.push_back(std::make_tuple(
         it->first, it->second.first,
         it->second.second - diff[it->first] - startPos, JPetSigCh::Trailing,
         rawSignal.getPoints(JPetSigCh::Trailing)[0].getPM().getSide(),
         pos.layer, pos.slot));
   }
-  return r;
+  return diagramData;
 }
 
 void DataProcessor::getDataForDiagram(const JPetRawSignal &rawSignal)
 {
-  DiagramDataMapVector rv;
-  rv.push_back(getDataForDiagram(rawSignal, true));
-  ProcessedData::getInstance().setDiagram(rv);
+  DiagramDataMapVector diagramDataVector;
+  diagramDataVector.push_back(getDataForDiagram(rawSignal, true));
+  ProcessedData::getInstance().setDiagram(diagramDataVector);
 }
 
 void DataProcessor::getDataForDiagram(const JPetHit &hitSignal)
 {
-  DiagramDataMapVector rv;
-  rv.push_back(getDataForDiagram(
+  DiagramDataMapVector diagramDataVector;
+  diagramDataVector.push_back(getDataForDiagram(
       hitSignal.getSignalA().getRecoSignal().getRawSignal(), true));
-  rv.push_back(getDataForDiagram(
+  diagramDataVector.push_back(getDataForDiagram(
       hitSignal.getSignalB().getRecoSignal().getRawSignal(), true));
-  ProcessedData::getInstance().setDiagram(rv);
+  ProcessedData::getInstance().setDiagram(diagramDataVector);
 
   StripPos pos = fMapper->getStripPos(hitSignal.getSignalA()
                                           .getRecoSignal()
@@ -263,14 +263,14 @@ void DataProcessor::getDataForDiagram(const JPetHit &hitSignal)
 
 void DataProcessor::getDataForDiagram(const JPetEvent &event)
 {
-  DiagramDataMapVector rv;
+  DiagramDataMapVector diagramDataVector;
   if (event.getHits().size() < 1)
     return;
   for (JPetHit hit : event.getHits())
   {
-    rv.push_back(getDataForDiagram(
+    diagramDataVector.push_back(getDataForDiagram(
         hit.getSignalA().getRecoSignal().getRawSignal(), true));
-    rv.push_back(getDataForDiagram(
+    diagramDataVector.push_back(getDataForDiagram(
         hit.getSignalB().getRecoSignal().getRawSignal(), true));
 
     StripPos pos = fMapper->getStripPos(hit.getSignalA()
@@ -290,7 +290,7 @@ void DataProcessor::getDataForDiagram(const JPetEvent &event)
         << "r: " << r << " theta: " << (fi * 180.0) / M_PI << "\n";
     ProcessedData::getInstance().addToInfo(oss.str());
   }
-  ProcessedData::getInstance().setDiagram(rv);
+  ProcessedData::getInstance().setDiagram(diagramDataVector);
 }
 
 void DataProcessor::getHitsPosition(const JPetHit &hitSignal)
