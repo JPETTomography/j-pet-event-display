@@ -108,7 +108,7 @@ private:
 class DataProcessor
 {
 public:
-  DataProcessor(const std::string paramGetterAnsiiPath, const int runNumber);
+  DataProcessor(const std::string &paramGetterAnsiiPath, const int runNumber);
   void getDataForCurrentEvent();
   bool openFile(const char *filename);
   void closeFile();

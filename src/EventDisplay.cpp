@@ -23,8 +23,15 @@ const char *filetypes[] = {
     "All files", "*", "ROOT files", "*.root", "Text files", "*.[tT][xX][tT]",
     0,           0};
 
-EventDisplay::EventDisplay()
+EventDisplay::EventDisplay(
+    const std::string &paramGetterAnsiiPath, const int runNumber,
+    const int numberOfLayers, const int scintillatorLenght,
+    const std::vector< std::pair< int, double > > &layerStats)
 {
+  dataProcessor = std::unique_ptr< DataProcessor >(
+      new DataProcessor(paramGetterAnsiiPath, runNumber));
+  visualizator = std::unique_ptr< GeometryVisualizator >(
+      new GeometryVisualizator(numberOfLayers, scintillatorLenght, layerStats));
   fGUIControls->eventNo = 0;
   fGUIControls->stepNo = 0;
   run();

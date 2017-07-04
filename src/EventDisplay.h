@@ -70,7 +70,9 @@ class EventDisplay
 {
   RQ_OBJECT("EventDisplay")
 public:
-  EventDisplay();
+  EventDisplay(const std::string &paramGetterAnsiiPath, const int runNumber,
+               const int numberOfLayers, const int scintillatorLenght,
+               const std::vector< std::pair< int, double > > &layerStats);
   ~EventDisplay();
 
 #ifndef __CINT__
@@ -135,15 +137,8 @@ private:
 
   ULong_t fFrameBackgroundColor = 0;
 
-  std::unique_ptr< DataProcessor > dataProcessor =
-      std::unique_ptr< DataProcessor >(
-          new DataProcessor("large_barrel.json", 44));
-  std::unique_ptr< GeometryVisualizator > visualizator =
-      std::unique_ptr< GeometryVisualizator >(new GeometryVisualizator(
-          3, 50, std::vector< std::pair< int, double > >(
-                     {std::pair< int, double >(48, 42.5),
-                      std::pair< int, double >(48, 46.75),
-                      std::pair< int, double >(96, 57.5)})));
+  std::unique_ptr< DataProcessor > dataProcessor;
+  std::unique_ptr< GeometryVisualizator > visualizator;
 
   std::unique_ptr< TRint > fApplication =
       std::unique_ptr< TRint >(new TRint("EventDisplay Gui", 0, 0));

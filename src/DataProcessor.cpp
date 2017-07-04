@@ -18,7 +18,7 @@
 namespace jpet_event_display
 {
 
-DataProcessor::DataProcessor(const std::string paramGetterAnsiiPath,
+DataProcessor::DataProcessor(const std::string &paramGetterAnsiiPath,
                              const int runNumber)
 {
   std::cout
