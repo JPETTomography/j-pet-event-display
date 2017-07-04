@@ -123,7 +123,6 @@ void EventDisplay::CreateOptionsFrame(TGGroupFrame *parentFrame)
       AddCompositeFrame(frame1_1, 1, 1, kHorizontalFrame,
                         kLHintsExpandX | kLHintsExpandY, 2, 2, 2, 2);
 
-  // AddButton(frame1_1_2, "Read Geometry", "handleMenu(=0)");
   AddButton(frame1_1_2, "Read Data", "handleMenu(=1)");
 
   TGCheckButton *markersCheck =
@@ -309,21 +308,6 @@ void EventDisplay::handleMenu(Int_t id)
 {
   switch (id)
   {
-  /*case E_OpenGeometry:
-  {
-    TString dir("");
-    fFileInfo->fFileTypes = filetypes;
-    fFileInfo->fIniDir = StrDup(dir);
-    new TGFileDialog(gClient->GetRoot(), fMainWindow.get(), kFDOpen,
-  fFileInfo.get());
-    if(fFileInfo->fFilename == 0)
-      return;
-    assert(visualizator);
-    //visualizator->loadGeometry(fFileInfo->fFilename);
-    //visualizator->drawOnlyGeometry();
-    showData();
-  }
-  break;*/
   case E_OpenData:
   {
     TString dir("");
@@ -387,12 +371,7 @@ void EventDisplay::setMaxProgressBar(Int_t maxEvent)
   fProgBar->SetRange(0.0f, Float_t(maxEvent));
 }
 
-void EventDisplay::startVirtualization()
-{
-  startVirtualizationLoop(10);
-  // std::thread t(&EventDisplay::startVirtualizationLoop, this, 1);
-  // t.join();
-}
+void EventDisplay::startVirtualization() { startVirtualizationLoop(10); }
 
 void EventDisplay::startVirtualizationLoop(const int waitTimeInMs)
 {
