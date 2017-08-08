@@ -12,13 +12,17 @@
  *
  */
 
+#include "src/EventDisplay.h"
 #include <TRint.h>
 #include <iostream>
-#include "src/EventDisplay.h"
 
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
   using namespace jpet_event_display;
-  EventDisplay myDisplay;
+  EventDisplay myDisplay("large_barrel.json", 44, 3, 50,
+                         std::vector< std::pair< int, double > >(
+                             {std::pair< int, double >(48, 42.5),
+                              std::pair< int, double >(48, 46.75),
+                              std::pair< int, double >(96, 57.5)}));
   return 0;
 }
