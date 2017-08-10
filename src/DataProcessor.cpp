@@ -18,17 +18,9 @@
 namespace jpet_event_display
 {
 
-DataProcessor::DataProcessor(const std::string &paramGetterAnsiiPath,
-                             const int runNumber)
+DataProcessor::DataProcessor(std::shared_ptr< JPetGeomMapping > mapper)
 {
-  std::cout
-      << "Generating GeomMapping, please wait, application will start soon... "
-      << "\n";
-  JPetParamManager fparamManagerInstance(
-      new JPetParamGetterAscii(paramGetterAnsiiPath));
-  fparamManagerInstance.fillParameterBank(runNumber);
-  auto bank = fparamManagerInstance.getParamBank();
-  fMapper = std::unique_ptr< JPetGeomMapping >(new JPetGeomMapping(bank));
+  fMapper = mapper;
 }
 
 void DataProcessor::getDataForCurrentEvent()

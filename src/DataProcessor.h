@@ -108,7 +108,7 @@ private:
 class DataProcessor
 {
 public:
-  DataProcessor(const std::string &paramGetterAnsiiPath, const int runNumber);
+  DataProcessor(std::shared_ptr< JPetGeomMapping > fMapper);
   void getDataForCurrentEvent();
   bool openFile(const char *filename);
   void closeFile();
@@ -146,7 +146,7 @@ private:
   long long fNumberOfEventsInFile = 0;
 
   JPetReader fReader;
-  std::unique_ptr< JPetGeomMapping > fMapper;
+  std::shared_ptr< JPetGeomMapping > fMapper;
 #endif
 };
 }

@@ -23,18 +23,22 @@ const char *filetypes[] = {
     "All files", "*", "ROOT files", "*.root", "Text files", "*.[tT][xX][tT]",
     0,           0};
 
-EventDisplay::EventDisplay(
-    const std::string &paramGetterAnsiiPath, const int runNumber,
-    const int numberOfLayers, const int scintillatorLenght,
+EventDisplay::EventDisplay() {}
+
+EventDisplay::~EventDisplay() { fMainWindow->Cleanup(); }
+
+void EventDisplay::run(
+    std::shared_ptr< JPetGeomMapping > mapper, const int numberOfLayers,
+    const int scintillatorLenght,
     const std::vector< std::pair< int, double > > &layerStats)
 {
-  dataProcessor = std::unique_ptr< DataProcessor >(
-      new DataProcessor(paramGetterAnsiiPath, runNumber));
+
+  dataProcessor = std::unique_ptr< DataProcessor >(new DataProcessor(mapper));
   visualizator = std::unique_ptr< GeometryVisualizator >(
       new GeometryVisualizator(numberOfLayers, scintillatorLenght, layerStats));
   fGUIControls->eventNo = 0;
   fGUIControls->stepNo = 0;
-  run();
+  createGUI();
   updateGUIControlls();
   visualizator->showGeometry();
   fApplication->Run();
@@ -42,10 +46,7 @@ EventDisplay::EventDisplay(
   INFO("J-PET Event Display created");
   INFO("*********************");
 }
-
-EventDisplay::~EventDisplay() { fMainWindow->Cleanup(); }
-
-void EventDisplay::run()
+void EventDisplay::createGUI()
 {
   fMainWindow =
       std::unique_ptr< TGMainFrame >(new TGMainFrame(gClient->GetRoot()));
