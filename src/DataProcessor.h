@@ -78,10 +78,19 @@ public:
     fInfo.clear();
   }
 
-  void setActivedScins(ScintillatorsInLayers scins) { fActivedScins = scins; }
-  void setDiagram(DiagramDataMapVector diagram) { fDiagram = diagram; }
+  void addActivedScins(ScintillatorsInLayers scins)
+  {
+    fActivedScins.insert(scins.begin(), scins.end());
+  }
+  void addDiagram(DiagramDataMapVector diagram)
+  {
+    fDiagram.insert(fDiagram.end(), diagram.begin(), diagram.end());
+  }
   void setCurrentFileType(FileTypes type) { fCurrentFileType = type; }
-  void setHits(HitPositions hits) { fHits = hits; }
+  void addHits(HitPositions hits)
+  {
+    fHits.insert(fHits.end(), hits.begin(), hits.end());
+  }
 
   inline FileTypes getCurrentFileType() const { return fCurrentFileType; }
   inline ScintillatorsInLayers &getActivedScintilators()
@@ -126,7 +135,7 @@ private:
   void addToSelectionIfNotPresent(ScintillatorsInLayers &selection,
                                   StripPos &pos);
 
-  void getActiveScintillators(const JPetTimeWindow &tWindow);
+  // void getActiveScintillators(const JPetTimeWindow &tWindow);
   void getActiveScintillators(const JPetRawSignal &rawSignal);
   void getActiveScintillators(const JPetHit &hitSignal);
   void getActiveScintillators(const JPetEvent &event);
@@ -141,10 +150,8 @@ private:
   void getHitsPosition(const JPetHit &hitSignal);
   void getHitsPosition(const JPetEvent &event);
 
-  template < typename T > const T &getCurrentEvent();
-
+  // JPetTimeWindow fCurrentTimeWindow;
   long long fNumberOfEventsInFile = 0;
-
   JPetReader fReader;
   std::shared_ptr< JPetGeomMapping > fMapper;
 #endif

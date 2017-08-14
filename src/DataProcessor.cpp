@@ -26,36 +26,37 @@ DataProcessor::DataProcessor(std::shared_ptr< JPetGeomMapping > mapper)
 void DataProcessor::getDataForCurrentEvent()
 {
   ProcessedData::getInstance().clearData();
-  switch (ProcessedData::getInstance().getCurrentFileType())
+  auto fCurrentTimeWindow =
+      dynamic_cast< JPetTimeWindow & >(fReader.getCurrentEvent());
+  for (size_t i = 0; i < fCurrentTimeWindow.getNumberOfEvents(); i++)
   {
-  case FileTypes::fTimeWindow:
-    getActiveScintillators(getCurrentEvent< JPetTimeWindow >());
-    ProcessedData::getInstance().addToInfo(currentActivedScintillatorsInfo());
-    break;
-  case FileTypes::fRawSignal:
-    getActiveScintillators(getCurrentEvent< JPetRawSignal >());
-    getDataForDiagram(getCurrentEvent< JPetRawSignal >());
-    ProcessedData::getInstance().addToInfo(currentActivedScintillatorsInfo());
-    break;
-  case FileTypes::fHit:
-    getActiveScintillators(getCurrentEvent< JPetHit >());
-    getDataForDiagram(getCurrentEvent< JPetHit >());
-    getHitsPosition(getCurrentEvent< JPetHit >());
-    break;
-  case FileTypes::fEvent:
-    getActiveScintillators(getCurrentEvent< JPetEvent >());
-    getDataForDiagram(getCurrentEvent< JPetEvent >());
-    getHitsPosition(getCurrentEvent< JPetEvent >());
-    break;
-  default:
-    ProcessedData::getInstance().addToInfo("Not implemented object type");
-    break;
+    switch (ProcessedData::getInstance().getCurrentFileType())
+    {
+    // case FileTypes::fTimeWindow:
+    //  getActiveScintillators(fCurrentTimeWindow.getEvent< JPetTimeWindow
+    //  >(i));
+    //  ProcessedData::getInstance().addToInfo(currentActivedScintillatorsInfo());
+    //  break;
+    case FileTypes::fRawSignal:
+      getActiveScintillators(fCurrentTimeWindow.getEvent< JPetRawSignal >(i));
+      getDataForDiagram(fCurrentTimeWindow.getEvent< JPetRawSignal >(i));
+      ProcessedData::getInstance().addToInfo(currentActivedScintillatorsInfo());
+      break;
+    case FileTypes::fHit:
+      getActiveScintillators(fCurrentTimeWindow.getEvent< JPetHit >(i));
+      getDataForDiagram(fCurrentTimeWindow.getEvent< JPetHit >(i));
+      getHitsPosition(fCurrentTimeWindow.getEvent< JPetHit >(i));
+      break;
+    case FileTypes::fEvent:
+      getActiveScintillators(fCurrentTimeWindow.getEvent< JPetEvent >(i));
+      getDataForDiagram(fCurrentTimeWindow.getEvent< JPetEvent >(i));
+      getHitsPosition(fCurrentTimeWindow.getEvent< JPetEvent >(i));
+      break;
+    default:
+      ProcessedData::getInstance().addToInfo("Not implemented object type");
+      break;
+    }
   }
-}
-
-template < typename T > const T &DataProcessor::getCurrentEvent()
-{
-  return dynamic_cast< T & >(fReader.getCurrentEvent());
 }
 
 std::string DataProcessor::currentActivedScintillatorsInfo()
@@ -92,7 +93,7 @@ void DataProcessor::addToSelectionIfNotPresent(ScintillatorsInLayers &selection,
   }
 }
 
-void DataProcessor::getActiveScintillators(const JPetTimeWindow &tWindow)
+/*void DataProcessor::getActiveScintillators(const JPetTimeWindow &tWindow)
 {
   auto sigChannels = tWindow.getSigChVect();
   ScintillatorsInLayers selection;
@@ -119,7 +120,7 @@ void DataProcessor::getActiveScintillators(const JPetTimeWindow &tWindow)
   }
 
   ProcessedData::getInstance().setActivedScins(selection);
-}
+}*/
 
 void DataProcessor::getActiveScintillators(const JPetRawSignal &rawSignal)
 {
@@ -170,7 +171,7 @@ void DataProcessor::getActiveScintillators(const JPetRawSignal &rawSignal)
     addToSelectionIfNotPresent(selection, pos);
   }
 
-  ProcessedData::getInstance().setActivedScins(selection);
+  ProcessedData::getInstance().addActivedScins(selection);
 }
 
 void DataProcessor::getActiveScintillators(const JPetHit &hitSignal)
@@ -179,7 +180,7 @@ void DataProcessor::getActiveScintillators(const JPetHit &hitSignal)
   StripPos pos = fMapper->getStripPos(hitSignal.getBarrelSlot());
   selection[pos.layer] = {pos.slot};
 
-  ProcessedData::getInstance().setActivedScins(selection);
+  ProcessedData::getInstance().addActivedScins(selection);
 }
 
 void DataProcessor::getActiveScintillators(const JPetEvent &event)
@@ -191,7 +192,7 @@ void DataProcessor::getActiveScintillators(const JPetEvent &event)
     addToSelectionIfNotPresent(selection, pos);
   }
 
-  ProcessedData::getInstance().setActivedScins(selection);
+  ProcessedData::getInstance().addActivedScins(selection);
 }
 
 DiagramDataMap DataProcessor::getDataForDiagram(const JPetRawSignal &rawSignal,
@@ -227,7 +228,7 @@ void DataProcessor::getDataForDiagram(const JPetRawSignal &rawSignal)
 {
   DiagramDataMapVector diagramDataVector;
   diagramDataVector.push_back(getDataForDiagram(rawSignal, true));
-  ProcessedData::getInstance().setDiagram(diagramDataVector);
+  ProcessedData::getInstance().addDiagram(diagramDataVector);
 }
 
 void DataProcessor::getDataForDiagram(const JPetHit &hitSignal)
@@ -237,7 +238,7 @@ void DataProcessor::getDataForDiagram(const JPetHit &hitSignal)
       hitSignal.getSignalA().getRecoSignal().getRawSignal(), true));
   diagramDataVector.push_back(getDataForDiagram(
       hitSignal.getSignalB().getRecoSignal().getRawSignal(), true));
-  ProcessedData::getInstance().setDiagram(diagramDataVector);
+  ProcessedData::getInstance().addDiagram(diagramDataVector);
 
   StripPos pos = fMapper->getStripPos(hitSignal.getSignalA()
                                           .getRecoSignal()
@@ -283,14 +284,14 @@ void DataProcessor::getDataForDiagram(const JPetEvent &event)
         << "r: " << r << " theta: " << (fi * 180.0) / M_PI << "\n";
     ProcessedData::getInstance().addToInfo(oss.str());
   }
-  ProcessedData::getInstance().setDiagram(diagramDataVector);
+  ProcessedData::getInstance().addDiagram(diagramDataVector);
 }
 
 void DataProcessor::getHitsPosition(const JPetHit &hitSignal)
 {
   HitPositions hitsPos;
   hitsPos.push_back(hitSignal.getPos());
-  ProcessedData::getInstance().setHits(hitsPos);
+  ProcessedData::getInstance().addHits(hitsPos);
 }
 
 void DataProcessor::getHitsPosition(const JPetEvent &event)
@@ -300,7 +301,7 @@ void DataProcessor::getHitsPosition(const JPetEvent &event)
   {
     hitsPos.push_back(hit.getPos());
   }
-  ProcessedData::getInstance().setHits(hitsPos);
+  ProcessedData::getInstance().addHits(hitsPos);
 }
 
 bool DataProcessor::openFile(const char *filename)
@@ -319,10 +320,15 @@ bool DataProcessor::openFile(const char *filename)
   fNumberOfEventsInFile = fReader.getNbOfAllEvents();
   if (openFileResult)
   {
-    TTree *fTree = dynamic_cast< TTree * >(fReader.getObjectFromFile("tree"));
-    TObjArray *arr = fTree->GetListOfBranches();
-    TBranch *fBranch = dynamic_cast< TBranch * >(arr->At(0));
-    const char *branchName = fBranch->GetClassName();
+    auto fCurrentTimeWindowTemp =
+        dynamic_cast< JPetTimeWindow & >(fReader.getCurrentEvent());
+    if (fCurrentTimeWindowTemp.getNumberOfEvents() <= 0)
+    {
+      ERROR("No events in time window");
+      return openFileResult;
+    }
+    const char *branchName = fCurrentTimeWindowTemp[0].GetName();
+    std::cout << "Current file type: " << branchName << '\n';
     ProcessedData::getInstance().setCurrentFileType(
         static_cast< FileTypes >(compareMap[branchName]));
   }
