@@ -32,11 +32,10 @@ void DataProcessor::getDataForCurrentEvent()
   {
     switch (ProcessedData::getInstance().getCurrentFileType())
     {
-    // case FileTypes::fTimeWindow:
-    //  getActiveScintillators(fCurrentTimeWindow.getEvent< JPetTimeWindow
-    //  >(i));
-    //  ProcessedData::getInstance().addToInfo(currentActivedScintillatorsInfo());
-    //  break;
+    case FileTypes::fSigCh:
+      getActiveScintillators(fCurrentTimeWindow.getEvent< JPetSigCh >(i));
+      ProcessedData::getInstance().addToInfo(currentActivedScintillatorsInfo());
+      break;
     case FileTypes::fRawSignal:
       getActiveScintillators(fCurrentTimeWindow.getEvent< JPetRawSignal >(i));
       getDataForDiagram(fCurrentTimeWindow.getEvent< JPetRawSignal >(i));
@@ -93,34 +92,29 @@ void DataProcessor::addToSelectionIfNotPresent(ScintillatorsInLayers &selection,
   }
 }
 
-/*void DataProcessor::getActiveScintillators(const JPetTimeWindow &tWindow)
+void DataProcessor::getActiveScintillators(const JPetSigCh &sigCh)
 {
-  auto sigChannels = tWindow.getSigChVect();
   ScintillatorsInLayers selection;
-  for (const auto &channel : sigChannels)
+  auto PM = sigCh.getPM();
+  if (PM.isNullObject())
   {
-    auto PM = channel.getPM();
-    if (PM.isNullObject())
-    {
-      continue;
-    }
-    auto scin = PM.getScin();
-    if (scin.isNullObject())
-    {
-      continue;
-    }
-    auto barrel = scin.getBarrelSlot();
-    if (barrel.isNullObject())
-    {
-      continue;
-    }
-    StripPos pos = fMapper->getStripPos(barrel);
-
-    addToSelectionIfNotPresent(selection, pos);
+    return;
   }
+  auto scin = PM.getScin();
+  if (scin.isNullObject())
+  {
+    return;
+  }
+  auto barrel = scin.getBarrelSlot();
+  if (barrel.isNullObject())
+  {
+    return;
+  }
+  StripPos pos = fMapper->getStripPos(barrel);
 
-  ProcessedData::getInstance().setActivedScins(selection);
-}*/
+  addToSelectionIfNotPresent(selection, pos);
+  ProcessedData::getInstance().addActivedScins(selection);
+}
 
 void DataProcessor::getActiveScintillators(const JPetRawSignal &rawSignal)
 {
@@ -313,6 +307,7 @@ bool DataProcessor::openFile(const char *filename)
     compareMap["JPetRawSignal"] = FileTypes::fRawSignal;
     compareMap["JPetHit"] = FileTypes::fHit;
     compareMap["JPetEvent"] = FileTypes::fEvent;
+    compareMap["JPetSigCh"] = FileTypes::fSigCh;
   }
   bool openFileResult = fReader.openFileAndLoadData(filename);
   dynamic_cast< JPetParamBank * >(fReader.getObjectFromFile(
@@ -320,14 +315,14 @@ bool DataProcessor::openFile(const char *filename)
   fNumberOfEventsInFile = fReader.getNbOfAllEvents();
   if (openFileResult)
   {
-    auto fCurrentTimeWindowTemp =
+    auto fCurrentTimeWindow =
         dynamic_cast< JPetTimeWindow & >(fReader.getCurrentEvent());
-    if (fCurrentTimeWindowTemp.getNumberOfEvents() <= 0)
+    if (fCurrentTimeWindow.getNumberOfEvents() <= 0)
     {
       ERROR("No events in time window");
       return openFileResult;
     }
-    const char *branchName = fCurrentTimeWindowTemp[0].GetName();
+    const char *branchName = fCurrentTimeWindow[0].GetName();
     std::cout << "Current file type: " << branchName << '\n';
     ProcessedData::getInstance().setCurrentFileType(
         static_cast< FileTypes >(compareMap[branchName]));

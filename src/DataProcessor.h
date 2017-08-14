@@ -45,7 +45,8 @@ enum FileTypes
   fTimeWindow,
   fRawSignal,
   fHit,
-  fEvent
+  fEvent,
+  fSigCh
 };
 
 typedef std::map< size_t, std::vector< size_t > >
@@ -135,7 +136,7 @@ private:
   void addToSelectionIfNotPresent(ScintillatorsInLayers &selection,
                                   StripPos &pos);
 
-  // void getActiveScintillators(const JPetTimeWindow &tWindow);
+  void getActiveScintillators(const JPetSigCh &sigCh);
   void getActiveScintillators(const JPetRawSignal &rawSignal);
   void getActiveScintillators(const JPetHit &hitSignal);
   void getActiveScintillators(const JPetEvent &event);
@@ -150,7 +151,7 @@ private:
   void getHitsPosition(const JPetHit &hitSignal);
   void getHitsPosition(const JPetEvent &event);
 
-  // JPetTimeWindow fCurrentTimeWindow;
+  JPetTimeWindow fCurrentTimeWindow;
   long long fNumberOfEventsInFile = 0;
   JPetReader fReader;
   std::shared_ptr< JPetGeomMapping > fMapper;
