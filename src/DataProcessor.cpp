@@ -26,8 +26,27 @@ DataProcessor::DataProcessor(std::shared_ptr< JPetGeomMapping > mapper)
 void DataProcessor::getDataForCurrentEvent()
 {
   ProcessedData::getInstance().clearData();
+  static std::map< std::string, int > compareMap;
+  if (compareMap.empty())
+  {
+    compareMap["JPetTimeWindow"] = FileTypes::fTimeWindow;
+    compareMap["JPetRawSignal"] = FileTypes::fRawSignal;
+    compareMap["JPetHit"] = FileTypes::fHit;
+    compareMap["JPetEvent"] = FileTypes::fEvent;
+    compareMap["JPetSigCh"] = FileTypes::fSigCh;
+  }
   auto fCurrentTimeWindow =
       dynamic_cast< JPetTimeWindow & >(fReader.getCurrentEvent());
+
+  if (fCurrentTimeWindow.getNumberOfEvents() <= 0)
+  {
+    ERROR("No events in time window");
+    return;
+  }
+  const char *branchName = fCurrentTimeWindow[0].GetName();
+  std::cout << "Current file type: " << branchName << '\n';
+  ProcessedData::getInstance().setCurrentFileType(
+      static_cast< FileTypes >(compareMap[branchName]));
   for (size_t i = 0; i < fCurrentTimeWindow.getNumberOfEvents(); i++)
   {
     switch (ProcessedData::getInstance().getCurrentFileType())
@@ -311,37 +330,11 @@ void DataProcessor::getHitsPosition(const JPetEvent &event)
 
 bool DataProcessor::openFile(const char *filename)
 {
-  static std::map< std::string, int > compareMap;
-  if (compareMap.empty())
-  {
-    compareMap["JPetTimeWindow"] = FileTypes::fTimeWindow;
-    compareMap["JPetRawSignal"] = FileTypes::fRawSignal;
-    compareMap["JPetHit"] = FileTypes::fHit;
-    compareMap["JPetEvent"] = FileTypes::fEvent;
-    compareMap["JPetSigCh"] = FileTypes::fSigCh;
-  }
+
   bool openFileResult = fReader.openFileAndLoadData(filename);
   dynamic_cast< JPetParamBank * >(fReader.getObjectFromFile(
       "ParamBank")); // just read param bank, no need to save it to variable
   fNumberOfEventsInFile = fReader.getNbOfAllEvents();
-  if (openFileResult)
-  {
-    auto fCurrentTimeWindowTmp =
-        dynamic_cast< JPetTimeWindow & >(fReader.getCurrentEvent());
-    if (fCurrentTimeWindowTmp.getNumberOfEvents() <= 0)
-    {
-      ERROR("No events in time window");
-      return openFileResult;
-    }
-    const char *branchName = fCurrentTimeWindowTmp[0].GetName();
-    // fCurrentTimeWindow.setClass(branchName);
-    // fCurrentTimeWindow = fCurrentTimeWindowTmp;
-    std::cout << "Current file type: " << branchName << '\n';
-    ProcessedData::getInstance().setCurrentFileType(
-        static_cast< FileTypes >(compareMap[branchName]));
-  }
-  else
-    ERROR("Error opening file");
   return openFileResult;
 }
 
