@@ -53,6 +53,7 @@ void DataProcessor::getDataForCurrentEvent()
       break;
     default:
       ProcessedData::getInstance().addToInfo("Not implemented object type");
+      return;
       break;
     }
   }
@@ -60,6 +61,7 @@ void DataProcessor::getDataForCurrentEvent()
 
 std::string DataProcessor::currentActivedScintillatorsInfo()
 {
+  std::map< int, std::map< size_t, int > > info;
   std::ostringstream oss;
   for (auto iter =
            ProcessedData::getInstance().getActivedScintilators().begin();
@@ -71,7 +73,16 @@ std::string DataProcessor::currentActivedScintillatorsInfo()
     for (auto stripIter = strips.begin(); stripIter != strips.end();
          ++stripIter)
     {
-      oss << "layer: " << layer << " scin: " << *stripIter << "\n";
+      size_t scin = *stripIter;
+      info[layer][scin] = info[layer][scin] + 1;
+    }
+  }
+  for (auto it = info.begin(); it != info.end(); it++)
+  {
+    for (auto itScin = it->second.begin(); itScin != it->second.end(); itScin++)
+    {
+      oss << "layer " << it->first << " scin " << itScin->first
+          << " no of events " << itScin->second << "\n";
     }
   }
   return oss.str();
@@ -315,18 +326,22 @@ bool DataProcessor::openFile(const char *filename)
   fNumberOfEventsInFile = fReader.getNbOfAllEvents();
   if (openFileResult)
   {
-    auto fCurrentTimeWindow =
+    auto fCurrentTimeWindowTmp =
         dynamic_cast< JPetTimeWindow & >(fReader.getCurrentEvent());
-    if (fCurrentTimeWindow.getNumberOfEvents() <= 0)
+    if (fCurrentTimeWindowTmp.getNumberOfEvents() <= 0)
     {
       ERROR("No events in time window");
       return openFileResult;
     }
-    const char *branchName = fCurrentTimeWindow[0].GetName();
+    const char *branchName = fCurrentTimeWindowTmp[0].GetName();
+    // fCurrentTimeWindow.setClass(branchName);
+    // fCurrentTimeWindow = fCurrentTimeWindowTmp;
     std::cout << "Current file type: " << branchName << '\n';
     ProcessedData::getInstance().setCurrentFileType(
         static_cast< FileTypes >(compareMap[branchName]));
   }
+  else
+    ERROR("Error opening file");
   return openFileResult;
 }
 
