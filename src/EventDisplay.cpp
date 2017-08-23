@@ -327,6 +327,7 @@ void EventDisplay::handleMenu(Int_t id)
       return;
     assert(dataProcessor);
     dataProcessor->openFile(fFileInfo->fFilename);
+    visualizator->clearAllCanvases();
     showData();
     setMaxProgressBar(dataProcessor->getNumberOfEvents());
   }

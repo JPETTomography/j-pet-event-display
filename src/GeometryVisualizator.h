@@ -63,6 +63,7 @@ public:
 
   void showGeometry();
   void drawData();
+  void clearAllCanvases();
 
   inline std::unique_ptr< TRootEmbeddedCanvas > &getCanvas3d()
   {
