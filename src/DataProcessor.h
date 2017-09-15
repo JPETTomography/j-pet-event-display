@@ -45,7 +45,8 @@ enum FileTypes
   fTimeWindow,
   fRawSignal,
   fHit,
-  fEvent
+  fEvent,
+  fSigCh
 };
 
 typedef std::map< size_t, std::vector< size_t > >
@@ -78,10 +79,19 @@ public:
     fInfo.clear();
   }
 
-  void setActivedScins(ScintillatorsInLayers scins) { fActivedScins = scins; }
-  void setDiagram(DiagramDataMapVector diagram) { fDiagram = diagram; }
+  void addActivedScins(ScintillatorsInLayers scins)
+  {
+    fActivedScins.insert(scins.begin(), scins.end());
+  }
+  void addDiagram(DiagramDataMapVector diagram)
+  {
+    fDiagram.insert(fDiagram.end(), diagram.begin(), diagram.end());
+  }
   void setCurrentFileType(FileTypes type) { fCurrentFileType = type; }
-  void setHits(HitPositions hits) { fHits = hits; }
+  void addHits(HitPositions hits)
+  {
+    fHits.insert(fHits.end(), hits.begin(), hits.end());
+  }
 
   inline FileTypes getCurrentFileType() const { return fCurrentFileType; }
   inline ScintillatorsInLayers &getActivedScintilators()
@@ -108,7 +118,7 @@ private:
 class DataProcessor
 {
 public:
-  DataProcessor(const std::string &paramGetterAnsiiPath, const int runNumber);
+  DataProcessor(std::shared_ptr< JPetGeomMapping > fMapper);
   void getDataForCurrentEvent();
   bool openFile(const char *filename);
   void closeFile();
@@ -126,7 +136,7 @@ private:
   void addToSelectionIfNotPresent(ScintillatorsInLayers &selection,
                                   StripPos &pos);
 
-  void getActiveScintillators(const JPetTimeWindow &tWindow);
+  void getActiveScintillators(const JPetSigCh &sigCh);
   void getActiveScintillators(const JPetRawSignal &rawSignal);
   void getActiveScintillators(const JPetHit &hitSignal);
   void getActiveScintillators(const JPetEvent &event);
@@ -141,12 +151,10 @@ private:
   void getHitsPosition(const JPetHit &hitSignal);
   void getHitsPosition(const JPetEvent &event);
 
-  template < typename T > const T &getCurrentEvent();
-
   long long fNumberOfEventsInFile = 0;
-
+  unsigned int fNumberOfEventInCurrentTimeWindow = 0;
   JPetReader fReader;
-  std::unique_ptr< JPetGeomMapping > fMapper;
+  std::shared_ptr< JPetGeomMapping > fMapper;
 #endif
 };
 }
