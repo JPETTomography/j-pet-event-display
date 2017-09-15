@@ -44,37 +44,43 @@ void DataProcessor::getDataForCurrentEvent()
     return;
   }
   const char *branchName = fCurrentTimeWindow[0].GetName();
-  std::cout << "Current file type: " << branchName << '\n';
   ProcessedData::getInstance().setCurrentFileType(
       static_cast< FileTypes >(compareMap[branchName]));
-  for (size_t i = 0; i < fCurrentTimeWindow.getNumberOfEvents(); i++)
+
+  switch (ProcessedData::getInstance().getCurrentFileType())
   {
-    switch (ProcessedData::getInstance().getCurrentFileType())
-    {
-    case FileTypes::fSigCh:
-      getActiveScintillators(fCurrentTimeWindow.getEvent< JPetSigCh >(i));
-      ProcessedData::getInstance().addToInfo(currentActivedScintillatorsInfo());
-      break;
-    case FileTypes::fRawSignal:
-      getActiveScintillators(fCurrentTimeWindow.getEvent< JPetRawSignal >(i));
-      getDataForDiagram(fCurrentTimeWindow.getEvent< JPetRawSignal >(i));
-      ProcessedData::getInstance().addToInfo(currentActivedScintillatorsInfo());
-      break;
-    case FileTypes::fHit:
-      getActiveScintillators(fCurrentTimeWindow.getEvent< JPetHit >(i));
-      getDataForDiagram(fCurrentTimeWindow.getEvent< JPetHit >(i));
-      getHitsPosition(fCurrentTimeWindow.getEvent< JPetHit >(i));
-      break;
-    case FileTypes::fEvent:
-      getActiveScintillators(fCurrentTimeWindow.getEvent< JPetEvent >(i));
-      getDataForDiagram(fCurrentTimeWindow.getEvent< JPetEvent >(i));
-      getHitsPosition(fCurrentTimeWindow.getEvent< JPetEvent >(i));
-      break;
-    default:
-      ProcessedData::getInstance().addToInfo("Not implemented object type");
-      return;
-      break;
-    }
+  case FileTypes::fSigCh:
+    getActiveScintillators(fCurrentTimeWindow.getEvent< JPetSigCh >(
+        fNumberOfEventInCurrentTimeWindow));
+    ProcessedData::getInstance().addToInfo(currentActivedScintillatorsInfo());
+    break;
+  case FileTypes::fRawSignal:
+    getActiveScintillators(fCurrentTimeWindow.getEvent< JPetRawSignal >(
+        fNumberOfEventInCurrentTimeWindow));
+    getDataForDiagram(fCurrentTimeWindow.getEvent< JPetRawSignal >(
+        fNumberOfEventInCurrentTimeWindow));
+    ProcessedData::getInstance().addToInfo(currentActivedScintillatorsInfo());
+    break;
+  case FileTypes::fHit:
+    getActiveScintillators(fCurrentTimeWindow.getEvent< JPetHit >(
+        fNumberOfEventInCurrentTimeWindow));
+    getDataForDiagram(fCurrentTimeWindow.getEvent< JPetHit >(
+        fNumberOfEventInCurrentTimeWindow));
+    getHitsPosition(fCurrentTimeWindow.getEvent< JPetHit >(
+        fNumberOfEventInCurrentTimeWindow));
+    break;
+  case FileTypes::fEvent:
+    getActiveScintillators(fCurrentTimeWindow.getEvent< JPetEvent >(
+        fNumberOfEventInCurrentTimeWindow));
+    getDataForDiagram(fCurrentTimeWindow.getEvent< JPetEvent >(
+        fNumberOfEventInCurrentTimeWindow));
+    getHitsPosition(fCurrentTimeWindow.getEvent< JPetEvent >(
+        fNumberOfEventInCurrentTimeWindow));
+    break;
+  default:
+    ProcessedData::getInstance().addToInfo("Not implemented object type");
+    return;
+    break;
   }
 }
 
@@ -330,11 +336,18 @@ void DataProcessor::getHitsPosition(const JPetEvent &event)
 
 bool DataProcessor::openFile(const char *filename)
 {
-
+  fNumberOfEventsInFile = 0;
   bool openFileResult = fReader.openFileAndLoadData(filename);
   dynamic_cast< JPetParamBank * >(fReader.getObjectFromFile(
       "ParamBank")); // just read param bank, no need to save it to variable
-  fNumberOfEventsInFile = fReader.getNbOfAllEvents();
+  long long numberOfTimeWindowses = fReader.getNbOfAllEvents();
+  for (long long i = 0; i < numberOfTimeWindowses; i++)
+  {
+    fReader.nthEvent(i);
+    fNumberOfEventsInFile +=
+        dynamic_cast< JPetTimeWindow & >(fReader.getCurrentEvent())
+            .getNumberOfEvents();
+  }
   return openFileResult;
 }
 
@@ -348,11 +361,29 @@ bool DataProcessor::lastEvent() { return fReader.lastEvent(); }
 
 bool DataProcessor::nthEvent(long long n)
 {
+  long long currentEventToFind = n;
   if (n < fNumberOfEventsInFile)
   {
-    bool returnValue = fReader.nthEvent(n);
-    getDataForCurrentEvent();
-    return returnValue;
+    for (long long i = 0; i < fReader.getNbOfAllEvents(); i++)
+    {
+      fReader.nthEvent(i);
+      unsigned int numberOfEventsInTimeWindow =
+          dynamic_cast< JPetTimeWindow & >(fReader.getCurrentEvent())
+              .getNumberOfEvents();
+      if (currentEventToFind < numberOfEventsInTimeWindow)
+      {
+        fNumberOfEventInCurrentTimeWindow = currentEventToFind;
+        bool returnValue = fReader.nthEvent(i);
+        getDataForCurrentEvent();
+        return returnValue;
+      }
+      else
+      {
+        currentEventToFind -= numberOfEventsInTimeWindow;
+      }
+    }
+    ERROR("Could not find event in file");
+    return false;
   }
   else
     return false;

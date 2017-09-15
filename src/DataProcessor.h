@@ -151,8 +151,8 @@ private:
   void getHitsPosition(const JPetHit &hitSignal);
   void getHitsPosition(const JPetEvent &event);
 
-  // JPetTimeWindow fCurrentTimeWindow;
   long long fNumberOfEventsInFile = 0;
+  unsigned int fNumberOfEventInCurrentTimeWindow = 0;
   JPetReader fReader;
   std::shared_ptr< JPetGeomMapping > fMapper;
 #endif
