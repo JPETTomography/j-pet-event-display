@@ -50,6 +50,47 @@ void GeometryVisualizator::drawData()
   updateCanvas(fCanvasDiagrams);
 }
 
+void GeometryVisualizator::clearAllCanvases()
+{
+  setAllStripsUnvisible();   // clear selected scintillators on 3d view
+  setAllStripsUnvisible2d(); // clear selected scintillators on unrolled view
+
+  fCanvasDiagrams->Clear(); // clear diagrams
+
+  for (TPolyLine3D *line : fLineOn3dView) // clear lines and markers on 3d view
+  {
+    fCanvas3d->GetListOfPrimitives()->Remove(line);
+    delete line;
+  }
+  fLineOn3dView.clear();
+  for (TPolyMarker3D *marker : fMarkerOn3dView)
+  {
+    fCanvas3d->GetListOfPrimitives()->Remove(marker);
+    delete marker;
+  }
+  fMarkerOn3dView.clear();
+
+  for (TPolyLine *line : fLineOnTopView) // clear lines and markers on 2d view
+  {
+    fCanvasTopView->GetListOfPrimitives()->Remove(line);
+    delete line;
+  }
+  fLineOnTopView.clear();
+  for (TPolyMarker *marker : fMarkerOnTopView)
+  {
+    fCanvasTopView->GetListOfPrimitives()->Remove(marker);
+    delete marker;
+  }
+  fMarkerOnTopView.clear();
+
+  for (TMarker *marker : fUnRolledViewMarker) // clear markers on unrolled view
+  {
+    fCanvas2d->GetListOfPrimitives()->Remove(marker);
+    delete marker;
+  }
+  fUnRolledViewMarker.clear();
+}
+
 void GeometryVisualizator::updateCanvas(std::unique_ptr< TCanvas > &canvas)
 {
   canvas->Draw();
@@ -182,7 +223,7 @@ void GeometryVisualizator::setMarker2d(const HitPositions &pos,
   }
 
   static const double kCenterOfScintillator = fScinLenghtWithoutScale / 2;
-  int i = 0;
+  unsigned int i = 0;
   for (auto iter = selection.begin(); iter != selection.end(); ++iter)
   {
     unsigned int layer = iter->first - 1; // table start form 0, layers from 1
@@ -194,6 +235,8 @@ void GeometryVisualizator::setMarker2d(const HitPositions &pos,
       if (layer < fUnRolledViewScintillators.size() &&
           strip < fUnRolledViewScintillators[layer].size())
       {
+        if (i == pos.size())
+          return;
         double drawedScintillatorLength =
             fUnRolledViewScintillators[layer][strip]->GetX2() -
             fUnRolledViewScintillators[layer][strip]->GetX1();
@@ -443,6 +486,7 @@ void GeometryVisualizator::drawDiagram(const DiagramDataMapVector &diagramData)
         std::unique_ptr< TCanvas >(fRootCanvasDiagrams->GetCanvas());
   int vectorSize = diagramData.size();
   fCanvasDiagrams->cd();
+  fCanvasDiagrams->Clear();
   if (vectorSize != fLastDiagramVectorSize)
   {
     fCanvasDiagrams->Clear();

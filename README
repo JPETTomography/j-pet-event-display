@@ -16,7 +16,7 @@ git clone --recursive https://github.com/JPETTomography/j-pet-event-display.git
 Current status
 -----------------------
 Currently 4 types of objects can be visualized:
--- JPetTimeWindow
+-- JPetSigCh
 -- JPetRawSignal
 -- JPetHit
 -- JPetEvent 
@@ -25,6 +25,12 @@ There are 4 types of views:
 -- unrolled view showing actived scintillators and hit position on scintillators
 -- front view 2d view from front of tomograph
 -- diagram view showing time difference between leading and trailing edge on each threshold
+
+Running
+------------
+Event Display accepts 2 possible arguments:
+-i path to input file with geometry(default "large_barrel.json")
+-r run number(default 0)
 
 Documentation
 -------------
