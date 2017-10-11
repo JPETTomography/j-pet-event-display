@@ -591,7 +591,7 @@ void GeometryVisualizator::createGeometry(
     vol->SetVisibility(kTRUE);
     currentFi = startFi[i];
     for (int j = 0; j < layerStats[i].first; j++) {
-      TGeoVolume* scin = gGeoManager->MakeTube("scin", medium, 0, 0.7, 50);
+      TGeoVolume* scin = gGeoManager->MakeTube("scin", medium, 0, 0.7, scintillatorLenght / 2);
 
       scin->SetLineColorAlpha(layersColors[i], 0.3);
       vol->AddNode(
