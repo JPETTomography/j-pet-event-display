@@ -573,7 +573,7 @@ void GeometryVisualizator::createGeometry(
   for (int i = 0; i < numberOfLayers; i++) {
     TGeoTube* layer = new TGeoTube(layerStats[i].second,
                                    layerStats[i].second + kLayerThickness,
-                                   scintillatorLenght);
+                                   scintillatorLenght / 2);
     assert(layer);
     layers.push_back(layer);
   }
