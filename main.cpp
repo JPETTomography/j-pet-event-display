@@ -19,7 +19,7 @@
 #include <boost/program_options.hpp>
 #include <iostream>
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
   using namespace jpet_event_display;
   namespace po = boost::program_options;
@@ -27,23 +27,19 @@ int main(int argc, char **argv)
   std::string inFile = "large_barrel.json";
   int runNumber = 0;
 
-  try
-  {
+  try {
     po::options_description desc("Allowed options");
     desc.add_options()("help,h", "produce help message")(
-        "input,i", po::value(&inFile), "Input file")(
+      "input,i", po::value(&inFile), "Input file")(
         "run,r", po::value(&runNumber), "run number of input file");
     po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, desc), vm);
     po::notify(vm);
-    if (vm.count("help"))
-    {
+    if (vm.count("help")) {
       std::cout << desc << "\n";
       return 1;
     }
-  }
-  catch (std::exception &e)
-  {
+  } catch (std::exception& e) {
     std::cout << e.what() << "\n";
     return 1;
   }
@@ -58,15 +54,14 @@ int main(int argc, char **argv)
   auto bank = fparamManagerInstance.getParamBank();
 
   std::shared_ptr< JPetGeomMapping > fMapper =
-      std::unique_ptr< JPetGeomMapping >(new JPetGeomMapping(bank));
+    std::unique_ptr< JPetGeomMapping >(new JPetGeomMapping(bank));
   std::vector< size_t > layersSize = fMapper->getLayersSizes();
   std::vector< std::pair< int, double > > layersInfo;
   const int numberOfLayers =
-      layersSize.size() - 1; // -1 because last layer is reference
-  for (int i = 0; i < numberOfLayers; i++)
-  {
+    layersSize.size() - 1; // -1 because last layer is reference
+  for (int i = 0; i < numberOfLayers; i++) {
     layersInfo.push_back(
-        std::make_pair(layersSize[i], fMapper->getRadiusOfLayer(i + 1)));
+      std::make_pair(layersSize[i], fMapper->getRadiusOfLayer(i + 1)));
   }
   EventDisplay myDisplay;
   myDisplay.run(fMapper, numberOfLayers, 50, layersInfo);
