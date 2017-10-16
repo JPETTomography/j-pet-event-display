@@ -590,15 +590,16 @@ void GeometryVisualizator::createGeometry(
     assert(vol);
     vol->SetVisibility(kTRUE);
     currentFi = startFi[i];
-    for (int j = 0; j < layerStats[i].first; j++) {
-      TGeoVolume* scin = gGeoManager->MakeTube("scin", medium, 0, 0.7, scintillatorLenght / 2);
 
+    for (int j = 0; j < layerStats[i].first; j++) {
+      TGeoVolume* scin = gGeoManager->MakeBox("scin", medium, 1.9, 0.7, scintillatorLenght / 2);
       scin->SetLineColorAlpha(layersColors[i], 0.3);
-      vol->AddNode(
-        scin, j,
-        new TGeoTranslation(
-          layerStats[i].second * std::cos(currentFi * (M_PI / 180)),
-          layerStats[i].second * std::sin(currentFi * (M_PI / 180)), 0));
+      TGeoTranslation trans(
+        layerStats[i].second * std::cos(currentFi * (M_PI / 180)),
+        layerStats[i].second * std::sin(currentFi * (M_PI / 180)), 0);
+      TGeoRotation rot("rot", currentFi, 0, 0);
+      TGeoCombiTrans* comb = new TGeoCombiTrans(trans, rot);
+      vol->AddNode(scin, j, comb );
       currentFi += 360. / layerStats[i].first;
     }
     volNr = top->GetNtotal() + 1;
