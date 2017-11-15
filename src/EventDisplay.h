@@ -70,13 +70,14 @@ class EventDisplay
 {
   RQ_OBJECT("EventDisplay")
 public:
-  EventDisplay(const std::string &paramGetterAnsiiPath, const int runNumber,
-               const int numberOfLayers, const int scintillatorLenght,
-               const std::vector< std::pair< int, double > > &layerStats);
+  EventDisplay();
   ~EventDisplay();
 
 #ifndef __CINT__
-  void run();
+  void run(std::shared_ptr< JPetGeomMapping > mapper, const int numberOfLayers,
+           const int scintillatorLenght,
+           const std::vector< std::pair< int, double > > &layerStats);
+  void createGUI();
   void drawSelectedStrips();
   void setMaxProgressBar(Int_t maxEvent);
   inline void updateProgressBar()

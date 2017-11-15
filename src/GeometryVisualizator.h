@@ -25,6 +25,7 @@
 #include <TGeoNode.h>
 #include <TGeoTube.h>
 #include <TGeoVolume.h>
+#include <TGeoMatrix.h>
 #include <TGraph.h>
 #include <TLine.h>
 #include <TMarker.h>
@@ -57,26 +58,27 @@ class GeometryVisualizator
 {
 public:
   GeometryVisualizator(
-      const int numberOfLayers, const int scintillatorLenght,
-      const std::vector< std::pair< int, double > > &layerStats);
+    const int numberOfLayers, const int scintillatorLenght,
+    const std::vector< std::pair< int, double > >& layerStats);
   ~GeometryVisualizator();
 
   void showGeometry();
   void drawData();
+  void clearAllCanvases();
 
-  inline std::unique_ptr< TRootEmbeddedCanvas > &getCanvas3d()
+  inline std::unique_ptr< TRootEmbeddedCanvas >& getCanvas3d()
   {
     return fRootCanvas3d;
   }
-  inline std::unique_ptr< TRootEmbeddedCanvas > &getCanvas2d()
+  inline std::unique_ptr< TRootEmbeddedCanvas >& getCanvas2d()
   {
     return fRootCanvas2d;
   }
-  inline std::unique_ptr< TRootEmbeddedCanvas > &getCanvasTopView()
+  inline std::unique_ptr< TRootEmbeddedCanvas >& getCanvasTopView()
   {
     return fRootCanvasTopView;
   }
-  inline std::unique_ptr< TRootEmbeddedCanvas > &getCanvasDiagrams()
+  inline std::unique_ptr< TRootEmbeddedCanvas >& getCanvasDiagrams()
   {
     return fRootCanvasDiagrams;
   }
@@ -90,29 +92,28 @@ private:
 #ifndef __CINT__
   void
   createGeometry(const int numberOfLayers, const int scintillatorLenght,
-                 const std::vector< std::pair< int, double > > &layerStats);
+                 const std::vector< std::pair< int, double > >& layerStats);
 
-  void updateCanvas(std::unique_ptr< TCanvas > &canvas);
+  void updateCanvas(std::unique_ptr< TCanvas >& canvas);
 
   void draw2dGeometry();
-  void drawStrips(const ScintillatorsInLayers &selection);
+  void drawStrips(const ScintillatorsInLayers& selection);
   void drawPads();
   void setAllStripsUnvisible();
   void setAllStripsUnvisible2d();
-  void setVisibility(const ScintillatorsInLayers &selection);
-  void setVisibility2d(const ScintillatorsInLayers &selection);
-  void setMarker2d(const HitPositions &pos,
-                   const ScintillatorsInLayers &selection);
+  void setVisibility(const ScintillatorsInLayers& selection);
+  void setVisibility2d(const ScintillatorsInLayers& selection);
+  void setMarker2d(const HitPositions& pos,
+                   const ScintillatorsInLayers& selection);
 
-  void drawLineBetweenActivedScins(const HitPositions &pos);
-  void drawMarkers(const HitPositions &pos);
-  void drawDiagram(const DiagramDataMapVector &diagramData);
+  void drawLineBetweenActivedScins(const HitPositions& pos);
+  void drawMarkers(const HitPositions& pos);
+  void drawDiagram(const DiagramDataMapVector& diagramData);
   float changeSignalNumber(int signalNumber);
 
   void draw2dGeometry2();
 
-  enum ColorTable
-  {
+  enum ColorTable {
     kBlack = 1,
     kRed = 2,
     kBlue = 34,
@@ -137,15 +138,15 @@ private:
 
   bool fSaveMarkersAndLinesBetweenEvents = false;
 
-  std::vector< TPolyLine3D * > fLineOn3dView;
-  std::vector< TPolyMarker3D * > fMarkerOn3dView;
+  std::vector< TPolyLine3D* > fLineOn3dView;
+  std::vector< TPolyMarker3D* > fMarkerOn3dView;
 
-  std::vector< TPolyLine * > fLineOnTopView;
-  std::vector< TPolyMarker * > fMarkerOnTopView;
+  std::vector< TPolyLine* > fLineOnTopView;
+  std::vector< TPolyMarker* > fMarkerOnTopView;
 
-  std::vector< std::vector< TBox * > > fUnRolledViewScintillators;
-  std::vector< TMarker * > fUnRolledViewMarker;
-  ColorTable layersColors[3]{kGray1, kGray2, kGray3};
+  std::vector< std::vector< TBox* > > fUnRolledViewScintillators;
+  std::vector< TMarker* > fUnRolledViewMarker;
+  ColorTable layersColors[3] {kGray1, kGray2, kGray3};
 #endif
 };
 }
