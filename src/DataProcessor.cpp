@@ -321,7 +321,9 @@ bool DataProcessor::openFile(const char* filename)
   long long numberOfTimeWindowses = fReader.getNbOfAllEntries();
   for (long long i = 0; i < numberOfTimeWindowses; i++) {
     fReader.nthEntry(i);
-    fNumberOfEventsInFile += fReader.getNbOfAllEntries();
+    fNumberOfEventsInFile +=
+      dynamic_cast<JPetTimeWindow&>(fReader.getCurrentEntry())
+      .getNumberOfEvents();
   }
   return openFileResult;
 }
