@@ -35,7 +35,7 @@ void DataProcessor::getDataForCurrentEvent()
     compareMap["JPetSigCh"] = FileTypes::fSigCh;
   }
   auto fCurrentTimeWindow =
-    dynamic_cast< JPetTimeWindow& >(fReader.getCurrentEvent());
+    dynamic_cast<JPetTimeWindow&>(fReader.getCurrentEntry());
 
   if (fCurrentTimeWindow.getNumberOfEvents() <= 0) {
     ERROR("No events in time window");
@@ -318,12 +318,10 @@ bool DataProcessor::openFile(const char* filename)
   bool openFileResult = fReader.openFileAndLoadData(filename);
   dynamic_cast< JPetParamBank* >(fReader.getObjectFromFile(
                                    "ParamBank")); // just read param bank, no need to save it to variable
-  long long numberOfTimeWindowses = fReader.getNbOfAllEvents();
+  long long numberOfTimeWindowses = fReader.getNbOfAllEntries();
   for (long long i = 0; i < numberOfTimeWindowses; i++) {
-    fReader.nthEvent(i);
-    fNumberOfEventsInFile +=
-      dynamic_cast< JPetTimeWindow& >(fReader.getCurrentEvent())
-      .getNumberOfEvents();
+    fReader.nthEntry(i);
+    fNumberOfEventsInFile += fReader.getNbOfAllEntries();
   }
   return openFileResult;
 }
@@ -335,31 +333,31 @@ void DataProcessor::closeFile()
 
 bool DataProcessor::nextEvent()
 {
-  return fReader.nextEvent();
+  return fReader.nextEntry();
 }
 
 bool DataProcessor::firstEvent()
 {
-  return fReader.firstEvent();
+  return fReader.firstEntry();
 }
 
 bool DataProcessor::lastEvent()
 {
-  return fReader.lastEvent();
+  return fReader.lastEntry();
 }
 
 bool DataProcessor::nthEvent(long long n)
 {
   long long currentEventToFind = n;
   if (n < fNumberOfEventsInFile) {
-    for (long long i = 0; i < fReader.getNbOfAllEvents(); i++) {
-      fReader.nthEvent(i);
+    for (long long i = 0; i < fReader.getNbOfAllEntries(); i++) {
+      fReader.nthEntry(i);
       unsigned int numberOfEventsInTimeWindow =
-        dynamic_cast< JPetTimeWindow& >(fReader.getCurrentEvent())
+        dynamic_cast<JPetTimeWindow&>(fReader.getCurrentEntry())
         .getNumberOfEvents();
       if (currentEventToFind < numberOfEventsInTimeWindow) {
         fNumberOfEventInCurrentTimeWindow = currentEventToFind;
-        bool returnValue = fReader.nthEvent(i);
+        bool returnValue = fReader.nthEntry(i);
         getDataForCurrentEvent();
         return returnValue;
       } else {
