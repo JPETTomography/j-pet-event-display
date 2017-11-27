@@ -54,7 +54,7 @@ int main(int argc, char** argv)
   auto bank = fparamManagerInstance.getParamBank();
 
   std::shared_ptr< JPetGeomMapping > fMapper =
-    std::unique_ptr< JPetGeomMapping >(new JPetGeomMapping(bank));
+    std::shared_ptr< JPetGeomMapping >(new JPetGeomMapping(bank));
   std::vector< size_t > layersSize = fMapper->getLayersSizes();
   std::vector< std::pair< int, double > > layersInfo;
   const int numberOfLayers =

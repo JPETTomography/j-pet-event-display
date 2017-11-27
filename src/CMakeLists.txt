@@ -1,6 +1,5 @@
 add_definitions(-std=c++11 -Wall -Wunused-parameter -Wextra)
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
-include(JPetFramework-Utilities) # for generate_root_dictionaries
 
 include_directories(${INCLUDE_PARENT})
 add_definitions(${DEFINITIONS_PARENT})
