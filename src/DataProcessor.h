@@ -148,6 +148,11 @@ public:
     return fNumberOfEventsInFile;
   }
 
+  void changeResetLeadingEdge()
+  {
+    fResetLeadingEdge = !fResetLeadingEdge;
+  }
+
 private:
 #ifndef __CINT__
   DataProcessor(const DataProcessor&) = delete;
@@ -177,6 +182,7 @@ private:
   unsigned int fNumberOfEventInCurrentTimeWindow = 0;
   JPetReader fReader;
   std::shared_ptr< JPetGeomMapping > fMapper;
+  bool fResetLeadingEdge = false;
 #endif
 };
 }
