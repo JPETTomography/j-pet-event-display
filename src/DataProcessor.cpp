@@ -328,13 +328,6 @@ bool DataProcessor::openFile(const char* filename)
   bool openFileResult = fReader.openFileAndLoadData(filename);
   dynamic_cast< JPetParamBank* >(fReader.getObjectFromFile(
                                    "ParamBank")); // just read param bank, no need to save it to variable
-  //long long numberOfTimeWindowses = fReader.getNbOfAllEntries();
-  //for (long long i = 0; i < numberOfTimeWindowses; i++) {
-  //  fReader.nthEntry(i);
-  //  fNumberOfEventsInFile +=
-  //    dynamic_cast<JPetTimeWindow&>(fReader.getCurrentEntry())
-  //    .getNumberOfEvents();
-  //}
   fNumberOfEventsInFile = std::numeric_limits<long long>::max();
   return openFileResult;
 }
