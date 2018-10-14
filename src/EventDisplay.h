@@ -42,25 +42,25 @@
 #include <RQ_OBJECT.h>
 
 #ifndef __CINT__
+#ifndef __ROOTCLING__
 #include "DataProcessor.h"
 #include "GeometryVisualizator.h"
 
 #include <chrono>
 #include <thread>
 #endif
+#endif
 
 namespace jpet_event_display
 {
 
-struct GUIControlls
-{
+struct GUIControlls {
   Int_t eventNo;
   Int_t stepNo;
   Int_t rootEntries;
 };
 
-enum EMessageTypes
-{
+enum EMessageTypes {
   M_FILE_OPEN,
   M_FILE_SAVE,
   M_FILE_EXIT
@@ -74,9 +74,10 @@ public:
   ~EventDisplay();
 
 #ifndef __CINT__
+#ifndef __ROOTCLING__
   void run(std::shared_ptr<JPetGeomMapping> mapper, const int numberOfLayers,
            const int scintillatorLenght,
-           const std::vector<std::pair<int, double>> &layerStats);
+           const std::vector<std::pair<int, double>>& layerStats);
   void createGUI();
   void drawSelectedStrips();
   void setMaxProgressBar(Int_t maxEvent);
@@ -89,12 +90,12 @@ public:
     fProgBar->SetPosition(Float_t(num));
   }
 
-  enum HandleMenuAction
-  {
+  enum HandleMenuAction {
     E_OpenGeometry,
     E_OpenData,
     E_Close
   };
+#endif
 #endif
 
   // signals
@@ -111,30 +112,30 @@ public:
 private:
 #ifndef __CINT__
 #ifndef __ROOTCLING__
-  EventDisplay(const EventDisplay &) = delete;
-  EventDisplay &operator=(const EventDisplay &) = delete;
+  EventDisplay(const EventDisplay&) = delete;
+  EventDisplay& operator=(const EventDisplay&) = delete;
 
-  void CreateDisplayFrame(TGGroupFrame *parentFrame);
-  void CreateOptionsFrame(TGGroupFrame *parentFrame);
+  void CreateDisplayFrame(TGGroupFrame* parentFrame);
+  void CreateOptionsFrame(TGGroupFrame* parentFrame);
 
-  void AddTab(std::unique_ptr<TGTab> &pTabViews,
-              std::unique_ptr<TRootEmbeddedCanvas> &saveCanvasPtr,
-              const char *tabName, const char *canvasName);
+  void AddTab(std::unique_ptr<TGTab>& pTabViews,
+              std::unique_ptr<TRootEmbeddedCanvas>& saveCanvasPtr,
+              const char* tabName, const char* canvasName);
 
-  void AddButton(TGCompositeFrame *parentFrame, const char *buttonText,
-                 const char *signalFunction);
+  void AddButton(TGCompositeFrame* parentFrame, const char* buttonText,
+                 const char* signalFunction);
 
-  TGGroupFrame *AddGroupFrame(TGCompositeFrame *parentFrame,
-                              const char *frameName, Int_t width, Int_t height);
+  TGGroupFrame* AddGroupFrame(TGCompositeFrame* parentFrame,
+                              const char* frameName, Int_t width, Int_t height);
 
-  TGCompositeFrame *
-  AddCompositeFrame(TGCompositeFrame *parentFrame, Int_t width, Int_t height,
+  TGCompositeFrame*
+  AddCompositeFrame(TGCompositeFrame* parentFrame, Int_t width, Int_t height,
                     Int_t options = kHorizontalFrame,
                     ULong_t hints = kLHintsExpandX | kLHintsExpandY,
                     Int_t padleft = 0, Int_t padright = 0, Int_t padtop = 0,
                     Int_t padbottom = 0);
 
-  void AddMenuBar(TGCompositeFrame *parentFrame);
+  void AddMenuBar(TGCompositeFrame* parentFrame);
 
   void startVirtualizationLoop(const int waitTimeInMs = 1000);
 
@@ -144,9 +145,9 @@ private:
   std::unique_ptr<GeometryVisualizator> visualizator;
 
   std::unique_ptr<TRint> fApplication =
-      std::unique_ptr<TRint>(new TRint("EventDisplay Gui", 0, 0));
+    std::unique_ptr<TRint>(new TRint("EventDisplay Gui", 0, 0));
   std::unique_ptr<GUIControlls> fGUIControls =
-      std::unique_ptr<GUIControlls>(new GUIControlls);
+    std::unique_ptr<GUIControlls>(new GUIControlls);
   std::unique_ptr<TGTab> fDisplayTabView;
   std::unique_ptr<TGMainFrame> fMainWindow;
   std::unique_ptr<TGNumberEntry> fNumberEntryStep;
@@ -155,7 +156,7 @@ private:
   std::unique_ptr<TGLabel> fInputInfo;
 
   std::unique_ptr<TGFileInfo> fFileInfo =
-      std::unique_ptr<TGFileInfo>(new TGFileInfo);
+    std::unique_ptr<TGFileInfo>(new TGFileInfo);
 #endif
 #endif
 };
