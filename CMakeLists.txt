@@ -11,9 +11,19 @@ add_definitions(${Framework_DEFINITIONS})
 # if present, such ROOT should be possible to find without explicit setting of any paths
 find_package(ROOT 5 QUIET COMPONENTS 
   Gui
-  Geom )
+  Rint
+  Geom 
+  GeomPainter 
+  TreePlayer  
+  Hist
+  HistPainter
+  Physics
+  RIO
+  Thread
+  Gpad
+  Tree
+  Core )
 
-  
 if(ROOT_FOUND)
   message(STATUS "ROOT (version ${ROOT_VERSION}) was found using ROOTConfig")
 else()
