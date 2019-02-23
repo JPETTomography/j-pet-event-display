@@ -11,18 +11,7 @@ add_definitions(${Framework_DEFINITIONS})
 # if present, such ROOT should be possible to find without explicit setting of any paths
 find_package(ROOT 5 QUIET COMPONENTS 
   Gui
-  Rint
-  Geom 
-  GeomPainter 
-  TreePlayer  
-  Hist
-  HistPainter
-  Physics
-  RIO
-  Thread
-  Gpad
-  Tree
-  Core )
+  Geom )
 
 if(ROOT_FOUND)
   message(STATUS "ROOT (version ${ROOT_VERSION}) was found using ROOTConfig")
@@ -36,13 +25,17 @@ else()
     execute_process(COMMAND root-config --etcdir OUTPUT_VARIABLE ROOT_ETCDIR OUTPUT_STRIP_TRAILING_WHITESPACE)
     list(APPEND CMAKE_MODULE_PATH ${ROOT_ETCDIR}/cmake)
   endif()
-  find_package(ROOT 5 QUIET)
+  find_package(ROOT 5 QUIET COMPONENTS 
+  Gui
+  Geom )
   if(ROOT_FOUND)
     message(STATUS "ROOT (version ${ROOT_VERSION}) was found using FindROOT (legacy mode)")
   else()
     # as last resort, use the bundled FindROOT module
     list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/j-pet-framework/cmake/fallback)
-    find_package(ROOT 5 REQUIRED)
+    find_package(ROOT 5 REQUIRED COMPONENTS 
+  Gui
+  Geom )
     if(ROOT_FOUND)
       message(WARNING "No CMake modules from a ROOT installation were found. ROOT (version ${ROOT_VERSION}) was only found using fallback mode)")
     endif()
