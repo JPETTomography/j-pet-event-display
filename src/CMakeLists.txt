@@ -8,23 +8,20 @@ link_directories(${LIBRARY_PARENT})
 file(GLOB SOURCES "*.cpp")
 file(GLOB HEADERS "*.h")
 
-file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/Dictionaries/)
-set(DICT ${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/Dictionaries/GuiDictionary.cxx) 
+set(DICTIONARY_REQUIRED
+  EventDisplay.h
+  )
 
-add_custom_command(OUTPUT ${DICT}
-  COMMAND rootcint 
-  -f ${DICT} 
-  -c 
-  ${CMAKE_CURRENT_SOURCE_DIR}/EventDisplay.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/GuiLinkDef.h
-  DEPENDS
-  ${CMAKE_CURRENT_SOURCE_DIR}/EventDisplay.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/GuiLinkDef.h )
-add_custom_target(disttarget DEPENDS ${DICT})
+set(LINKDEF_NAME GuiLinkDef.h)
 
-add_library(eventDisplay SHARED ${SOURCES} ${DICT})
-add_dependencies(eventDisplay disttarget)
-set_source_files_properties(
-    ${DICT}
-    PROPERTIES GENERATED TRUE
-    )
+file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/Dictionaries)
+set(DICTIONARY_NAME
+        ${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/Dictionaries/JPetEventDisplay_Dictionary)
+
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+ROOT_GENERATE_DICTIONARY(${DICTIONARY_NAME} ${DICTIONARY_REQUIRED}
+  LINKDEF ${LINKDEF_NAME}
+  OPTIONS -p)
+list(APPEND SOURCES ${DICTIONARY_NAME}.cxx)
+
+add_library(eventDisplay SHARED ${SOURCES})
