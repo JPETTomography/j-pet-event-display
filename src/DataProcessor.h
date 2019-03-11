@@ -20,7 +20,10 @@
 #include <sstream>
 #include <string>
 #include <vector>
+
 #ifndef __CINT__
+#ifndef __ROOTCLING__
+
 #include <JPetGeomMapping/JPetGeomMapping.h>
 #include <JPetGeomMappingInterface/JPetGeomMappingInterface.h>
 #include <JPetHit/JPetHit.h>
@@ -32,6 +35,8 @@
 #include <JPetReader/JPetReader.h>
 #include <JPetTimeWindow/JPetTimeWindow.h>
 #include <JPetTreeHeader/JPetTreeHeader.h>
+
+#endif
 #endif
 
 #include <TNamed.h>
@@ -48,14 +53,14 @@ enum FileTypes {
   fSigCh
 };
 
-typedef std::map< size_t, std::vector< size_t > >
-ScintillatorsInLayers; // layer, scinID, hitPos
-typedef std::vector< std::tuple< int, float, float, JPetSigCh::EdgeType,
-        JPetPM::Side, size_t, size_t > >
+typedef std::map<size_t, std::vector<size_t>>
+    ScintillatorsInLayers; // layer, scinID, hitPos
+typedef std::vector<std::tuple<int, float, float, JPetSigCh::EdgeType,
+        JPetPM::Side, size_t, size_t>>
         DiagramDataMap; // threshold number, thresholdValue, time, EdgeType, Side,
 // layer, scin
-typedef std::vector< DiagramDataMap > DiagramDataMapVector;
-typedef std::vector< TVector3 > HitPositions;
+typedef std::vector<DiagramDataMap> DiagramDataMapVector;
+typedef std::vector<TVector3> HitPositions;
 
 class ProcessedData
 {
@@ -135,7 +140,7 @@ private:
 class DataProcessor
 {
 public:
-  DataProcessor(std::shared_ptr< JPetGeomMapping > fMapper);
+  DataProcessor(std::shared_ptr<JPetGeomMapping> fMapper);
   void getDataForCurrentEvent();
   bool openFile(const char* filename);
   void closeFile();
@@ -146,6 +151,11 @@ public:
   long long getNumberOfEvents()
   {
     return fNumberOfEventsInFile;
+  }
+
+  void changeResetLeadingEdge()
+  {
+    fResetLeadingEdge = !fResetLeadingEdge;
   }
 
 private:
@@ -176,9 +186,10 @@ private:
   long long fNumberOfEventsInFile = 0;
   unsigned int fNumberOfEventInCurrentTimeWindow = 0;
   JPetReader fReader;
-  std::shared_ptr< JPetGeomMapping > fMapper;
+  std::shared_ptr<JPetGeomMapping> fMapper;
+  bool fResetLeadingEdge = false;
 #endif
 };
-}
+} // namespace jpet_event_display
 
 #endif /*  !DATAPROCESSOR_H */

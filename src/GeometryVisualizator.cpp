@@ -15,6 +15,7 @@
 
 #include "GeometryVisualizator.h"
 #include <JPetLoggerInclude.h>
+#include <limits>
 #include <TCanvas.h>
 #include <TFile.h>
 
@@ -470,12 +471,20 @@ void GeometryVisualizator::drawDiagram(const DiagramDataMapVector& diagramData)
     std::vector< float > trailingX;
     std::vector< float > trailingY;
     const float kPsToNs = 0.001;
+    float minXValue = std::numeric_limits<float>::max();
+    float maxXValue = - std::numeric_limits<float>::max(); // min() is returning min positive value
     for (auto it = diagramData[j].begin(); it != diagramData[j].end(); it++) {
       if (std::get< 3 >(*it) == JPetSigCh::Leading) {
-        leadingX.push_back(static_cast< float >(std::get< 2 >(*it)) * kPsToNs);
+        float x = static_cast<float>(std::get<2>(*it)) * kPsToNs;
+        if (x < minXValue)
+          minXValue = x;
+        leadingX.push_back(x);
         leadingY.push_back(changeSignalNumber(std::get< 0 >(*it)));
       } else {
-        trailingX.push_back(static_cast< float >(std::get< 2 >(*it)) * kPsToNs);
+        float x = static_cast<float>(std::get<2>(*it)) * kPsToNs;
+        if (x > maxXValue)
+          maxXValue = x;
+        trailingX.push_back(x);
         trailingY.push_back(changeSignalNumber(std::get< 0 >(*it)));
       }
     }
@@ -509,7 +518,7 @@ void GeometryVisualizator::drawDiagram(const DiagramDataMapVector& diagramData)
     mg->GetYaxis()->SetLabelOffset(999);
     mg->GetYaxis()->SetTickLength(0);
     mg->GetYaxis()->SetRangeUser(0, 5);
-    mg->GetXaxis()->SetLimits(0, 50);
+    mg->GetXaxis()->SetLimits(minXValue, maxXValue);
     mg->GetXaxis()->SetNdivisions(504, kFALSE);
     mg->GetXaxis()->SetTitle("Time (ns)");
     mg->GetYaxis()->SetTitle("Threshold Number");
