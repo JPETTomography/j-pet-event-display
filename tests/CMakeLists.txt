@@ -1,8 +1,8 @@
-add_definitions(-std=c++11 -Wall -Wunused-parameter -Wextra)
-
-include_directories(${INCLUDE_PARENT})
-add_definitions(${DEFINITIONS_PARENT})
-link_directories(${LIBRARY_PARENT})
-
 add_executable(GeometryVisualisatorTest.exe GeometryVisualisatorTest.cpp)
-target_link_libraries(GeometryVisualisatorTest.exe  ${Boost_LIBRARIES} ${ROOT_LIBRARIES}  )
+target_link_libraries(GeometryVisualisatorTest.exe eventDisplay JPetFramework::JPetFramework Boost::filesystem Boost::unit_test_framework ROOT::Rint ROOT::Gui ROOT::Geom ROOT::Graf3d)
+
+add_executable(DataProcessorTest.exe DataProcessorTest.cpp)
+target_link_libraries(DataProcessorTest.exe eventDisplay JPetFramework::JPetFramework Boost::filesystem Boost::unit_test_framework ROOT::Rint ROOT::Gui ROOT::Geom ROOT::Graf3d)
+
+add_executable(EventDisplayTest.exe EventDisplayTest.cpp)
+target_link_libraries(EventDisplayTest.exe eventDisplay JPetFramework::JPetFramework Boost::filesystem Boost::unit_test_framework ROOT::Rint ROOT::Gui ROOT::Geom ROOT::Graf3d)

@@ -1,9 +1,5 @@
-add_definitions(-std=c++11 -Wall -Wunused-parameter -Wextra)
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
-include_directories(${INCLUDE_PARENT})
-add_definitions(${DEFINITIONS_PARENT})
-link_directories(${LIBRARY_PARENT})
 
 file(GLOB SOURCES "*.cpp")
 file(GLOB HEADERS "*.h")
@@ -25,3 +21,4 @@ ROOT_GENERATE_DICTIONARY(${DICTIONARY_NAME} ${DICTIONARY_REQUIRED}
 list(APPEND SOURCES ${DICTIONARY_NAME}.cxx)
 
 add_library(eventDisplay SHARED ${SOURCES})
+target_link_libraries(eventDisplay PUBLIC JPetFramework::JPetFramework)
