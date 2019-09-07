@@ -55,4 +55,8 @@ RUN cd root-6.12.06/build && cmake -Dbuiltin_fftw3=ON -Dbuiltin_ftgl=ON -Dfail-o
 WORKDIR j-pet-event-display
 COPY docker-entrypoint.sh /usr/local/bin/
 RUN chmod 777 /usr/local/bin/docker-entrypoint.sh
+RUN groupadd -g 999 jenkins && useradd -r -u 9999 -g jenkins jenkins
+RUN usermod -a -G root jenkins
+RUN echo "jenkins ALL=(ALL:ALL) NOPASSWD: ALL" | (EDITOR="tee -a" visudo)
+USER jenkins
 ENTRYPOINT [ "bash", "-c", "docker-entrypoint.sh" ]
