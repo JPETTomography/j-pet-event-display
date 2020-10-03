@@ -1,0 +1,34 @@
+pipeline {
+    agent any
+    environment {
+	WORKSPACE_FOLDER=sh(returnStdout: true, script: "tr '/' '_' <<< ${JOB_NAME}").trim()
+	WORKSPACE_JENKINS="/var/www/jenkins_home/workspace/${WORKSPACE_FOLDER}"
+    }
+
+    stages {
+        stage('Build') {
+            steps {
+                echo 'Building..'
+		echo "Starting build job: <${JOB_NAME}> in workspace: <${WORKSPACE_JENKINS}>"
+
+		echo "Starting docker container.."
+		dir('jenkins/root_6_matrix') {
+			sh label: 'docker-build', script: 'docker-compose build'
+		}
+		sh label: 'docker-compose', script: 'docker-compose -f jenkins/root_6_matrix/docker-compose.yml run --rm event_rootv6'
+            }
+        }
+        stage('Test') {
+            steps {
+                echo 'Testing..'
+		sh label: 'mkdir', script: 'mkdir -p CPPCheckRaport'
+		sh label: 'cppcheck', script: 'cppcheck --inline-suppr --enable=all --inconclusive --xml --suppress="*:${WORKSPACE}/build/*.*" --xml-version=2 ${WORKSPACE} 2> CPPCheckRaport/cppcheck.xml'
+            }
+        }
+        stage('Deploy') {
+            steps {
+                echo 'Deploying....'
+            }
+        }
+    }
+}
